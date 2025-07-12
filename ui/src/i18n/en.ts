@@ -43,8 +43,6 @@ export const en = {
   'Delete automatically outdated entries':
     'Delete automatically outdated entries',
   'Open cache folder': 'Open cache folder',
-  'No.': 'No.',
-  'Path Number': 'Path No.',
   Other: 'Other',
 
   'Toggle theme': 'Toggle theme',

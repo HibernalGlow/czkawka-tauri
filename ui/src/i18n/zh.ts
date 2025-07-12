@@ -43,8 +43,6 @@ export const zh: Record<TranslationKeys, string> = {
   'Use prehash': '使用预哈希',
   'Delete automatically outdated entries': '自动删除过时的条目',
   'Open cache folder': '打开缓存文件夹',
-  'No.': '编号',
-  'Path Number': '路径编号',
   Other: '其它',
 
   'Toggle theme': '切换主题',

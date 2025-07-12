@@ -13,7 +13,6 @@ import {
 } from '~/components/data-table';
 import { useT } from '~/hooks';
 import type { DuplicateEntry } from '~/types';
-import { getPathNumber, getPathNumberDisplay } from '~/utils/path-utils';
 import { ClickableImagePreview } from './clickable-image-preview';
 
 export function DuplicateFiles() {
@@ -21,7 +20,6 @@ export function DuplicateFiles() {
   const [rowSelection, setRowSelection] = useAtom(
     duplicateFilesRowSelectionAtom,
   );
-  const settings = useAtomValue(settingsAtom);
   const t = useT();
 
   const columns: ColumnDef<DuplicateEntry>[] = [
@@ -40,25 +38,6 @@ export function DuplicateFiles() {
           return null;
         }
         return <TableRowSelectionCell row={row} />;
-      },
-    },
-    {
-      accessorKey: 'pathNumber',
-      header: t('Path Number'),
-      size: 80,
-      minSize: 60,
-      cell: ({ row }) => {
-        if (row.original.hidden) {
-          return null;
-        }
-        const pathNumber = getPathNumber(row.original.path, settings);
-        return (
-          <div className="flex justify-center">
-            <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-              {getPathNumberDisplay(pathNumber)}
-            </span>
-          </div>
-        );
       },
     },
     {
