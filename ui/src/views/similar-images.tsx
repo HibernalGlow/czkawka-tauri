@@ -13,6 +13,7 @@ import {
 } from '~/components/data-table';
 import { useT } from '~/hooks';
 import type { ImagesEntry } from '~/types';
+import { getPathNumber, getPathNumberDisplay } from '~/utils/path-utils';
 import { ClickableImagePreview } from './clickable-image-preview';
 
 export function SimilarImages() {
@@ -20,6 +21,7 @@ export function SimilarImages() {
   const [rowSelection, setRowSelection] = useAtom(
     similarImagesRowSelectionAtom,
   );
+  const settings = useAtomValue(settingsAtom);
   const t = useT();
 
   const columns: ColumnDef<ImagesEntry>[] = [
@@ -38,6 +40,25 @@ export function SimilarImages() {
           return null;
         }
         return <TableRowSelectionCell row={row} />;
+      },
+    },
+    {
+      accessorKey: 'pathNumber',
+      header: t('Path Number'),
+      size: 80,
+      minSize: 60,
+      cell: ({ row }) => {
+        if (row.original.hidden) {
+          return null;
+        }
+        const pathNumber = getPathNumber(row.original.path, settings);
+        return (
+          <div className="flex justify-center">
+            <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+              {getPathNumberDisplay(pathNumber)}
+            </span>
+          </div>
+        );
       },
     },
     {
@@ -70,8 +91,8 @@ export function SimilarImages() {
     {
       accessorKey: 'path',
       header: t('Path'),
-      size: 160,
-      minSize: 100,
+      size: 140,
+      minSize: 80,
       cell: ({ row }) => {
         if (row.original.hidden) {
           return null;

@@ -16,6 +16,12 @@ export interface Preset {
   settings: Settings;
 }
 
+export interface DirectoryItem {
+  id: number;
+  path: string;
+  isReference: boolean;
+}
+
 export interface Settings {
   includedDirectories: string[];
   includedDirectoriesReferenced: string[];

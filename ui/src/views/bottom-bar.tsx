@@ -55,6 +55,7 @@ const DisplayType = {
 
 interface TableData {
   path: string;
+  pathNumber?: number;
   field: DirsType;
   isReference?: boolean;
 }
@@ -197,9 +198,10 @@ function IncludedDirsTable() {
   const [settings, setSettings] = useAtom(settingsAtom);
   const [rowSelection, setRowSelection] = useAtom(includedDirsRowSelectionAtom);
   const data: TableData[] = useMemo(() => {
-    return settings.includedDirectories.map((path) => {
+    return settings.includedDirectories.map((path, index) => {
       return {
         path,
+        pathNumber: index + 1, // 编号从1开始
         field: 'includedDirectories',
         isReference: settings.includedDirectoriesReferenced.includes(path),
       };
@@ -208,10 +210,28 @@ function IncludedDirsTable() {
 
   const columns = createColumns<TableData>([
     {
+      accessorKey: 'pathNumber',
+      header: t('No.'),
+      meta: {
+        span: 1,
+      },
+      size: 60,
+      minSize: 60,
+      cell: ({ row }) => {
+        return (
+          <div className="flex justify-center">
+            <span className="text-sm font-medium text-muted-foreground">
+              #{row.original.pathNumber}
+            </span>
+          </div>
+        );
+      },
+    },
+    {
       accessorKey: 'path',
       header: t('Path'),
       meta: {
-        span: 9,
+        span: 8,
       },
     },
     {
