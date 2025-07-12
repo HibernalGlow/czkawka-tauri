@@ -45,6 +45,9 @@ export function DuplicateFiles() {
       header: t('Size'),
       size: 110,
       minSize: 50,
+      cell: ({ row }) => {
+        return <ClickableCell row={row} value={row.original.size} />;
+      },
     },
     {
       accessorKey: 'fileName',
@@ -64,7 +67,7 @@ export function DuplicateFiles() {
         if (row.original.hidden) {
           return null;
         }
-        return row.original.path;
+        return <ClickablePath row={row} />;
       },
     },
     {
@@ -110,10 +113,49 @@ function FileName(props: { row: Row<DuplicateEntry> }) {
   if (settings.duplicateImagePreview && isImage) {
     return (
       <ClickableImagePreview path={path}>
-        <div className="truncate">{fileName}</div>
+        <div className="truncate cursor-pointer hover:bg-accent/20 rounded px-1 py-0.5 transition-colors">
+          {fileName}
+        </div>
       </ClickableImagePreview>
     );
   }
 
   return fileName;
+}
+
+function ClickablePath(props: { row: Row<DuplicateEntry> }) {
+  const { row } = props;
+  const { path, isImage } = row.original;
+  const settings = useAtomValue(settingsAtom);
+
+  if (settings.duplicateImagePreview && isImage) {
+    return (
+      <ClickableImagePreview path={path}>
+        <div className="truncate cursor-pointer hover:bg-accent/20 rounded px-1 py-0.5 transition-colors">
+          {path}
+        </div>
+      </ClickableImagePreview>
+    );
+  }
+
+  return <div className="truncate">{path}</div>;
+}
+
+// 通用的可点击单元格组件
+function ClickableCell(props: { row: Row<DuplicateEntry>; value: string }) {
+  const { row, value } = props;
+  const { path, isImage } = row.original;
+  const settings = useAtomValue(settingsAtom);
+
+  if (settings.duplicateImagePreview && isImage) {
+    return (
+      <ClickableImagePreview path={path}>
+        <div className="cursor-pointer hover:bg-accent/20 rounded px-1 py-0.5 transition-colors">
+          {value}
+        </div>
+      </ClickableImagePreview>
+    );
+  }
+
+  return <div>{value}</div>;
 }

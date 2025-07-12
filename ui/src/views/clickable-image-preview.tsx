@@ -4,10 +4,12 @@ import { sidebarImagePreviewAtom } from '~/atom/primitive';
 interface ClickableImagePreviewProps {
   path: string;
   children: React.ReactNode;
+  className?: string;
+  disableDefaultStyles?: boolean;
 }
 
 export function ClickableImagePreview(props: ClickableImagePreviewProps) {
-  const { children, path } = props;
+  const { children, path, className, disableDefaultStyles = false } = props;
   const [sidebarState, setSidebarState] = useAtom(sidebarImagePreviewAtom);
 
   const handleClick = () => {
@@ -18,9 +20,13 @@ export function ClickableImagePreview(props: ClickableImagePreviewProps) {
     });
   };
 
+  const defaultClassName = disableDefaultStyles 
+    ? "cursor-pointer"
+    : "cursor-pointer hover:bg-accent/50 rounded px-1 py-0.5 transition-colors";
+
   return (
     <div 
-      className="cursor-pointer hover:bg-accent/50 rounded px-1 py-0.5 transition-colors"
+      className={className || defaultClassName}
       onClick={handleClick}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {

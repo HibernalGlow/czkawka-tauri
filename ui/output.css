@@ -2222,6 +2222,10 @@ body {
   background-color: hsl(var(--accent));
 }
 
+.hover\:bg-accent\/20:hover {
+  background-color: hsl(var(--accent) / 0.2);
+}
+
 .hover\:bg-accent\/50:hover {
   background-color: hsl(var(--accent) / 0.5);
 }
