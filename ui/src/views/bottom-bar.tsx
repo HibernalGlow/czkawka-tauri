@@ -282,12 +282,6 @@ function IncludedDirsTable() {
         />
       </div>
       <div className="flex-1 flex flex-col overflow-hidden">
-        {settings.includedDirectoriesReferenced.length > 0 && (
-          <div className="text-xs text-muted-foreground bg-muted/30 p-2 border-b">
-            {/* <div className="font-medium">{t('Reference Directories')}:</div> */}
-            {/* <div>{t('Reference directories hint')}</div> */}
-          </div>
-        )}
         <DataTable
           className="flex-1"
           data={data}
@@ -404,6 +398,24 @@ function DirsActions(props: PropsWithRowSelection<Pick<TableData, 'field'>>) {
       return {
         ...settings,
         [field]: settings[field].filter((path) => !selected.has(path)),
+      };
+    });
+    onRowSelectionChange({});
+  };
+
+  const handleClearAllPaths = () => {
+    setSettings((settings) => {
+      // If clearing included directories, also clear referenced directories
+      if (field === 'includedDirectories') {
+        return {
+          ...settings,
+          [field]: [],
+          includedDirectoriesReferenced: []
+        };
+      }
+      return {
+        ...settings,
+        [field]: []
       };
     });
     onRowSelectionChange({});
@@ -533,6 +545,9 @@ function DirsActions(props: PropsWithRowSelection<Pick<TableData, 'field'>>) {
       </Dialog>
       <TooltipButton tooltip={t('Remove selected')} onClick={handleRemovePaths} size="sm">
         <Trash2 className="h-4 w-4" />
+      </TooltipButton>
+      <TooltipButton tooltip={t('Clear all')} onClick={handleClearAllPaths} size="sm">
+        <FolderMinus className="h-4 w-4" />
       </TooltipButton>
     </div>
   );

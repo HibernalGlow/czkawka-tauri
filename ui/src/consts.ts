@@ -75,6 +75,8 @@ export function getDefaultSettings(): Settings {
     moveDeletedFilesToTrash: true,
     threadNumber: 1,
     referencePathKeywords: '#compare', // Default reference path keyword
+    customCacheFolderPath: '', // Default to empty string (use system default)
+    customConfigFolderPath: '', // Default to empty string (use system default)
 
     duplicateImagePreview: true,
     duplicateHideHardLinks: true,

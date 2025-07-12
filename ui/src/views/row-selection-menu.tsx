@@ -109,14 +109,14 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <OperationButton disabled={disabled}>
-            <SquareMousePointer />
-            {t('Select')}
-          </OperationButton>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent side="top">
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <OperationButton disabled={disabled}>
+          <SquareMousePointer />
+          {t('Select')}
+        </OperationButton>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent side="top">
           <DropdownMenuItem onClick={handleSelectAll}>
             {t('Select all')}
           </DropdownMenuItem>
@@ -132,20 +132,20 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           
-          {currentTool === Tools.SimilarImages && (
+        {currentTool === Tools.SimilarImages && (
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>{t('Resolution based')}</DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
-                <DropdownMenuItem
-                  onClick={() => handleSelectXXX('resolution', 'asc')}
-                >
-                  {t('Select the highest resolution')}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => handleSelectXXX('resolution', 'desc')}
-                >
-                  {t('Select the lowest resolution')}
-                </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleSelectXXX('resolution', 'asc')}
+            >
+              {t('Select the highest resolution')}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleSelectXXX('resolution', 'desc')}
+            >
+              {t('Select the lowest resolution')}
+            </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => handleSelectXXX('resolution', 'asc', true)}
@@ -159,19 +159,19 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
                 </DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuSub>
-          )}
+        )}
           
-          {toolsWithSizeAndDateSelect.has(currentTool) && (
-            <>
+        {toolsWithSizeAndDateSelect.has(currentTool) && (
+          <>
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger>{t('Size based')}</DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
-                  <DropdownMenuItem onClick={() => handleSelectXXX('size', 'asc')}>
-                    {t('Select the biggest size')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleSelectXXX('size', 'desc')}>
-                    {t('Select the smallest size')}
-                  </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleSelectXXX('size', 'asc')}>
+              {t('Select the biggest size')}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleSelectXXX('size', 'desc')}>
+              {t('Select the smallest size')}
+            </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => handleSelectXXX('size', 'asc', true)}>
                     {t('Select all except biggest')}
@@ -185,12 +185,12 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger>{t('Date based')}</DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
-                  <DropdownMenuItem onClick={() => handleSelectXXX('date', 'asc')}>
-                    {t('Select the newest')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleSelectXXX('date', 'desc')}>
-                    {t('Select the oldest')}
-                  </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleSelectXXX('date', 'asc')}>
+              {t('Select the newest')}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleSelectXXX('date', 'desc')}>
+              {t('Select the oldest')}
+            </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => handleSelectXXX('date', 'asc', true)}>
                     {t('Select all except newest')}
@@ -200,10 +200,10 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
                   </DropdownMenuItem>
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
-            </>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
 
       <Dialog open={customSelectDialogOpen.value} onOpenChange={customSelectDialogOpen.set}>
         <DialogContent>
@@ -364,9 +364,9 @@ function selectItem<T extends BaseEntry & RefEntry & WithRaw>(
       paths.push(...otherItems.map(item => item.path));
     } else {
       // Select only the one that matches the compare function
-      const path = group.reduce(compareFn).path;
-      paths.push(path);
-    }
+    const path = group.reduce(compareFn).path;
+    paths.push(path);
+  }
   }
   
   return pathsToRowSelection(paths);

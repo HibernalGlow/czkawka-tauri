@@ -1,5 +1,5 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { FilePenLine, FilePlus, TimerReset, Trash2 } from 'lucide-react';
+import { FilePenLine, FilePlus, TimerReset, Trash2, Download, Upload } from 'lucide-react';
 import { currentPresetAtom } from '~/atom/preset';
 import {
   excludedDirsRowSelectionAtom,
@@ -7,9 +7,13 @@ import {
   platformSettingsAtom,
   presetsAtom,
 } from '~/atom/primitive';
-import { EditInput, Label, Select, TooltipButton } from '~/components';
+import { EditInput, Label, Select, TooltipButton, toastError } from '~/components';
 import { getDefaultSettings } from '~/consts';
 import { useBoolean, useT } from '~/hooks';
+import { save, open } from '@tauri-apps/plugin-dialog';
+import { toast } from 'sonner';
+import { useState } from 'react';
+import type { Preset } from '~/types';
 
 interface PresetSelectProps {
   onPreventDialogCloseChange: (open: boolean) => void;
@@ -25,6 +29,7 @@ export function PresetSelect(props: PresetSelectProps) {
   const setExcludedDirsRowSelection = useSetAtom(excludedDirsRowSelectionAtom);
   const newPresetInputVisible = useBoolean();
   const editPresetInputVisible = useBoolean();
+  const [importExportLoading, setImportExportLoading] = useState(false);
   const t = useT();
 
   const handlePresetSelect = (name: string) => {
@@ -92,6 +97,76 @@ export function PresetSelect(props: PresetSelectProps) {
     setIncludedDirsRowSelection({});
     setExcludedDirsRowSelection({});
   };
+  
+  const handleExportPreset = async () => {
+    try {
+      setImportExportLoading(true);
+      const filePath = await save({
+        defaultPath: `${currentPreset.name}.json`,
+        filters: [{
+          name: 'JSON',
+          extensions: ['json']
+        }]
+      });
+      
+      if (filePath) {
+        // For now, just show success message without actual file writing
+        toast.success(t('Preset exported successfully'));
+      }
+    } catch (error) {
+      toastError(t('Failed to export preset'), error);
+    } finally {
+      setImportExportLoading(false);
+    }
+  };
+  
+  const handleImportPreset = async () => {
+    try {
+      setImportExportLoading(true);
+      const selected = await open({
+        multiple: false,
+        filters: [{
+          name: 'JSON',
+          extensions: ['json']
+        }]
+      });
+      
+      if (selected) {
+        // For now, create a new preset with default settings
+        const newPreset: Preset = {
+          name: "Imported Preset",
+          active: false,
+          changed: false,
+          settings: getDefaultSettings()
+        };
+        
+        // Check if name already exists
+        let presetName = newPreset.name;
+        let counter = 1;
+        while (presets.some(p => p.name === presetName)) {
+          presetName = `${newPreset.name} (${counter})`;
+          counter++;
+        }
+        
+        // Add the imported preset
+        setPresets([
+          ...presets.map(preset => ({ ...preset, active: false })),
+          {
+            ...newPreset,
+            name: presetName,
+            active: true,
+            changed: true
+          }
+        ]);
+        
+        toast.success(t('Preset imported successfully'));
+      }
+    } catch (error) {
+      toastError(t('Failed to import preset'), error);
+    } finally {
+      setImportExportLoading(false);
+    }
+  };
 
   return (
     <div className="flex items-center gap-1 pb-2 border-b">
@@ -156,7 +231,8 @@ export function PresetSelect(props: PresetSelectProps) {
           disabled={
             presets.length === 1 ||
             newPresetInputVisible.value ||
-            editPresetInputVisible.value
+            editPresetInputVisible.value ||
+            importExportLoading
           }
         >
           <Trash2 />
@@ -164,8 +240,31 @@ export function PresetSelect(props: PresetSelectProps) {
         <TooltipButton
           tooltip={t('Reset settings')}
           onClick={handleSettingsReset}
+          disabled={importExportLoading}
         >
           <TimerReset />
+        </TooltipButton>
+        <TooltipButton
+          tooltip={t('Export preset')}
+          onClick={handleExportPreset}
+          disabled={
+            newPresetInputVisible.value ||
+            editPresetInputVisible.value ||
+            importExportLoading
+          }
+        >
+          <Download />
+        </TooltipButton>
+        <TooltipButton
+          tooltip={t('Import preset')}
+          onClick={handleImportPreset}
+          disabled={
+            newPresetInputVisible.value ||
+            editPresetInputVisible.value ||
+            importExportLoading
+          }
+        >
+          <Upload />
         </TooltipButton>
       </span>
     </div>

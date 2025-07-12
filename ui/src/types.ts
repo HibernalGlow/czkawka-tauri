@@ -31,6 +31,8 @@ export interface Settings {
   moveDeletedFilesToTrash: boolean;
   threadNumber: number;
   referencePathKeywords: string; // Keywords for auto-marking reference paths
+  customCacheFolderPath: string; // Custom path for cache folder
+  customConfigFolderPath: string; // Custom path for config folder
 
   duplicateImagePreview: boolean;
   duplicateHideHardLinks: boolean;

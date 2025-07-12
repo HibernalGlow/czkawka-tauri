@@ -1,6 +1,6 @@
 import { openPath } from '@tauri-apps/plugin-opener';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { CircleHelp, Settings } from 'lucide-react';
+import { CircleHelp, Settings, Folder } from 'lucide-react';
 import { useEffect } from 'react';
 import { initCurrentPresetAtom } from '~/atom/preset';
 import { platformSettingsAtom } from '~/atom/primitive';
@@ -25,10 +25,12 @@ import {
   DialogTrigger,
 } from '~/components/shadcn/dialog';
 import { Form, FormItem } from '~/components/simple-form';
+import { Input } from '~/components/shadcn/input';
 import { MAXIMUM_FILE_SIZE } from '~/consts';
 import { useBoolean, useT } from '~/hooks';
 import { eventPreventDefault } from '~/utils/event';
 import { PresetSelect } from './preset-select';
+import { open } from '@tauri-apps/plugin-dialog';
 
 export function SettingsButton() {
   const dialogOpen = useBoolean();
@@ -86,6 +88,21 @@ function SettingsContent() {
     openPath(platformSettings.cacheDirPath).catch((err) => {
       toastError(t('Failed to open cache folder'), err);
     });
+  };
+  
+  const handleBrowseFolder = async (settingKey: string) => {
+    try {
+      const selected = await open({
+        directory: true,
+        multiple: false,
+      });
+      
+      if (selected) {
+        handleSettingsChange({ [settingKey]: selected });
+      }
+    } catch (error) {
+      toastError(t('Failed to select folder'), error);
+    }
   };
 
   return (
@@ -155,6 +172,47 @@ function SettingsContent() {
         >
           <Textarea rows={1} placeholder="#compare" />
         </FormItem>
+        
+        <div className="flex flex-col gap-2 py-2">
+          <Label>{t('Cache folder path')}</Label>
+          <div className="flex gap-2">
+            <Input
+              value={settings.customCacheFolderPath}
+              onChange={(e) => handleSettingsChange({ customCacheFolderPath: e.target.value })}
+              placeholder={platformSettings.cacheDirPath || t('System default')}
+              className="flex-1"
+            />
+            <Button 
+              variant="outline" 
+              onClick={() => handleBrowseFolder('customCacheFolderPath')}
+              className="flex-shrink-0"
+            >
+              <Folder className="h-4 w-4 mr-1" />
+              {t('Browse')}
+            </Button>
+          </div>
+        </div>
+        
+        <div className="flex flex-col gap-2 py-2">
+          <Label>{t('Config folder path')}</Label>
+          <div className="flex gap-2">
+            <Input
+              value={settings.customConfigFolderPath}
+              onChange={(e) => handleSettingsChange({ customConfigFolderPath: e.target.value })}
+              placeholder={t('System default')}
+              className="flex-1"
+            />
+            <Button 
+              variant="outline" 
+              onClick={() => handleBrowseFolder('customConfigFolderPath')}
+              className="flex-shrink-0"
+            >
+              <Folder className="h-4 w-4 mr-1" />
+              {t('Browse')}
+            </Button>
+          </div>
+        </div>
+        
         <FormItem
           name="threadNumber"
           label={

@@ -3,36 +3,36 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  plugins: [
-    react({
-      babel: {
-        plugins: [['babel-plugin-react-compiler', { target: '18' }]],
-      },
-    }),
-  ],
-  clearScreen: false,
-  server: {
-    port: 4000,
+    plugins: [
+      react({
+        babel: {
+          plugins: [['babel-plugin-react-compiler', { target: '18' }]],
+        },
+      }),
+    ],
+    clearScreen: false,
+    server: {
+      port: 4000,
     strictPort: false, // 改为false以允许自动尝试其他端口
-    host: false,
-    hmr: {
-      protocol: 'ws',
-      port: 4001,
+      host: false,
+      hmr: {
+        protocol: 'ws',
+        port: 4001,
+      },
     },
-  },
-  resolve: {
-    alias: {
+    resolve: {
+      alias: {
       '~': path.resolve(__dirname, 'src'),
+      },
     },
-  },
-  define: {
+    define: {
     PKG_NAME: JSON.stringify(process.env.npm_package_productName || ''),
     PKG_VERSION: JSON.stringify(process.env.npm_package_version || ''),
     REPOSITORY_URL: JSON.stringify(process.env.npm_package_repository_url || ''),
-    PLATFORM: JSON.stringify(process.platform),
-  },
-  build: {
-    chunkSizeWarningLimit: 1000,
+      PLATFORM: JSON.stringify(process.platform),
+    },
+    build: {
+      chunkSizeWarningLimit: 1000,
     target: 'esnext',
     minify: 'esbuild',
     cssMinify: true,
@@ -45,8 +45,8 @@ export default defineConfig({
         },
       },
     },
-  },
-  base: './',
+    },
+    base: './',
   esbuild: {
     legalComments: 'none',
     target: 'esnext',

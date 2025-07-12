@@ -154,8 +154,8 @@ export function SidebarImagePreview() {
 
   return (
     <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 9999 }}>
-      <div 
-        className={cn(
+    <div
+      className={cn(
           'pointer-events-auto fixed bg-background border border-border shadow-lg rounded-md overflow-hidden',
           isDragging && 'cursor-grabbing',
           isResizing && 'select-none'
@@ -200,8 +200,8 @@ export function SidebarImagePreview() {
           </>
         )}
 
-        <div className="flex flex-col h-full">
-          {/* 标题栏 */}
+      <div className="flex flex-col h-full">
+        {/* 标题栏 */}
           <div 
             ref={dragRef}
             className={cn(
@@ -210,9 +210,9 @@ export function SidebarImagePreview() {
             )}
             onMouseDown={handleMouseDown}
           >
-            <h3 className="font-semibold text-sm truncate" title={imagePath}>
-              {t('Image preview')}
-            </h3>
+          <h3 className="font-semibold text-sm truncate" title={imagePath}>
+            {t('Image preview')}
+          </h3>
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
@@ -223,26 +223,26 @@ export function SidebarImagePreview() {
               >
                 {mode === 'fixed' ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={closeSidebar}
-                className="h-6 w-6 p-0"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={closeSidebar}
+            className="h-6 w-6 p-0"
+          >
+            <X className="h-4 w-4" />
+          </Button>
             </div>
-          </div>
+        </div>
 
-          {/* 文件路径 */}
-          <div className="px-4 py-2 text-xs text-muted-foreground border-b border-border">
-            <div className="break-all">{imagePath}</div>
-          </div>
+        {/* 文件路径 */}
+        <div className="px-4 py-2 text-xs text-muted-foreground border-b border-border">
+          <div className="break-all">{imagePath}</div>
+        </div>
 
-          {/* 图片预览区域 */}
+        {/* 图片预览区域 */}
           <div className="flex-1 p-4 overflow-auto">
-            <div className="h-full flex flex-col">
-              <ImageContent path={imagePath} />
+          <div className="h-full flex flex-col">
+            <ImageContent path={imagePath} />
             </div>
           </div>
         </div>
