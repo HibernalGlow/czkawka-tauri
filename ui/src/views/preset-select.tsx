@@ -10,7 +10,8 @@ import {
 import { EditInput, Label, Select, TooltipButton, toastError } from '~/components';
 import { getDefaultSettings } from '~/consts';
 import { useBoolean, useT } from '~/hooks';
-import { save, open } from '@tauri-apps/plugin-dialog';
+import { open } from '@tauri-apps/plugin-dialog';
+import { writeText, readText } from '@tauri-apps/plugin-clipboard-manager';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import type { Preset } from '~/types';
@@ -101,18 +102,16 @@ export function PresetSelect(props: PresetSelectProps) {
   const handleExportPreset = async () => {
     try {
       setImportExportLoading(true);
-      const filePath = await save({
-        defaultPath: `${currentPreset.name}.json`,
-        filters: [{
-          name: 'JSON',
-          extensions: ['json']
-        }]
-      });
       
-      if (filePath) {
-        // For now, just show success message without actual file writing
-        toast.success(t('Preset exported successfully'));
-      }
+      // 将预设数据序列化为 JSON
+      const presetData = JSON.stringify({
+        name: currentPreset.name,
+        settings: currentPreset.settings
+      }, null, 2);
+      
+      // 写入剪贴板
+      await writeText(presetData);
+      toast.success(t('Preset exported successfully'));
     } catch (error) {
       toastError(t('Failed to export preset'), error);
     } finally {
@@ -123,44 +122,60 @@ export function PresetSelect(props: PresetSelectProps) {
   const handleImportPreset = async () => {
     try {
       setImportExportLoading(true);
-      const selected = await open({
-        multiple: false,
-        filters: [{
-          name: 'JSON',
-          extensions: ['json']
-        }]
-      });
       
-      if (selected) {
-        // For now, create a new preset with default settings
-        const newPreset: Preset = {
-          name: "Imported Preset",
-          active: false,
-          changed: false,
-          settings: getDefaultSettings()
-        };
-        
-        // Check if name already exists
-        let presetName = newPreset.name;
-        let counter = 1;
-        while (presets.some(p => p.name === presetName)) {
-          presetName = `${newPreset.name} (${counter})`;
-          counter++;
-        }
-        
-        // Add the imported preset
-        setPresets([
-          ...presets.map(preset => ({ ...preset, active: false })),
-          {
-            ...newPreset,
-            name: presetName,
-            active: true,
-            changed: true
-          }
-        ]);
-        
-        toast.success(t('Preset imported successfully'));
+      // 从剪贴板读取数据
+      const clipboardText = await readText();
+      if (!clipboardText) {
+        toast.error('Clipboard is empty');
+        return;
       }
+      
+      // 尝试解析 JSON
+      let importedData;
+      try {
+        importedData = JSON.parse(clipboardText);
+      } catch (e) {
+        toast.error('Invalid JSON format in clipboard');
+        return;
+      }
+      
+      // 验证数据格式
+      if (!importedData.name || !importedData.settings) {
+        toast.error('Invalid preset format');
+        return;
+      }
+      
+      // 创建新预设
+      const newPreset: Preset = {
+        name: importedData.name,
+        active: false,
+        changed: false,
+        settings: {
+          ...getDefaultSettings(),
+          ...importedData.settings
+        }
+      };
+      
+      // 检查名称是否已存在，如果存在则添加数字后缀
+      let presetName = newPreset.name;
+      let counter = 1;
+      while (presets.some(p => p.name === presetName)) {
+        presetName = `${newPreset.name} (${counter})`;
+        counter++;
+      }
+      
+      // 添加导入的预设
+      setPresets([
+        ...presets.map(preset => ({ ...preset, active: false })),
+        {
+          ...newPreset,
+          name: presetName,
+          active: true,
+          changed: true
+        }
+      ]);
+      
+      toast.success(t('Preset imported successfully'));
     } catch (error) {
       toastError(t('Failed to import preset'), error);
     } finally {
@@ -245,7 +260,7 @@ export function PresetSelect(props: PresetSelectProps) {
           <TimerReset />
         </TooltipButton>
         <TooltipButton
-          tooltip={t('Export preset')}
+          tooltip="Export preset to clipboard"
           onClick={handleExportPreset}
           disabled={
             newPresetInputVisible.value ||
@@ -256,7 +271,7 @@ export function PresetSelect(props: PresetSelectProps) {
           <Download />
         </TooltipButton>
         <TooltipButton
-          tooltip={t('Import preset')}
+          tooltip="Import preset from clipboard"
           onClick={handleImportPreset}
           disabled={
             newPresetInputVisible.value ||
