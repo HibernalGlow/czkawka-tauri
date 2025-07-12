@@ -706,10 +706,6 @@ body {
   top: 0px;
 }
 
-.top-2\.5 {
-  top: 0.625rem;
-}
-
 .top-4 {
   top: 1rem;
 }
@@ -724,6 +720,10 @@ body {
 
 .z-50 {
   z-index: 50;
+}
+
+.col-span-2 {
+  grid-column: span 2 / span 2;
 }
 
 .m-0 {
@@ -952,20 +952,12 @@ body {
   width: 1rem;
 }
 
-.w-48 {
-  width: 12rem;
-}
-
 .w-6 {
   width: 1.5rem;
 }
 
 .w-64 {
   width: 16rem;
-}
-
-.w-80 {
-  width: 20rem;
 }
 
 .w-9 {
@@ -1018,6 +1010,10 @@ body {
 
 .min-w-full {
   min-width: 100%;
+}
+
+.max-w-2xl {
+  max-width: 42rem;
 }
 
 .max-w-3xl {
@@ -1189,6 +1185,10 @@ body {
   flex-direction: column-reverse;
 }
 
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
 .items-end {
   align-items: flex-end;
 }
@@ -1233,14 +1233,10 @@ body {
   gap: 1rem;
 }
 
-.gap-6 {
-  gap: 1.5rem;
-}
-
-.space-y-1 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-y-reverse: 0;
-  margin-top: calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));
-  margin-bottom: calc(0.25rem * var(--tw-space-y-reverse));
+.space-x-2 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(0.5rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.5rem * calc(1 - var(--tw-space-x-reverse)));
 }
 
 .space-y-1\.5 > :not([hidden]) ~ :not([hidden]) {
@@ -1421,10 +1417,6 @@ body {
   background-color: hsl(var(--muted));
 }
 
-.bg-muted\/10 {
-  background-color: hsl(var(--muted) / 0.1);
-}
-
 .bg-muted\/30 {
   background-color: hsl(var(--muted) / 0.3);
 }
@@ -1452,10 +1444,6 @@ body {
 
 .bg-transparent {
   background-color: transparent;
-}
-
-.bg-muted\/5 {
-  background-color: hsl(var(--muted) / 0.05);
 }
 
 .fill-current {
@@ -1560,11 +1548,6 @@ body {
 .py-2 {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-}
-
-.py-3 {
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
 }
 
 .py-4 {
@@ -2243,6 +2226,10 @@ body {
   background-color: hsl(var(--accent) / 0.5);
 }
 
+.hover\:bg-destructive:hover {
+  background-color: hsl(var(--destructive));
+}
+
 .hover\:bg-destructive\/80:hover {
   background-color: hsl(var(--destructive) / 0.8);
 }
@@ -2277,6 +2264,10 @@ body {
 
 .hover\:text-accent-foreground:hover {
   color: hsl(var(--accent-foreground));
+}
+
+.hover\:text-destructive-foreground:hover {
+  color: hsl(var(--destructive-foreground));
 }
 
 .hover\:text-muted-foreground:hover {

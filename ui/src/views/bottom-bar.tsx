@@ -47,6 +47,7 @@ import { ToolSettings } from './tool-settings';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '~/components/shadcn/resizable';
 import { RowSelectionMenu } from './row-selection-menu';
 import { currentToolAtom } from '~/atom/primitive';
+import { FileFilter } from './file-filter';
 
 const DisplayType = {
   Dirs: 'dirs',
@@ -82,6 +83,7 @@ export function BottomBar() {
         <div className="flex items-center gap-2">
           <Operations />
           <RowSelectionMenu disabled={false} />
+          <FileFilter />
         </div>
         <div className="flex items-center gap-1">
           <Tabs value={displayType} onValueChange={setDisplayType}>
