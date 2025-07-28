@@ -4,7 +4,7 @@
   "identifier": "com.shixinhuang.czkawka-tauri",
   "mainBinaryName": "CzkawkaTauri",
   "build": {
-    "devUrl": "http://localhost:4000",
+    "devUrl": "http://localhost:5000",
     "frontendDist": "../ui/dist"
   },
   "bundle": {

@@ -12,12 +12,12 @@ export default defineConfig({
     ],
     clearScreen: false,
     server: {
-      port: 4000,
-    strictPort: false, // 改为false以允许自动尝试其他端口
+      port: 5000,
+      strictPort: false,
       host: false,
       hmr: {
         protocol: 'ws',
-        port: 4001,
+        port: 5001,
       },
     },
     resolve: {
