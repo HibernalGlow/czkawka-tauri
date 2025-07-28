@@ -1,0 +1,43 @@
+name: bundle-dry-run
+
+on:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  bundle:
+    runs-on: macos-latest
+    name: bundle dry run
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: download ffmpeg and ffprobe
+        run: |
+          mkdir ./tauri/ffmpeg
+          curl -L -o ffmpeg.zip "https://evermeet.cx/ffmpeg/getrelease/zip"
+          unzip ffmpeg.zip -d ./tauri/ffmpeg
+          chmod +x ./tauri/ffmpeg/ffmpeg
+          ./tauri/ffmpeg/ffmpeg -version
+          curl -L -o ffprobe.zip "https://evermeet.cx/ffmpeg/getrelease/ffprobe/zip"
+          unzip ffprobe.zip -d ./tauri/ffmpeg
+          chmod +x ./tauri/ffmpeg/ffprobe
+          ./tauri/ffmpeg/ffprobe -version
+
+      - name: macos bundles
+        run: |
+          npm i pnpm -g
+          pnpm i
+          node --run build:ui
+          pnpm tauri build -d
+          pnpm tauri build -d -c ./tauri/tauri.ffmpeg.conf.json -f ffmpeg

@@ -1,0 +1,8 @@
+.DS_Store
+node_modules
+dist
+/target
+/tauri/gen
+tsconfig.tsbuildinfo
+/tauri/ffmpeg
+/czkawka
