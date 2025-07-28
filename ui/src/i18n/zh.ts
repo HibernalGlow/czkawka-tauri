@@ -212,6 +212,19 @@ export const zh: Record<TranslationKeys, string> = {
   'Reference path keywords': '参考路径关键词',
   'Reference path keywords hint': '包含这些关键词的路径将自动标记为参考（用逗号分隔）',
 
+  // Similarity filter
+  'Similarity filter': '相似度筛选',
+  'Filter by similarity': '按相似度筛选',
+  'Greater than or equal': '大于或等于',
+  'Less than or equal': '小于或等于',
+  'Equal to': '等于',
+  'All levels': '所有级别',
+  'Total': '总计',
+  'Similarity level': '相似度级别',
+  'Apply': '应用',
+  'Clear': '清除',
+  'Column settings': '列设置',
+
   // Filter functionality - using exact keys from en.ts
   'Filter': '筛选',
   'Filter Files': '筛选文件',

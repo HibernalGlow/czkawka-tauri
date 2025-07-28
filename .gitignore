@@ -6,3 +6,4 @@ dist
 tsconfig.tsbuildinfo
 /tauri/ffmpeg
 /czkawka
+/.ref

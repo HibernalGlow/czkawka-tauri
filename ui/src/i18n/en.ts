@@ -214,6 +214,19 @@ export const en = {
   'Reference path keywords': 'Reference path keywords',
   'Reference path keywords hint': 'Paths containing these keywords will be automatically marked as reference (comma separated)',
 
+  // Similarity filter
+  'Similarity filter': 'Similarity filter',
+  'Filter by similarity': 'Filter by similarity',
+  'Greater than or equal': 'Greater than or equal',
+  'Less than or equal': 'Less than or equal',
+  'Equal to': 'Equal to',
+  'All levels': 'All levels',
+  'Total': 'Total',
+  'Similarity level': 'Similarity level',
+  'Apply': 'Apply',
+  'Clear': 'Clear',
+  'Column settings': 'Column settings',
+
   // Filter functionality
   'Filter': 'Filter',
   'Filter Files': 'Filter Files',
