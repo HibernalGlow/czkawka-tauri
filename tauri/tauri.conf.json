@@ -17,6 +17,9 @@
       "../assets/icon.ico",
       "../assets/icon.png"
     ],
+    "resources": [
+      "../assets/dll/*.dll"
+    ],
     "category": "DeveloperTool",
     "shortDescription": "A Tauri frontend of Czkawka on macOS and Windows",
     "useLocalToolsDir": true,
