@@ -179,76 +179,161 @@ function getNumericValue(item: any, field: string, fieldType: string): number {
   }
 }
 
-// 应用筛选条件
+// 检查单个条目是否匹配筛选条件
+function itemMatchesConditions<T extends BaseEntry>(
+  item: T,
+  conditions: FilterCondition[],
+  availableFields: any[],
+): boolean {
+  if (conditions.length === 0) return true;
+
+  return conditions.every((condition) => {
+    const fieldConfig = availableFields.find(
+      (f) => f.value === condition.field,
+    );
+    if (!fieldConfig) return true;
+
+    const fieldValue = (item as any)[condition.field];
+    if (fieldValue === undefined || fieldValue === null) return false;
+
+    const fieldType = fieldConfig.type;
+
+    // 对于数值类型字段使用数值比较
+    if (
+      fieldType === 'size' ||
+      fieldType === 'number' ||
+      fieldType === 'similarity' ||
+      fieldType === 'date'
+    ) {
+      const itemValue = getNumericValue(item, condition.field, fieldType);
+      const filterValue =
+        typeof condition.value === 'number'
+          ? condition.value
+          : parseFloat(String(condition.value));
+
+      switch (condition.operator) {
+        case OPERATORS.EQUALS:
+          return (
+            Math.abs(itemValue - filterValue) <
+            (fieldType === 'date' ? 86400000 : 0.1)
+          ); // 日期容差1天
+        case OPERATORS.GREATER_THAN:
+          return itemValue > filterValue;
+        case OPERATORS.LESS_THAN:
+          return itemValue < filterValue;
+        case OPERATORS.GREATER_EQUAL:
+          return itemValue >= filterValue;
+        case OPERATORS.LESS_EQUAL:
+          return itemValue <= filterValue;
+        default:
+          return true;
+      }
+    }
+
+    // 对于文本类型字段使用字符串比较
+    const strValue = String(fieldValue).toLowerCase();
+    const filterValue = String(condition.value).toLowerCase();
+
+    switch (condition.operator) {
+      case OPERATORS.EQUALS:
+        return strValue === filterValue;
+      case OPERATORS.CONTAINS:
+        return strValue.includes(filterValue);
+      case OPERATORS.STARTS_WITH:
+        return strValue.startsWith(filterValue);
+      case OPERATORS.ENDS_WITH:
+        return strValue.endsWith(filterValue);
+      default:
+        return true;
+    }
+  });
+}
+
+// 获取工具中是否有分组数据
+function hasGroupedData(tool: string): boolean {
+  return [
+    Tools.DuplicateFiles,
+    Tools.SimilarImages,
+    Tools.SimilarVideos,
+    Tools.MusicDuplicates,
+  ].includes(tool as any);
+}
+
+// 应用筛选条件（保持分组结构）
 function applyFilters<T extends BaseEntry>(
   data: T[],
   conditions: FilterCondition[],
   availableFields: any[],
+  tool: string,
 ): T[] {
   if (conditions.length === 0) return data;
 
-  return data.filter((item) => {
-    return conditions.every((condition) => {
-      const fieldConfig = availableFields.find(
-        (f) => f.value === condition.field,
-      );
-      if (!fieldConfig) return true;
+  // 对于非分组数据，直接应用筛选
+  if (!hasGroupedData(tool)) {
+    return data.filter((item) =>
+      itemMatchesConditions(item, conditions, availableFields),
+    );
+  }
 
-      const fieldValue = (item as any)[condition.field];
-      if (fieldValue === undefined || fieldValue === null) return false;
+  // 对于分组数据，需要保持分组结构
+  const result: T[] = [];
+  let currentGroup: T[] = [];
+  let groupHasMatches = false;
+  let pendingSeparator: T | null = null;
 
-      const fieldType = fieldConfig.type;
+  const addGroupIfMatches = () => {
+    if (groupHasMatches && currentGroup.length > 0) {
+      // 如果有匹配项，添加当前组的所有项（包括参考项）
+      result.push(...currentGroup);
+      
+      // 如果有待处理的分隔行且结果中已有其他组，添加分隔行
+      if (pendingSeparator && result.length > currentGroup.length) {
+        // 在当前组之前插入分隔行
+        const insertIndex = result.length - currentGroup.length;
+        result.splice(insertIndex, 0, pendingSeparator);
+      }
+    }
+    pendingSeparator = null;
+  };
 
-      // 对于数值类型字段使用数值比较
-      if (
-        fieldType === 'size' ||
-        fieldType === 'number' ||
-        fieldType === 'similarity' ||
-        fieldType === 'date'
-      ) {
-        const itemValue = getNumericValue(item, condition.field, fieldType);
-        const filterValue =
-          typeof condition.value === 'number'
-            ? condition.value
-            : parseFloat(String(condition.value));
+  for (const item of data) {
+    // 检查是否是隐藏分隔行（组分隔符）
+    const isHiddenSeparator = 
+      (item as any).hidden === true && 
+      (item as any).path?.startsWith('__hidden__');
 
-        switch (condition.operator) {
-          case OPERATORS.EQUALS:
-            return (
-              Math.abs(itemValue - filterValue) <
-              (fieldType === 'date' ? 86400000 : 0.1)
-            ); // 日期容差1天
-          case OPERATORS.GREATER_THAN:
-            return itemValue > filterValue;
-          case OPERATORS.LESS_THAN:
-            return itemValue < filterValue;
-          case OPERATORS.GREATER_EQUAL:
-            return itemValue >= filterValue;
-          case OPERATORS.LESS_EQUAL:
-            return itemValue <= filterValue;
-          default:
-            return true;
+    if (isHiddenSeparator) {
+      // 遇到分隔行，先处理当前组
+      addGroupIfMatches();
+      
+      // 保存分隔行供后续处理
+      pendingSeparator = item;
+      
+      // 重置组状态
+      currentGroup = [];
+      groupHasMatches = false;
+    } else {
+      // 普通数据行
+      currentGroup.push(item);
+      
+      // 检查是否匹配筛选条件
+      const isRef = (item as any).isRef === true;
+      if (isRef) {
+        // 参考行不参与筛选判断，但如果组中有其他匹配项则保留
+        // 这里暂时不设置 groupHasMatches = true
+      } else {
+        // 只对非参考行进行筛选
+        if (itemMatchesConditions(item, conditions, availableFields)) {
+          groupHasMatches = true;
         }
       }
+    }
+  }
 
-      // 对于文本类型字段使用字符串比较
-      const strValue = String(fieldValue).toLowerCase();
-      const filterValue = String(condition.value).toLowerCase();
+  // 处理最后一组
+  addGroupIfMatches();
 
-      switch (condition.operator) {
-        case OPERATORS.EQUALS:
-          return strValue === filterValue;
-        case OPERATORS.CONTAINS:
-          return strValue.includes(filterValue);
-        case OPERATORS.STARTS_WITH:
-          return strValue.startsWith(filterValue);
-        case OPERATORS.ENDS_WITH:
-          return strValue.endsWith(filterValue);
-        default:
-          return true;
-      }
-    });
-  });
+  return result;
 }
 
 export function FileFilter() {
@@ -326,7 +411,7 @@ export function FileFilter() {
   // 应用筛选
   const applyFilter = () => {
     const sourceData = originalData.length > 0 ? originalData : data;
-    const filteredData = applyFilters(sourceData, conditions, availableFields);
+    const filteredData = applyFilters(sourceData, conditions, availableFields, currentTool);
     setData(filteredData);
     open.off();
   };

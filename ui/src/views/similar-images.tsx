@@ -1,6 +1,5 @@
 import type { ColumnDef, Row } from '@tanstack/react-table';
 import { useAtom, useAtomValue } from 'jotai';
-import { useMemo, useState } from 'react';
 import {
   similarImagesAtom,
   similarImagesRowSelectionAtom,
@@ -12,63 +11,17 @@ import {
   TableRowSelectionCell,
   TableRowSelectionHeader,
 } from '~/components/data-table';
-import { Badge } from '~/components/shadcn/badge';
 import { useT } from '~/hooks';
 import type { ImagesEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
-import {
-  SimilarityLevel,
-  formatSimilarityDisplay,
-  getSimilarityLevel,
-  getSimilarityLevelColor,
-  getSimilarityLevelText,
-  matchesSimilarityFilter,
-} from '~/utils/similarity-utils';
 import { ClickableImagePreview } from './clickable-image-preview';
-import { SimilarityFilter } from './similarity-filter';
 
 export function SimilarImages() {
-  const rawData = useAtomValue(similarImagesAtom);
+  const data = useAtomValue(similarImagesAtom);
   const [rowSelection, setRowSelection] = useAtom(
     similarImagesRowSelectionAtom,
   );
-  const settings = useAtomValue(settingsAtom);
   const t = useT();
-
-  // 相似度筛选状态
-  const [similarityFilter, setSimilarityFilter] = useState<{
-    level: SimilarityLevel | null;
-    operator: 'gte' | 'lte' | 'eq';
-  }>({
-    level: null,
-    operator: 'gte',
-  });
-
-  // 获取哈希大小设置
-  const hashSize = parseInt(settings.similarImagesSubHashSize, 10) || 16;
-
-  // 应用相似度筛选
-  const data = useMemo(() => {
-    if (!similarityFilter.level) {
-      return rawData;
-    }
-
-    return rawData.filter((item) =>
-      matchesSimilarityFilter(
-        item.similarity,
-        hashSize,
-        similarityFilter.level,
-        similarityFilter.operator,
-      ),
-    );
-  }, [rawData, similarityFilter, hashSize]);
-
-  const handleSimilarityFilterChange = (
-    level: SimilarityLevel | null,
-    operator: 'gte' | 'lte' | 'eq',
-  ) => {
-    setSimilarityFilter({ level, operator });
-  };
 
   const columns: ColumnDef<ImagesEntry>[] = [
     {
@@ -91,33 +44,10 @@ export function SimilarImages() {
     {
       accessorKey: 'similarity',
       header: t('Similarity'),
-      size: 160,
-      minSize: 140,
+      size: 100,
+      minSize: 80,
       cell: ({ row }) => {
-        const similarity = row.original.similarity;
-        const similarityNum = parseInt(similarity, 10);
-        if (isNaN(similarityNum)) {
-          return <ClickableCell row={row} value={similarity} />;
-        }
-
-        const level = getSimilarityLevel(similarityNum, hashSize);
-        const levelText = getSimilarityLevelText(level);
-        const colorClass = getSimilarityLevelColor(level);
-        const displayText = formatSimilarityDisplay(similarity, hashSize);
-
-        return (
-          <ClickableCell
-            row={row}
-            value={
-              <div className="flex items-center gap-2">
-                <Badge className={`text-xs ${colorClass}`} variant="secondary">
-                  {levelText}
-                </Badge>
-                <span className="text-sm">{similarity}</span>
-              </div>
-            }
-          />
-        );
+        return <ClickableCell row={row} value={row.original.similarity} />;
       },
     },
     {
@@ -179,30 +109,13 @@ export function SimilarImages() {
   ];
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between p-2 border-b">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">
-            {t('Hash size')}: {hashSize}
-          </span>
-          <span className="text-sm text-muted-foreground">
-            {t('Total')}: {data.length}
-          </span>
-        </div>
-        <SimilarityFilter
-          onFilterChange={handleSimilarityFilterChange}
-          currentFilter={similarityFilter}
-          hashSize={hashSize}
-        />
-      </div>
-      <DataTable
-        className="flex-1 rounded-none border-none"
-        data={data}
-        columns={columns}
-        rowSelection={rowSelection}
-        onRowSelectionChange={setRowSelection}
-      />
-    </div>
+    <DataTable
+      className="flex-1 rounded-none border-none grow"
+      data={data}
+      columns={columns}
+      rowSelection={rowSelection}
+      onRowSelectionChange={setRowSelection}
+    />
   );
 }
 
@@ -251,10 +164,7 @@ function ClickablePath(props: { row: Row<ImagesEntry> }) {
 }
 
 // 通用的可点击单元格组件
-function ClickableCell(props: {
-  row: Row<ImagesEntry>;
-  value: React.ReactNode;
-}) {
+function ClickableCell(props: { row: Row<ImagesEntry>; value: string }) {
   const { row, value } = props;
   const { path } = row.original;
   const settings = useAtomValue(settingsAtom);
