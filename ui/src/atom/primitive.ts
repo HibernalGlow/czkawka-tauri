@@ -112,5 +112,5 @@ export const sidebarImagePreviewAtom = atom<{
   imagePath: null,
   mode: 'fixed',
   position: null,
-  size: { width: 320, height: 480 }
+  size: { width: 320, height: 480 },
 });

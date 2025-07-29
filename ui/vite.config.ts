@@ -3,36 +3,38 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-    plugins: [
-      react({
-        babel: {
-          plugins: [['babel-plugin-react-compiler', { target: '18' }]],
-        },
-      }),
-    ],
-    clearScreen: false,
-    server: {
-      port: 5000,
-      strictPort: false,
-      host: false,
-      hmr: {
-        protocol: 'ws',
-        port: 5001,
+  plugins: [
+    react({
+      babel: {
+        plugins: [['babel-plugin-react-compiler', { target: '18' }]],
       },
+    }),
+  ],
+  clearScreen: false,
+  server: {
+    port: 5000,
+    strictPort: false,
+    host: false,
+    hmr: {
+      protocol: 'ws',
+      port: 5001,
     },
-    resolve: {
-      alias: {
+  },
+  resolve: {
+    alias: {
       '~': path.resolve(__dirname, 'src'),
-      },
     },
-    define: {
+  },
+  define: {
     PKG_NAME: JSON.stringify(process.env.npm_package_productName || ''),
     PKG_VERSION: JSON.stringify(process.env.npm_package_version || ''),
-    REPOSITORY_URL: JSON.stringify(process.env.npm_package_repository_url || ''),
-      PLATFORM: JSON.stringify(process.platform),
-    },
-    build: {
-      chunkSizeWarningLimit: 1000,
+    REPOSITORY_URL: JSON.stringify(
+      process.env.npm_package_repository_url || '',
+    ),
+    PLATFORM: JSON.stringify(process.platform),
+  },
+  build: {
+    chunkSizeWarningLimit: 1000,
     target: 'esnext',
     minify: 'esbuild',
     cssMinify: true,
@@ -41,12 +43,16 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-icons', '@radix-ui/react-select', '@radix-ui/react-checkbox'],
+          ui: [
+            '@radix-ui/react-icons',
+            '@radix-ui/react-select',
+            '@radix-ui/react-checkbox',
+          ],
         },
       },
     },
-    },
-    base: './',
+  },
+  base: './',
   esbuild: {
     legalComments: 'none',
     target: 'esnext',

@@ -20,12 +20,12 @@ export function ClickableImagePreview(props: ClickableImagePreviewProps) {
     });
   };
 
-  const defaultClassName = disableDefaultStyles 
-    ? "cursor-pointer"
-    : "cursor-pointer hover:bg-accent/50 rounded px-1 py-0.5 transition-colors";
+  const defaultClassName = disableDefaultStyles
+    ? 'cursor-pointer'
+    : 'cursor-pointer hover:bg-accent/50 rounded px-1 py-0.5 transition-colors';
 
   return (
-    <div 
+    <div
       className={className || defaultClassName}
       onClick={handleClick}
       onKeyDown={(e) => {

@@ -6,7 +6,7 @@
 // 相似度阈值表，对应不同哈希大小的阈值
 // [VeryHigh, High, Medium, Small, VerySmall, Minimal]
 const SIMILAR_VALUES: number[][] = [
-  [1, 2, 5, 7, 14, 40],    // 8-bit hash
+  [1, 2, 5, 7, 14, 40], // 8-bit hash
   [2, 5, 15, 30, 40, 40], // 16-bit hash
   [4, 10, 20, 40, 40, 40], // 32-bit hash
   [6, 20, 40, 40, 40, 40], // 64-bit hash
@@ -27,18 +27,26 @@ export enum SimilarityLevel {
  */
 function getHashSizeIndex(hashSize: number): number {
   switch (hashSize) {
-    case 8: return 0;
-    case 16: return 1;
-    case 32: return 2;
-    case 64: return 3;
-    default: return 1; // 默认使用16-bit
+    case 8:
+      return 0;
+    case 16:
+      return 1;
+    case 32:
+      return 2;
+    case 64:
+      return 3;
+    default:
+      return 1; // 默认使用16-bit
   }
 }
 
 /**
  * 根据相似度数值和哈希大小确定相似度级别
  */
-export function getSimilarityLevel(similarity: number, hashSize: number): SimilarityLevel {
+export function getSimilarityLevel(
+  similarity: number,
+  hashSize: number,
+): SimilarityLevel {
   if (similarity === 0) {
     return SimilarityLevel.Original;
   }
@@ -68,13 +76,20 @@ export function getSimilarityLevel(similarity: number, hashSize: number): Simila
  */
 export function getSimilarityLevelText(level: SimilarityLevel): string {
   switch (level) {
-    case SimilarityLevel.Original: return 'Original';
-    case SimilarityLevel.VeryHigh: return 'Very High';
-    case SimilarityLevel.High: return 'High';
-    case SimilarityLevel.Medium: return 'Medium';
-    case SimilarityLevel.Small: return 'Small';
-    case SimilarityLevel.VerySmall: return 'Very Small';
-    case SimilarityLevel.Minimal: return 'Minimal';
+    case SimilarityLevel.Original:
+      return 'Original';
+    case SimilarityLevel.VeryHigh:
+      return 'Very High';
+    case SimilarityLevel.High:
+      return 'High';
+    case SimilarityLevel.Medium:
+      return 'Medium';
+    case SimilarityLevel.Small:
+      return 'Small';
+    case SimilarityLevel.VerySmall:
+      return 'Very Small';
+    case SimilarityLevel.Minimal:
+      return 'Minimal';
   }
 }
 
@@ -83,20 +98,30 @@ export function getSimilarityLevelText(level: SimilarityLevel): string {
  */
 export function getSimilarityLevelColor(level: SimilarityLevel): string {
   switch (level) {
-    case SimilarityLevel.Original: return 'text-purple-600 bg-purple-50';
-    case SimilarityLevel.VeryHigh: return 'text-red-600 bg-red-50';
-    case SimilarityLevel.High: return 'text-orange-600 bg-orange-50';
-    case SimilarityLevel.Medium: return 'text-yellow-600 bg-yellow-50';
-    case SimilarityLevel.Small: return 'text-blue-600 bg-blue-50';
-    case SimilarityLevel.VerySmall: return 'text-green-600 bg-green-50';
-    case SimilarityLevel.Minimal: return 'text-gray-600 bg-gray-50';
+    case SimilarityLevel.Original:
+      return 'text-purple-600 bg-purple-50';
+    case SimilarityLevel.VeryHigh:
+      return 'text-red-600 bg-red-50';
+    case SimilarityLevel.High:
+      return 'text-orange-600 bg-orange-50';
+    case SimilarityLevel.Medium:
+      return 'text-yellow-600 bg-yellow-50';
+    case SimilarityLevel.Small:
+      return 'text-blue-600 bg-blue-50';
+    case SimilarityLevel.VerySmall:
+      return 'text-green-600 bg-green-50';
+    case SimilarityLevel.Minimal:
+      return 'text-gray-600 bg-gray-50';
   }
 }
 
 /**
  * 获取相似度级别对应的数值范围
  */
-export function getSimilarityRange(level: SimilarityLevel, hashSize: number): string {
+export function getSimilarityRange(
+  level: SimilarityLevel,
+  hashSize: number,
+): string {
   if (level === SimilarityLevel.Original) {
     return '= 0';
   }
@@ -105,20 +130,30 @@ export function getSimilarityRange(level: SimilarityLevel, hashSize: number): st
   const thresholds = SIMILAR_VALUES[index];
 
   switch (level) {
-    case SimilarityLevel.VeryHigh: return `≤ ${thresholds[0]}`;
-    case SimilarityLevel.High: return `≤ ${thresholds[1]}`;
-    case SimilarityLevel.Medium: return `≤ ${thresholds[2]}`;
-    case SimilarityLevel.Small: return `≤ ${thresholds[3]}`;
-    case SimilarityLevel.VerySmall: return `≤ ${thresholds[4]}`;
-    case SimilarityLevel.Minimal: return `≤ ${thresholds[5]}`;
-    default: return '';
+    case SimilarityLevel.VeryHigh:
+      return `≤ ${thresholds[0]}`;
+    case SimilarityLevel.High:
+      return `≤ ${thresholds[1]}`;
+    case SimilarityLevel.Medium:
+      return `≤ ${thresholds[2]}`;
+    case SimilarityLevel.Small:
+      return `≤ ${thresholds[3]}`;
+    case SimilarityLevel.VerySmall:
+      return `≤ ${thresholds[4]}`;
+    case SimilarityLevel.Minimal:
+      return `≤ ${thresholds[5]}`;
+    default:
+      return '';
   }
 }
 
 /**
  * 格式化相似度显示文本，显示数值和对应的级别范围
  */
-export function formatSimilarityDisplay(similarity: string, hashSize: number): string {
+export function formatSimilarityDisplay(
+  similarity: string,
+  hashSize: number,
+): string {
   const similarityNum = parseInt(similarity, 10);
   if (isNaN(similarityNum)) {
     return similarity;
@@ -150,7 +185,7 @@ export function getAllSimilarityLevelsWithRanges(hashSize: number): Array<{
     SimilarityLevel.Minimal,
   ];
 
-  return levels.map(level => {
+  return levels.map((level) => {
     const text = getSimilarityLevelText(level);
     const range = getSimilarityRange(level, hashSize);
     return {
@@ -169,7 +204,7 @@ export function matchesSimilarityFilter(
   similarity: string,
   hashSize: number,
   filterLevel: SimilarityLevel | null,
-  filterOperator: 'gte' | 'lte' | 'eq' = 'gte'
+  filterOperator: 'gte' | 'lte' | 'eq' = 'gte',
 ): boolean {
   if (!filterLevel) return true;
 
@@ -191,9 +226,13 @@ export function matchesSimilarityFilter(
   const filterIndex = levelOrder.indexOf(filterLevel);
 
   switch (filterOperator) {
-    case 'gte': return currentIndex <= filterIndex; // 更高或相等的相似度
-    case 'lte': return currentIndex >= filterIndex; // 更低或相等的相似度
-    case 'eq': return currentIndex === filterIndex; // 完全相等
-    default: return true;
+    case 'gte':
+      return currentIndex <= filterIndex; // 更高或相等的相似度
+    case 'lte':
+      return currentIndex >= filterIndex; // 更低或相等的相似度
+    case 'eq':
+      return currentIndex === filterIndex; // 完全相等
+    default:
+      return true;
   }
 }

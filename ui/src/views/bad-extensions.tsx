@@ -3,6 +3,7 @@ import {
   badExtensionsAtom,
   badExtensionsRowSelectionAtom,
 } from '~/atom/primitive';
+import { settingsAtom } from '~/atom/settings';
 import {
   DataTable,
   createActionsColumn,
@@ -10,7 +11,6 @@ import {
 } from '~/components/data-table';
 import { useT } from '~/hooks';
 import type { BadFileEntry } from '~/types';
-import { settingsAtom } from '~/atom/settings';
 import { formatPathDisplay } from '~/utils/path-utils';
 
 export function BadExtensions() {
@@ -34,7 +34,10 @@ export function BadExtensions() {
       size: 200,
       minSize: 100,
       cell: ({ row }) => {
-        const displayPath = formatPathDisplay(row.original.path, settings.reversePathDisplay);
+        const displayPath = formatPathDisplay(
+          row.original.path,
+          settings.reversePathDisplay,
+        );
         return <div className="truncate">{displayPath}</div>;
       },
     },

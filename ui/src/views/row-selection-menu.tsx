@@ -1,5 +1,6 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { SquareMousePointer } from 'lucide-react';
+import { useState } from 'react';
 import { currentToolAtom } from '~/atom/primitive';
 import { currentToolDataAtom, currentToolRowSelectionAtom } from '~/atom/tools';
 import { Button, OperationButton, Textarea } from '~/components';
@@ -26,7 +27,6 @@ import { Tools } from '~/consts';
 import { useBoolean, useT } from '~/hooks';
 import type { BaseEntry, RefEntry } from '~/types';
 import { getPathsFromEntries, getRowSelectionKeys } from '~/utils/common';
-import { useState } from 'react';
 
 const toolsWithSizeAndDateSelect = new Set<string>([
   Tools.DuplicateFiles,
@@ -59,7 +59,7 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
   const handleSelectXXX = (
     type: 'size' | 'date' | 'resolution',
     dir: 'asc' | 'desc',
-    inverse: boolean = false
+    inverse: boolean = false,
   ) => {
     if (!toolsWithSizeAndDateSelect.has(currentTool)) {
       return;
@@ -69,36 +69,40 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
 
   const handleCustomSelect = (unselect: boolean = false) => {
     if (!customPattern.trim()) return;
-    
+
     try {
       const pattern = isRegex ? new RegExp(customPattern) : customPattern;
       const paths = getPathsFromEntries(currentToolData);
-      
-      const matchedPaths = paths.filter(path => {
+
+      const matchedPaths = paths.filter((path) => {
         if (isRegex) {
           return (pattern as RegExp).test(path);
         } else {
           return path.includes(pattern as string);
         }
       });
-      
+
       if (unselect) {
-        setCurrentToolRowSelection(old => {
+        setCurrentToolRowSelection((old) => {
           const oldSelected = new Set(getRowSelectionKeys(old));
-          const newSelected = [...oldSelected].filter(path => !matchedPaths.includes(path));
+          const newSelected = [...oldSelected].filter(
+            (path) => !matchedPaths.includes(path),
+          );
           return pathsToRowSelection(newSelected);
         });
       } else {
-        setCurrentToolRowSelection(old => {
+        setCurrentToolRowSelection((old) => {
           const oldSelected = new Set(getRowSelectionKeys(old));
-          const newSelected = Array.from(new Set([...oldSelected, ...matchedPaths]));
+          const newSelected = Array.from(
+            new Set([...oldSelected, ...matchedPaths]),
+          );
           return pathsToRowSelection(newSelected);
         });
       }
     } catch (e) {
-      console.error("Invalid regex pattern:", e);
+      console.error('Invalid regex pattern:', e);
     }
-    
+
     if (unselect) {
       customUnselectDialogOpen.off();
     } else {
@@ -109,14 +113,14 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
 
   return (
     <>
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <OperationButton disabled={disabled}>
-          <SquareMousePointer />
-          {t('Select')}
-        </OperationButton>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent side="top">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <OperationButton disabled={disabled}>
+            <SquareMousePointer />
+            {t('Select')}
+          </OperationButton>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent side="top">
           <DropdownMenuItem onClick={handleSelectAll}>
             {t('Select all')}
           </DropdownMenuItem>
@@ -131,21 +135,23 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
             {t('Unselect custom')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          
-        {currentTool === Tools.SimilarImages && (
+
+          {currentTool === Tools.SimilarImages && (
             <DropdownMenuSub>
-              <DropdownMenuSubTrigger>{t('Resolution based')}</DropdownMenuSubTrigger>
+              <DropdownMenuSubTrigger>
+                {t('Resolution based')}
+              </DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
-            <DropdownMenuItem
-              onClick={() => handleSelectXXX('resolution', 'asc')}
-            >
-              {t('Select the highest resolution')}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => handleSelectXXX('resolution', 'desc')}
-            >
-              {t('Select the lowest resolution')}
-            </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleSelectXXX('resolution', 'asc')}
+                >
+                  {t('Select the highest resolution')}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleSelectXXX('resolution', 'desc')}
+                >
+                  {t('Select the lowest resolution')}
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => handleSelectXXX('resolution', 'asc', true)}
@@ -159,53 +165,76 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
                 </DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuSub>
-        )}
-          
-        {toolsWithSizeAndDateSelect.has(currentTool) && (
-          <>
+          )}
+
+          {toolsWithSizeAndDateSelect.has(currentTool) && (
+            <>
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger>{t('Size based')}</DropdownMenuSubTrigger>
+                <DropdownMenuSubTrigger>
+                  {t('Size based')}
+                </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
-            <DropdownMenuItem onClick={() => handleSelectXXX('size', 'asc')}>
-              {t('Select the biggest size')}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleSelectXXX('size', 'desc')}>
-              {t('Select the smallest size')}
-            </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleSelectXXX('size', 'asc')}
+                  >
+                    {t('Select the biggest size')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleSelectXXX('size', 'desc')}
+                  >
+                    {t('Select the smallest size')}
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => handleSelectXXX('size', 'asc', true)}>
+                  <DropdownMenuItem
+                    onClick={() => handleSelectXXX('size', 'asc', true)}
+                  >
                     {t('Select all except biggest')}
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleSelectXXX('size', 'desc', true)}>
+                  <DropdownMenuItem
+                    onClick={() => handleSelectXXX('size', 'desc', true)}
+                  >
                     {t('Select all except smallest')}
                   </DropdownMenuItem>
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
-              
+
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger>{t('Date based')}</DropdownMenuSubTrigger>
+                <DropdownMenuSubTrigger>
+                  {t('Date based')}
+                </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
-            <DropdownMenuItem onClick={() => handleSelectXXX('date', 'asc')}>
-              {t('Select the newest')}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleSelectXXX('date', 'desc')}>
-              {t('Select the oldest')}
-            </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleSelectXXX('date', 'asc')}
+                  >
+                    {t('Select the newest')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleSelectXXX('date', 'desc')}
+                  >
+                    {t('Select the oldest')}
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => handleSelectXXX('date', 'asc', true)}>
+                  <DropdownMenuItem
+                    onClick={() => handleSelectXXX('date', 'asc', true)}
+                  >
                     {t('Select all except newest')}
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleSelectXXX('date', 'desc', true)}>
+                  <DropdownMenuItem
+                    onClick={() => handleSelectXXX('date', 'desc', true)}
+                  >
                     {t('Select all except oldest')}
                   </DropdownMenuItem>
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
-          </>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-      <Dialog open={customSelectDialogOpen.value} onOpenChange={customSelectDialogOpen.set}>
+      <Dialog
+        open={customSelectDialogOpen.value}
+        onOpenChange={customSelectDialogOpen.set}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('Select custom')}</DialogTitle>
@@ -215,9 +244,9 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
           </DialogHeader>
           <div className="flex items-center gap-2 mb-2">
             <label className="text-sm font-medium">
-              <input 
-                type="checkbox" 
-                checked={isRegex} 
+              <input
+                type="checkbox"
+                checked={isRegex}
                 onChange={(e) => setIsRegex(e.target.checked)}
                 className="mr-2"
               />
@@ -227,7 +256,11 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
           <Textarea
             value={customPattern}
             onChange={(e) => setCustomPattern(e.target.value)}
-            placeholder={isRegex ? t('Regular expression pattern') : t('Text to match in path')}
+            placeholder={
+              isRegex
+                ? t('Regular expression pattern')
+                : t('Text to match in path')
+            }
             className="min-h-[100px]"
           />
           <DialogFooter>
@@ -241,7 +274,10 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={customUnselectDialogOpen.value} onOpenChange={customUnselectDialogOpen.set}>
+      <Dialog
+        open={customUnselectDialogOpen.value}
+        onOpenChange={customUnselectDialogOpen.set}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('Unselect custom')}</DialogTitle>
@@ -251,9 +287,9 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
           </DialogHeader>
           <div className="flex items-center gap-2 mb-2">
             <label className="text-sm font-medium">
-              <input 
-                type="checkbox" 
-                checked={isRegex} 
+              <input
+                type="checkbox"
+                checked={isRegex}
                 onChange={(e) => setIsRegex(e.target.checked)}
                 className="mr-2"
               />
@@ -263,7 +299,11 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
           <Textarea
             value={customPattern}
             onChange={(e) => setCustomPattern(e.target.value)}
-            placeholder={isRegex ? t('Regular expression pattern') : t('Text to match in path')}
+            placeholder={
+              isRegex
+                ? t('Regular expression pattern')
+                : t('Text to match in path')
+            }
             className="min-h-[100px]"
           />
           <DialogFooter>
@@ -330,7 +370,7 @@ function selectItem<T extends BaseEntry & RefEntry & WithRaw>(
   data: T[],
   type: 'size' | 'date' | 'resolution',
   dir: 'asc' | 'desc',
-  inverse: boolean = false
+  inverse: boolean = false,
 ): RowSelection {
   const paths: string[] = [];
   let compareFn: (<T extends WithRaw>(a: T, b: T) => T) | null = null;
@@ -350,25 +390,27 @@ function selectItem<T extends BaseEntry & RefEntry & WithRaw>(
   if (!compareFn) {
     return {};
   }
-  
+
   const groups = groupBy(data);
   for (const group of groups) {
     if (!group.length) {
       continue;
     }
-    
+
     if (inverse) {
       // Select all except the one that matches the compare function
       const selectedItem = group.reduce(compareFn);
-      const otherItems = group.filter(item => item.path !== selectedItem.path);
-      paths.push(...otherItems.map(item => item.path));
+      const otherItems = group.filter(
+        (item) => item.path !== selectedItem.path,
+      );
+      paths.push(...otherItems.map((item) => item.path));
     } else {
       // Select only the one that matches the compare function
-    const path = group.reduce(compareFn).path;
-    paths.push(path);
+      const path = group.reduce(compareFn).path;
+      paths.push(path);
+    }
   }
-  }
-  
+
   return pathsToRowSelection(paths);
 }
 

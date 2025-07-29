@@ -17,7 +17,7 @@ export const en = {
   'Invalid preset file': 'Invalid preset file',
   'Cache folder path': 'Cache folder path',
   'Config folder path': 'Config folder path',
-  'Browse': 'Browse',
+  Browse: 'Browse',
   'System default': 'System default',
   'Failed to select folder': 'Failed to select folder',
 
@@ -32,7 +32,8 @@ export const en = {
   'Also save cache as JSON file': 'Also save cache as JSON file',
   'Move deleted files to trash': 'Move deleted files to trash',
   'Reverse path display': 'Reverse path display',
-  'Reverse path display hint': 'Display paths in reverse order to easily compare the last folder when prefix paths are the same',
+  'Reverse path display hint':
+    'Display paths in reverse order to easily compare the last folder when prefix paths are the same',
   'Thread number': 'Thread number',
   'Thread number tip':
     'You need to restart app to apply changes in thread number',
@@ -89,7 +90,7 @@ export const en = {
   'No data': 'No data',
   'Image Preview': 'Image Preview',
   'Loading...': 'Loading...',
-  'Format': 'Format',
+  Format: 'Format',
 
   Scan: 'Scan',
   Stop: 'Stop',
@@ -148,7 +149,8 @@ export const en = {
   'Resolution based': 'Resolution based',
   'Size based': 'Size based',
   'Date based': 'Date based',
-  'Select all except highest resolution': 'Select all except highest resolution',
+  'Select all except highest resolution':
+    'Select all except highest resolution',
   'Select all except lowest resolution': 'Select all except lowest resolution',
   'Select all except biggest': 'Select all except biggest',
   'Select all except smallest': 'Select all except smallest',
@@ -182,37 +184,43 @@ export const en = {
   Collapse: 'Collapse',
   'Include Directories': 'Include Directories',
   'Reference Directories': 'Reference Directories',
-  'Reference directories hint': 'Selected directories will be used as reference - duplicates from these paths will be kept, others will be deletable',
+  'Reference directories hint':
+    'Selected directories will be used as reference - duplicates from these paths will be kept, others will be deletable',
   'Check to use as reference': 'Check to use as reference',
-  'Reference': 'Reference',
+  Reference: 'Reference',
   'Use as reference': 'Use as reference',
   'Exclude Directories': 'Exclude Directories',
   'Please add path': 'Please add path',
   Add: 'Add',
   'Manual add': 'Manual add',
-  'Manually add paths desc': 'Manually add paths (one per line, or separated by commas/semicolons)',
+  'Manually add paths desc':
+    'Manually add paths (one per line, or separated by commas/semicolons)',
   'Remove selected': 'Remove selected',
   'Clear all': 'Clear all',
   'Select custom': 'Select custom',
   'Unselect custom': 'Unselect custom',
-  'Enter a pattern to select files by path': 'Enter a pattern to select files by path',
-  'Enter a pattern to unselect files by path': 'Enter a pattern to unselect files by path',
+  'Enter a pattern to select files by path':
+    'Enter a pattern to select files by path',
+  'Enter a pattern to unselect files by path':
+    'Enter a pattern to unselect files by path',
   'Use regex': 'Use regex',
   'Regular expression pattern': 'Regular expression pattern',
   'Text to match in path': 'Text to match in path',
-  'Manage directories to exclude from scanning': 'Manage directories to exclude from scanning',
-  'Selection': 'Selection',
+  'Manage directories to exclude from scanning':
+    'Manage directories to exclude from scanning',
+  Selection: 'Selection',
   'Quick Selection': 'Quick Selection',
   'Reference Selection': 'Reference Selection',
-  'Unselect': 'Unselect',
-  
+  Unselect: 'Unselect',
+
   // New strings for sidebar image preview
   'Switch to floating mode': 'Switch to floating mode',
   'Switch to fixed mode': 'Switch to fixed mode',
-  
+
   // New strings for reference path keywords
   'Reference path keywords': 'Reference path keywords',
-  'Reference path keywords hint': 'Paths containing these keywords will be automatically marked as reference (comma separated)',
+  'Reference path keywords hint':
+    'Paths containing these keywords will be automatically marked as reference (comma separated)',
 
   // Similarity filter
   'Similarity filter': 'Similarity filter',
@@ -221,29 +229,30 @@ export const en = {
   'Less than or equal': 'Less than or equal',
   'Equal to': 'Equal to',
   'All levels': 'All levels',
-  'Total': 'Total',
+  Total: 'Total',
   'Similarity level': 'Similarity level',
-  'Apply': 'Apply',
-  'Clear': 'Clear',
+  Apply: 'Apply',
+  Clear: 'Clear',
   'Column settings': 'Column settings',
 
   // Filter functionality
-  'Filter': 'Filter',
+  Filter: 'Filter',
   'Filter Files': 'Filter Files',
-  'Add conditions to filter the file list based on specific criteria': 'Add conditions to filter the file list based on specific criteria',
+  'Add conditions to filter the file list based on specific criteria':
+    'Add conditions to filter the file list based on specific criteria',
   'Active Filters': 'Active Filters',
   'Add Filter Condition': 'Add Filter Condition',
-  'Field': 'Field',
-  'Operator': 'Operator',
-  'Value': 'Value',
+  Field: 'Field',
+  Operator: 'Operator',
+  Value: 'Value',
   'Select field': 'Select field',
   'Select operator': 'Select operator',
   'Enter value': 'Enter value',
   'Clear All': 'Clear All',
-  'Reset': 'Reset',
+  Reset: 'Reset',
   'Apply Filter': 'Apply Filter',
-  'Equals': 'Equals',
-  'Contains': 'Contains',
+  Equals: 'Equals',
+  Contains: 'Contains',
   'Starts with': 'Starts with',
   'Ends with': 'Ends with',
   'Greater than': 'Greater than',
@@ -251,14 +260,14 @@ export const en = {
   'Greater or equal': 'Greater or equal',
   'Less or equal': 'Less or equal',
   'Select similarity': 'Select similarity',
-  'Width': 'Width',
-  'Height': 'Height',
+  Width: 'Width',
+  Height: 'Height',
   'Very High': 'Very High',
-  'High': 'High',
-  'Medium': 'Medium',
-  'Small': 'Small',
+  High: 'High',
+  Medium: 'Medium',
+  Small: 'Small',
   'Very Small': 'Very Small',
-  'Minimal': 'Minimal',
+  Minimal: 'Minimal',
 };
 
 export type TranslationKeys = keyof typeof en;

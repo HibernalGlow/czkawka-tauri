@@ -15,7 +15,7 @@ export function reversePathDisplay(path: string): string {
   const normalizedPath = path.replace(/\\/g, '/');
 
   // 分割路径
-  const parts = normalizedPath.split('/').filter(part => part.length > 0);
+  const parts = normalizedPath.split('/').filter((part) => part.length > 0);
 
   if (parts.length === 0) return path;
 
@@ -41,6 +41,9 @@ export function reversePathDisplay(path: string): string {
  * @param reverseEnabled 是否启用逆向显示
  * @returns 处理后的路径
  */
-export function formatPathDisplay(path: string, reverseEnabled: boolean): string {
+export function formatPathDisplay(
+  path: string,
+  reverseEnabled: boolean,
+): string {
   return reverseEnabled ? reversePathDisplay(path) : path;
 }

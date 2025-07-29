@@ -3,6 +3,7 @@ import {
   emptyFoldersAtom,
   emptyFoldersRowSelectionAtom,
 } from '~/atom/primitive';
+import { settingsAtom } from '~/atom/settings';
 import {
   DataTable,
   createActionsColumn,
@@ -10,7 +11,6 @@ import {
 } from '~/components/data-table';
 import { useT } from '~/hooks';
 import type { FolderEntry } from '~/types';
-import { settingsAtom } from '~/atom/settings';
 import { formatPathDisplay } from '~/utils/path-utils';
 
 export function EmptyFolders() {
@@ -32,7 +32,10 @@ export function EmptyFolders() {
       size: 430,
       minSize: 100,
       cell: ({ row }) => {
-        const displayPath = formatPathDisplay(row.original.path, settings.reversePathDisplay);
+        const displayPath = formatPathDisplay(
+          row.original.path,
+          settings.reversePathDisplay,
+        );
         return <div className="truncate">{displayPath}</div>;
       },
     },

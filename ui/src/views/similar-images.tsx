@@ -58,14 +58,14 @@ export function SimilarImages() {
         item.similarity,
         hashSize,
         similarityFilter.level,
-        similarityFilter.operator
-      )
+        similarityFilter.operator,
+      ),
     );
   }, [rawData, similarityFilter, hashSize]);
 
   const handleSimilarityFilterChange = (
     level: SimilarityLevel | null,
-    operator: 'gte' | 'lte' | 'eq'
+    operator: 'gte' | 'lte' | 'eq',
   ) => {
     setSimilarityFilter({ level, operator });
   };
@@ -106,14 +106,17 @@ export function SimilarImages() {
         const displayText = formatSimilarityDisplay(similarity, hashSize);
 
         return (
-          <ClickableCell row={row} value={
-            <div className="flex items-center gap-2">
-              <Badge className={`text-xs ${colorClass}`} variant="secondary">
-                {levelText}
-              </Badge>
-              <span className="text-sm">{similarity}</span>
-            </div>
-          } />
+          <ClickableCell
+            row={row}
+            value={
+              <div className="flex items-center gap-2">
+                <Badge className={`text-xs ${colorClass}`} variant="secondary">
+                  {levelText}
+                </Badge>
+                <span className="text-sm">{similarity}</span>
+              </div>
+            }
+          />
         );
       },
     },
@@ -248,7 +251,10 @@ function ClickablePath(props: { row: Row<ImagesEntry> }) {
 }
 
 // 通用的可点击单元格组件
-function ClickableCell(props: { row: Row<ImagesEntry>; value: React.ReactNode }) {
+function ClickableCell(props: {
+  row: Row<ImagesEntry>;
+  value: React.ReactNode;
+}) {
   const { row, value } = props;
   const { path } = row.original;
   const settings = useAtomValue(settingsAtom);

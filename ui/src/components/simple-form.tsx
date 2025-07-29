@@ -114,14 +114,14 @@ export function FormItem(
 
   return (
     <div className="flex flex-col gap-1">
-    <div className="flex items-center gap-2 min-h-9">
-      <Label className="flex-shrink-0" htmlFor={name}>
-        {label}:
-      </Label>
-      <Slot id={name} {...slotProps}>
-        {children}
-      </Slot>
-      {suffix}
+      <div className="flex items-center gap-2 min-h-9">
+        <Label className="flex-shrink-0" htmlFor={name}>
+          {label}:
+        </Label>
+        <Slot id={name} {...slotProps}>
+          {children}
+        </Slot>
+        {suffix}
       </div>
       {description && (
         <div className="text-xs text-muted-foreground pl-2">{description}</div>

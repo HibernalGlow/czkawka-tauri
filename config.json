@@ -1,13 +1,9 @@
 {
   "name": "250713",
   "settings": {
-    "includedDirectories": [
-      "C:\\Users\\30902"
-    ],
+    "includedDirectories": ["C:\\Users\\30902"],
     "includedDirectoriesReferenced": [],
-    "excludedDirectories": [
-      "C:\\Windows"
-    ],
+    "excludedDirectories": ["C:\\Windows"],
     "excludedItems": "*\\.git\\*,*\\node_modules\\*,*\\lost+found\\*,*:\\windows\\*,*:\\$RECYCLE.BIN\\*,*:\\$SysReset\\*,*:\\System Volume Information\\*,*:\\OneDriveTemp\\*,*:\\hiberfil.sys,*:\\pagefile.sys,*:\\swapfile.sys",
     "allowedExtensions": "",
     "excludedExtensions": "",

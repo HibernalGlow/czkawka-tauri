@@ -1,9 +1,11 @@
 import { useAtom, useAtomValue } from 'jotai';
 import { Filter, X } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { currentToolAtom } from '~/atom/primitive';
 import { currentToolDataAtom } from '~/atom/tools';
 import { Button } from '~/components';
+import { Badge } from '~/components/shadcn/badge';
 import {
   Dialog,
   DialogContent,
@@ -21,12 +23,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/shadcn/select';
-import { Badge } from '~/components/shadcn/badge';
 import { Slider } from '~/components/shadcn/slider';
 import { Tools } from '~/consts';
 import { useBoolean } from '~/hooks';
-import { useTranslation } from 'react-i18next';
-import type { BaseEntry, ImagesEntry, MusicEntry, VideosEntry, DuplicateEntry } from '~/types';
+import type {
+  BaseEntry,
+  DuplicateEntry,
+  ImagesEntry,
+  MusicEntry,
+  VideosEntry,
+} from '~/types';
 
 // 筛选条件接口
 interface FilterCondition {
@@ -52,11 +58,11 @@ const OPERATORS = {
 // 相似度等级映射
 const SIMILARITY_LEVELS = {
   'Very High': 95,
-  'High': 85,
-  'Medium': 75,
-  'Small': 60,
+  High: 85,
+  Medium: 75,
+  Small: 60,
   'Very Small': 40,
-  'Minimal': 20,
+  Minimal: 20,
 } as const;
 
 // 根据工具类型获取可用的筛选字段
@@ -90,10 +96,7 @@ function getAvailableFields(tool: string) {
         { value: 'genre', label: 'Genre', type: 'text' },
       ];
     case Tools.DuplicateFiles:
-      return [
-        ...commonFields,
-        { value: 'hash', label: 'Hash', type: 'text' },
-      ];
+      return [...commonFields, { value: 'hash', label: 'Hash', type: 'text' }];
     default:
       return commonFields;
   }
@@ -133,17 +136,18 @@ function getAvailableOperators(fieldType: string) {
 function parseSizeToBytes(sizeStr: string): number {
   const match = sizeStr.match(/^([\d.]+)\s*([KMGTPE]?B?)$/i);
   if (!match) return 0;
-  
+
   const [, num, unit] = match;
   const value = parseFloat(num);
-  const multiplier = {
-    'B': 1,
-    'KB': 1024,
-    'MB': 1024 * 1024,
-    'GB': 1024 * 1024 * 1024,
-    'TB': 1024 * 1024 * 1024 * 1024,
-  }[unit.toUpperCase()] || 1;
-  
+  const multiplier =
+    {
+      B: 1,
+      KB: 1024,
+      MB: 1024 * 1024,
+      GB: 1024 * 1024 * 1024,
+      TB: 1024 * 1024 * 1024 * 1024,
+    }[unit.toUpperCase()] || 1;
+
   return value * multiplier;
 }
 
@@ -152,7 +156,7 @@ function parseSimilarity(similarity: string): number {
   if (similarity in SIMILARITY_LEVELS) {
     return SIMILARITY_LEVELS[similarity as keyof typeof SIMILARITY_LEVELS];
   }
-  
+
   const match = similarity.match(/(\d+)/);
   return match ? parseInt(match[1]) : 0;
 }
@@ -160,7 +164,7 @@ function parseSimilarity(similarity: string): number {
 // 获取数值进行比较
 function getNumericValue(item: any, field: string, fieldType: string): number {
   const value = item[field];
-  
+
   switch (fieldType) {
     case 'size':
       return parseSizeToBytes(value);
@@ -176,27 +180,44 @@ function getNumericValue(item: any, field: string, fieldType: string): number {
 }
 
 // 应用筛选条件
-function applyFilters<T extends BaseEntry>(data: T[], conditions: FilterCondition[], availableFields: any[]): T[] {
+function applyFilters<T extends BaseEntry>(
+  data: T[],
+  conditions: FilterCondition[],
+  availableFields: any[],
+): T[] {
   if (conditions.length === 0) return data;
 
-  return data.filter(item => {
-    return conditions.every(condition => {
-      const fieldConfig = availableFields.find(f => f.value === condition.field);
+  return data.filter((item) => {
+    return conditions.every((condition) => {
+      const fieldConfig = availableFields.find(
+        (f) => f.value === condition.field,
+      );
       if (!fieldConfig) return true;
-      
+
       const fieldValue = (item as any)[condition.field];
       if (fieldValue === undefined || fieldValue === null) return false;
 
       const fieldType = fieldConfig.type;
-      
+
       // 对于数值类型字段使用数值比较
-      if (fieldType === 'size' || fieldType === 'number' || fieldType === 'similarity' || fieldType === 'date') {
+      if (
+        fieldType === 'size' ||
+        fieldType === 'number' ||
+        fieldType === 'similarity' ||
+        fieldType === 'date'
+      ) {
         const itemValue = getNumericValue(item, condition.field, fieldType);
-        const filterValue = typeof condition.value === 'number' ? condition.value : parseFloat(String(condition.value));
-        
+        const filterValue =
+          typeof condition.value === 'number'
+            ? condition.value
+            : parseFloat(String(condition.value));
+
         switch (condition.operator) {
           case OPERATORS.EQUALS:
-            return Math.abs(itemValue - filterValue) < (fieldType === 'date' ? 86400000 : 0.1); // 日期容差1天
+            return (
+              Math.abs(itemValue - filterValue) <
+              (fieldType === 'date' ? 86400000 : 0.1)
+            ); // 日期容差1天
           case OPERATORS.GREATER_THAN:
             return itemValue > filterValue;
           case OPERATORS.LESS_THAN:
@@ -209,7 +230,7 @@ function applyFilters<T extends BaseEntry>(data: T[], conditions: FilterConditio
             return true;
         }
       }
-      
+
       // 对于文本类型字段使用字符串比较
       const strValue = String(fieldValue).toLowerCase();
       const filterValue = String(condition.value).toLowerCase();
@@ -242,8 +263,12 @@ export function FileFilter() {
   const [currentValue, setCurrentValue] = useState('');
 
   const availableFields = getAvailableFields(currentTool);
-  const currentFieldConfig = availableFields.find(f => f.value === currentField);
-  const availableOperators = getAvailableOperators(currentFieldConfig?.type || 'text');
+  const currentFieldConfig = availableFields.find(
+    (f) => f.value === currentField,
+  );
+  const availableOperators = getAvailableOperators(
+    currentFieldConfig?.type || 'text',
+  );
 
   // 保存原始数据
   const handleOpenDialog = () => {
@@ -257,15 +282,23 @@ export function FileFilter() {
   const addCondition = () => {
     if (!currentField || !currentOperator || !currentValue) return;
 
-    const fieldLabel = availableFields.find(f => f.value === currentField)?.label || currentField;
-    const operatorLabel = availableOperators.find(o => o.value === currentOperator)?.label || currentOperator;
+    const fieldLabel =
+      availableFields.find((f) => f.value === currentField)?.label ||
+      currentField;
+    const operatorLabel =
+      availableOperators.find((o) => o.value === currentOperator)?.label ||
+      currentOperator;
 
     let processedValue: string | number = currentValue;
     let displayValue = currentValue;
 
     // 对特殊字段进行值处理
-    if (currentFieldConfig?.type === 'similarity' && currentValue in SIMILARITY_LEVELS) {
-      processedValue = SIMILARITY_LEVELS[currentValue as keyof typeof SIMILARITY_LEVELS];
+    if (
+      currentFieldConfig?.type === 'similarity' &&
+      currentValue in SIMILARITY_LEVELS
+    ) {
+      processedValue =
+        SIMILARITY_LEVELS[currentValue as keyof typeof SIMILARITY_LEVELS];
       displayValue = currentValue;
     } else if (currentFieldConfig?.type === 'number') {
       processedValue = parseFloat(currentValue);
@@ -279,7 +312,7 @@ export function FileFilter() {
       label: `${fieldLabel} ${operatorLabel} "${displayValue}"`,
     };
 
-    setConditions(prev => [...prev, newCondition]);
+    setConditions((prev) => [...prev, newCondition]);
     setCurrentField('');
     setCurrentOperator('');
     setCurrentValue('');
@@ -287,7 +320,7 @@ export function FileFilter() {
 
   // 移除筛选条件
   const removeCondition = (id: string) => {
-    setConditions(prev => prev.filter(c => c.id !== id));
+    setConditions((prev) => prev.filter((c) => c.id !== id));
   };
 
   // 应用筛选
@@ -339,7 +372,7 @@ export function FileFilter() {
               <SelectValue placeholder={t('Select similarity')} />
             </SelectTrigger>
             <SelectContent>
-              {Object.keys(SIMILARITY_LEVELS).map(level => (
+              {Object.keys(SIMILARITY_LEVELS).map((level) => (
                 <SelectItem key={level} value={level}>
                   {t(level as any)}
                 </SelectItem>
@@ -400,18 +433,26 @@ export function FileFilter() {
         <DialogHeader>
           <DialogTitle>{t('Filter Files')}</DialogTitle>
           <DialogDescription>
-            {t('Add conditions to filter the file list based on specific criteria')}
+            {t(
+              'Add conditions to filter the file list based on specific criteria',
+            )}
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           {/* 当前筛选条件 */}
           {conditions.length > 0 && (
             <div className="space-y-2">
-              <Label className="text-sm font-medium">{t('Active Filters')}</Label>
+              <Label className="text-sm font-medium">
+                {t('Active Filters')}
+              </Label>
               <div className="flex flex-wrap gap-2">
-                {conditions.map(condition => (
-                  <Badge key={condition.id} variant="secondary" className="text-xs">
+                {conditions.map((condition) => (
+                  <Badge
+                    key={condition.id}
+                    variant="secondary"
+                    className="text-xs"
+                  >
                     {condition.label}
                     <Button
                       variant="ghost"
@@ -429,7 +470,9 @@ export function FileFilter() {
 
           {/* 添加新条件 */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium">{t('Add Filter Condition')}</Label>
+            <Label className="text-sm font-medium">
+              {t('Add Filter Condition')}
+            </Label>
             <div className="grid grid-cols-4 gap-2">
               <div>
                 <Label className="text-xs">{t('Field')}</Label>
@@ -438,7 +481,7 @@ export function FileFilter() {
                     <SelectValue placeholder={t('Select field')} />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableFields.map(field => (
+                    {availableFields.map((field) => (
                       <SelectItem key={field.value} value={field.value}>
                         {field.label}
                       </SelectItem>
@@ -448,8 +491,8 @@ export function FileFilter() {
               </div>
               <div>
                 <Label className="text-xs">{t('Operator')}</Label>
-                <Select 
-                  value={currentOperator} 
+                <Select
+                  value={currentOperator}
                   onValueChange={setCurrentOperator}
                   disabled={!currentField}
                 >
@@ -457,7 +500,7 @@ export function FileFilter() {
                     <SelectValue placeholder={t('Select operator')} />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableOperators.map(operator => (
+                    {availableOperators.map((operator) => (
                       <SelectItem key={operator.value} value={operator.value}>
                         {operator.label}
                       </SelectItem>
@@ -472,7 +515,9 @@ export function FileFilter() {
                   <Button
                     size="sm"
                     onClick={addCondition}
-                    disabled={!currentField || !currentOperator || !currentValue}
+                    disabled={
+                      !currentField || !currentOperator || !currentValue
+                    }
                   >
                     {t('Add')}
                   </Button>
@@ -490,9 +535,7 @@ export function FileFilter() {
             <Button variant="outline" onClick={resetFilters}>
               {t('Reset')}
             </Button>
-            <Button onClick={applyFilter}>
-              {t('Apply Filter')}
-            </Button>
+            <Button onClick={applyFilter}>{t('Apply Filter')}</Button>
           </div>
         </div>
       </DialogContent>

@@ -1,5 +1,16 @@
+import { readText, writeText } from '@tauri-apps/plugin-clipboard-manager';
+import { open } from '@tauri-apps/plugin-dialog';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { FilePenLine, FilePlus, TimerReset, Trash2, Download, Upload } from 'lucide-react';
+import {
+  Download,
+  FilePenLine,
+  FilePlus,
+  TimerReset,
+  Trash2,
+  Upload,
+} from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 import { currentPresetAtom } from '~/atom/preset';
 import {
   excludedDirsRowSelectionAtom,
@@ -7,13 +18,15 @@ import {
   platformSettingsAtom,
   presetsAtom,
 } from '~/atom/primitive';
-import { EditInput, Label, Select, TooltipButton, toastError } from '~/components';
+import {
+  EditInput,
+  Label,
+  Select,
+  TooltipButton,
+  toastError,
+} from '~/components';
 import { getDefaultSettings } from '~/consts';
 import { useBoolean, useT } from '~/hooks';
-import { open } from '@tauri-apps/plugin-dialog';
-import { writeText, readText } from '@tauri-apps/plugin-clipboard-manager';
-import { toast } from 'sonner';
-import { useState } from 'react';
 import type { Preset } from '~/types';
 
 interface PresetSelectProps {
@@ -98,17 +111,21 @@ export function PresetSelect(props: PresetSelectProps) {
     setIncludedDirsRowSelection({});
     setExcludedDirsRowSelection({});
   };
-  
+
   const handleExportPreset = async () => {
     try {
       setImportExportLoading(true);
-      
+
       // 将预设数据序列化为 JSON
-      const presetData = JSON.stringify({
-        name: currentPreset.name,
-        settings: currentPreset.settings
-      }, null, 2);
-      
+      const presetData = JSON.stringify(
+        {
+          name: currentPreset.name,
+          settings: currentPreset.settings,
+        },
+        null,
+        2,
+      );
+
       // 写入剪贴板
       await writeText(presetData);
       toast.success(t('Preset exported successfully'));
@@ -118,18 +135,18 @@ export function PresetSelect(props: PresetSelectProps) {
       setImportExportLoading(false);
     }
   };
-  
+
   const handleImportPreset = async () => {
     try {
       setImportExportLoading(true);
-      
+
       // 从剪贴板读取数据
       const clipboardText = await readText();
       if (!clipboardText) {
         toast.error('Clipboard is empty');
         return;
       }
-      
+
       // 尝试解析 JSON
       let importedData;
       try {
@@ -138,13 +155,13 @@ export function PresetSelect(props: PresetSelectProps) {
         toast.error('Invalid JSON format in clipboard');
         return;
       }
-      
+
       // 验证数据格式
       if (!importedData.name || !importedData.settings) {
         toast.error('Invalid preset format');
         return;
       }
-      
+
       // 创建新预设
       const newPreset: Preset = {
         name: importedData.name,
@@ -152,29 +169,29 @@ export function PresetSelect(props: PresetSelectProps) {
         changed: false,
         settings: {
           ...getDefaultSettings(),
-          ...importedData.settings
-        }
+          ...importedData.settings,
+        },
       };
-      
+
       // 检查名称是否已存在，如果存在则添加数字后缀
       let presetName = newPreset.name;
       let counter = 1;
-      while (presets.some(p => p.name === presetName)) {
+      while (presets.some((p) => p.name === presetName)) {
         presetName = `${newPreset.name} (${counter})`;
         counter++;
       }
-      
+
       // 添加导入的预设
       setPresets([
-        ...presets.map(preset => ({ ...preset, active: false })),
+        ...presets.map((preset) => ({ ...preset, active: false })),
         {
           ...newPreset,
           name: presetName,
           active: true,
-          changed: true
-        }
+          changed: true,
+        },
       ]);
-      
+
       toast.success(t('Preset imported successfully'));
     } catch (error) {
       toastError(t('Failed to import preset'), error);

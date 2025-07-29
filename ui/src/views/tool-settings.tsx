@@ -50,7 +50,13 @@ function SimpleToolSettings() {
   return <PathDisplaySettings />;
 }
 
-const settingsCompMap: Record<string, (props: { showControls?: boolean; showAlgorithms?: boolean }) => React.JSX.Element> = {
+const settingsCompMap: Record<
+  string,
+  (props: {
+    showControls?: boolean;
+    showAlgorithms?: boolean;
+  }) => React.JSX.Element
+> = {
   [Tools.DuplicateFiles]: DuplicateFilesSettings,
   [Tools.BigFiles]: BigFilesSettings,
   [Tools.SimilarImages]: SimilarImagesSettings,
@@ -64,11 +70,11 @@ const settingsCompMap: Record<string, (props: { showControls?: boolean; showAlgo
   [Tools.BadExtensions]: SimpleToolSettings,
 };
 
-export function ToolSettings({ 
-  inPanel = false, 
-  showControls = true, 
-  showAlgorithms = true 
-}: { 
+export function ToolSettings({
+  inPanel = false,
+  showControls = true,
+  showAlgorithms = true,
+}: {
   inPanel?: boolean;
   showControls?: boolean;
   showAlgorithms?: boolean;
@@ -105,8 +111,15 @@ export function ToolSettings({
     }
 
     return (
-      <Form value={settings} onChange={handleSettingsChange} className={inPanel ? "space-y-3" : ""}>
-        <SettingsComponent showControls={showControls} showAlgorithms={showAlgorithms} />
+      <Form
+        value={settings}
+        onChange={handleSettingsChange}
+        className={inPanel ? 'space-y-3' : ''}
+      >
+        <SettingsComponent
+          showControls={showControls}
+          showAlgorithms={showAlgorithms}
+        />
       </Form>
     );
   };
@@ -142,9 +155,10 @@ function Fallback() {
   return <div>Something wrong</div>;
 }
 
-
-
-function DuplicateFilesSettings({ showControls = true, showAlgorithms = true }: { showControls?: boolean; showAlgorithms?: boolean }) {
+function DuplicateFilesSettings({
+  showControls = true,
+  showAlgorithms = true,
+}: { showControls?: boolean; showAlgorithms?: boolean }) {
   const t = useT();
 
   return (
@@ -197,7 +211,10 @@ function DuplicateFilesSettings({ showControls = true, showAlgorithms = true }: 
   );
 }
 
-function BigFilesSettings({ showControls = true, showAlgorithms = true }: { showControls?: boolean; showAlgorithms?: boolean }) {
+function BigFilesSettings({
+  showControls = true,
+  showAlgorithms = true,
+}: { showControls?: boolean; showAlgorithms?: boolean }) {
   const t = useT();
 
   return (
@@ -230,7 +247,10 @@ function BigFilesSettings({ showControls = true, showAlgorithms = true }: { show
   );
 }
 
-function SimilarImagesSettings({ showControls = true, showAlgorithms = true }: { showControls?: boolean; showAlgorithms?: boolean }) {
+function SimilarImagesSettings({
+  showControls = true,
+  showAlgorithms = true,
+}: { showControls?: boolean; showAlgorithms?: boolean }) {
   const settings = useAtomValue(settingsAtom);
   const t = useT();
 
@@ -256,10 +276,12 @@ function SimilarImagesSettings({ showControls = true, showAlgorithms = true }: {
             comp="select"
           >
             <Select
-              options={Object.values(SimilarImagesResizeAlgorithm).map((value) => ({
-                label: value,
-                value,
-              }))}
+              options={Object.values(SimilarImagesResizeAlgorithm).map(
+                (value) => ({
+                  label: value,
+                  value,
+                }),
+              )}
             />
           </FormItem>
           <FormItem
@@ -268,10 +290,12 @@ function SimilarImagesSettings({ showControls = true, showAlgorithms = true }: {
             comp="select"
           >
             <Select
-              options={Object.values(SimilarImagesHashAlgorithm).map((value) => ({
-                label: value,
-                value,
-              }))}
+              options={Object.values(SimilarImagesHashAlgorithm).map(
+                (value) => ({
+                  label: value,
+                  value,
+                }),
+              )}
             />
           </FormItem>
         </>
@@ -300,7 +324,10 @@ function SimilarImagesSettings({ showControls = true, showAlgorithms = true }: {
   );
 }
 
-function SimilarVideosSettings({ showControls = true, showAlgorithms = true }: { showControls?: boolean; showAlgorithms?: boolean }) {
+function SimilarVideosSettings({
+  showControls = true,
+  showAlgorithms = true,
+}: { showControls?: boolean; showAlgorithms?: boolean }) {
   const settings = useAtomValue(settingsAtom);
   const t = useT();
 
@@ -330,7 +357,10 @@ function SimilarVideosSettings({ showControls = true, showAlgorithms = true }: {
   );
 }
 
-function MusicDuplicatesSettings({ showControls = true, showAlgorithms = true }: { showControls?: boolean; showAlgorithms?: boolean }) {
+function MusicDuplicatesSettings({
+  showControls = true,
+  showAlgorithms = true,
+}: { showControls?: boolean; showAlgorithms?: boolean }) {
   const settings = useAtomValue(settingsAtom);
   const t = useT();
 
@@ -350,79 +380,86 @@ function MusicDuplicatesSettings({ showControls = true, showAlgorithms = true }:
           />
         </FormItem>
       )}
-      {showControls && settings.similarMusicSubAudioCheckType ===
-        SimilarMusicAudioCheckType.Tags && (
-        <>
-          <FormItem
-            name="similarMusicSubApproximateComparison"
-            label={t('Approximate tag comparison')}
-            comp="switch"
-          >
-            <Switch />
-          </FormItem>
-          <span className="text-center">{t('Compared tags')}</span>
-          <div className="grid grid-cols-3 gap-2 *:pl-4">
-            <FormItem name="similarMusicSubTitle" comp="checkbox">
-              <CheckboxWithLabel label={t('Title')} />
+      {showControls &&
+        settings.similarMusicSubAudioCheckType ===
+          SimilarMusicAudioCheckType.Tags && (
+          <>
+            <FormItem
+              name="similarMusicSubApproximateComparison"
+              label={t('Approximate tag comparison')}
+              comp="switch"
+            >
+              <Switch />
             </FormItem>
-            <FormItem name="similarMusicSubArtist" comp="checkbox">
-              <CheckboxWithLabel label={t('Artist')} />
+            <span className="text-center">{t('Compared tags')}</span>
+            <div className="grid grid-cols-3 gap-2 *:pl-4">
+              <FormItem name="similarMusicSubTitle" comp="checkbox">
+                <CheckboxWithLabel label={t('Title')} />
+              </FormItem>
+              <FormItem name="similarMusicSubArtist" comp="checkbox">
+                <CheckboxWithLabel label={t('Artist')} />
+              </FormItem>
+              <FormItem name="similarMusicSubBitrate" comp="checkbox">
+                <CheckboxWithLabel label={t('Bitrate')} />
+              </FormItem>
+              <FormItem name="similarMusicSubGenre" comp="checkbox">
+                <CheckboxWithLabel label={t('Genre')} />
+              </FormItem>
+              <FormItem name="similarMusicSubYear" comp="checkbox">
+                <CheckboxWithLabel label={t('Year')} />
+              </FormItem>
+              <FormItem name="similarMusicSubLength" comp="checkbox">
+                <CheckboxWithLabel label={t('Length')} />
+              </FormItem>
+            </div>
+          </>
+        )}
+      {showControls &&
+        settings.similarMusicSubAudioCheckType ===
+          SimilarMusicAudioCheckType.Fingerprint && (
+          <>
+            <FormItem
+              name="similarMusicSubMaximumDifferenceValue"
+              label={t('Max difference')}
+              comp="slider"
+              suffix={
+                <span>
+                  ({settings.similarMusicSubMaximumDifferenceValue}/10)
+                </span>
+              }
+            >
+              <Slider min={0} max={10} />
             </FormItem>
-            <FormItem name="similarMusicSubBitrate" comp="checkbox">
-              <CheckboxWithLabel label={t('Bitrate')} />
+            <FormItem
+              name="similarMusicSubMinimalFragmentDurationValue"
+              label={t('Minimal fragment duration')}
+              comp="slider"
+              suffix={
+                <span>
+                  {settings.similarMusicSubMinimalFragmentDurationValue}
+                </span>
+              }
+            >
+              <Slider min={0} max={180} />
             </FormItem>
-            <FormItem name="similarMusicSubGenre" comp="checkbox">
-              <CheckboxWithLabel label={t('Genre')} />
+            <FormItem
+              name="similarMusicCompareFingerprintsOnlyWithSimilarTitles"
+              label={t('Compare only with similar titles')}
+              comp="switch"
+            >
+              <Switch />
             </FormItem>
-            <FormItem name="similarMusicSubYear" comp="checkbox">
-              <CheckboxWithLabel label={t('Year')} />
-            </FormItem>
-            <FormItem name="similarMusicSubLength" comp="checkbox">
-              <CheckboxWithLabel label={t('Length')} />
-            </FormItem>
-          </div>
-        </>
-      )}
-      {showControls && settings.similarMusicSubAudioCheckType ===
-        SimilarMusicAudioCheckType.Fingerprint && (
-        <>
-          <FormItem
-            name="similarMusicSubMaximumDifferenceValue"
-            label={t('Max difference')}
-            comp="slider"
-            suffix={
-              <span>({settings.similarMusicSubMaximumDifferenceValue}/10)</span>
-            }
-          >
-            <Slider min={0} max={10} />
-          </FormItem>
-          <FormItem
-            name="similarMusicSubMinimalFragmentDurationValue"
-            label={t('Minimal fragment duration')}
-            comp="slider"
-            suffix={
-              <span>
-                {settings.similarMusicSubMinimalFragmentDurationValue}
-              </span>
-            }
-          >
-            <Slider min={0} max={180} />
-          </FormItem>
-          <FormItem
-            name="similarMusicCompareFingerprintsOnlyWithSimilarTitles"
-            label={t('Compare only with similar titles')}
-            comp="switch"
-          >
-            <Switch />
-          </FormItem>
-        </>
-      )}
+          </>
+        )}
       <PathDisplaySettings />
     </>
   );
 }
 
-function BrokenFilesSettings({ showControls = true, showAlgorithms = true }: { showControls?: boolean; showAlgorithms?: boolean }) {
+function BrokenFilesSettings({
+  showControls = true,
+  showAlgorithms = true,
+}: { showControls?: boolean; showAlgorithms?: boolean }) {
   const t = useT();
 
   return (

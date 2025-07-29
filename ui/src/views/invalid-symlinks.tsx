@@ -3,10 +3,10 @@ import {
   invalidSymlinksAtom,
   invalidSymlinksRowSelectionAtom,
 } from '~/atom/primitive';
+import { settingsAtom } from '~/atom/settings';
 import { DataTable, createColumns } from '~/components/data-table';
 import { useT } from '~/hooks';
 import type { SymlinksFileEntry } from '~/types';
-import { settingsAtom } from '~/atom/settings';
 import { formatPathDisplay } from '~/utils/path-utils';
 
 export function InvalidSymlinks() {
@@ -30,7 +30,10 @@ export function InvalidSymlinks() {
       size: 220,
       minSize: 110,
       cell: ({ row }) => {
-        const displayPath = formatPathDisplay(row.original.path, settings.reversePathDisplay);
+        const displayPath = formatPathDisplay(
+          row.original.path,
+          settings.reversePathDisplay,
+        );
         return <div className="truncate">{displayPath}</div>;
       },
     },
@@ -40,7 +43,10 @@ export function InvalidSymlinks() {
       size: 220,
       minSize: 130,
       cell: ({ row }) => {
-        const displayPath = formatPathDisplay(row.original.destinationPath, settings.reversePathDisplay);
+        const displayPath = formatPathDisplay(
+          row.original.destinationPath,
+          settings.reversePathDisplay,
+        );
         return <div className="truncate">{displayPath}</div>;
       },
     },

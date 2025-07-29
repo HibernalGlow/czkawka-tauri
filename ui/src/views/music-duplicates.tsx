@@ -4,6 +4,7 @@ import {
   musicDuplicatesAtom,
   musicDuplicatesRowSelectionAtom,
 } from '~/atom/primitive';
+import { settingsAtom } from '~/atom/settings';
 import {
   DataTable,
   TableActions,
@@ -12,7 +13,6 @@ import {
 } from '~/components/data-table';
 import { useT } from '~/hooks';
 import type { MusicEntry } from '~/types';
-import { settingsAtom } from '~/atom/settings';
 import { formatPathDisplay } from '~/utils/path-utils';
 
 export function MusicDuplicates() {
@@ -92,7 +92,10 @@ export function MusicDuplicates() {
         if (row.original.hidden) {
           return null;
         }
-        const displayPath = formatPathDisplay(row.original.path, settings.reversePathDisplay);
+        const displayPath = formatPathDisplay(
+          row.original.path,
+          settings.reversePathDisplay,
+        );
         return <div className="truncate">{displayPath}</div>;
       },
     },

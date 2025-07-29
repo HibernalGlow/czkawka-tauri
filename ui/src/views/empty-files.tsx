@@ -29,7 +29,10 @@ export function EmptyFiles() {
       size: 430,
       minSize: 100,
       cell: ({ row }) => {
-        const displayPath = formatPathDisplay(row.original.path, settings.reversePathDisplay);
+        const displayPath = formatPathDisplay(
+          row.original.path,
+          settings.reversePathDisplay,
+        );
         return <div className="truncate">{displayPath}</div>;
       },
     },

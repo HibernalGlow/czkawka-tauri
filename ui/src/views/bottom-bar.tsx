@@ -4,16 +4,16 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   ArrowDownFromLine,
   Folder,
+  FolderMinus,
   FolderPen,
   FolderPlus,
   LoaderCircle,
   ScrollText,
-  Trash2,
-  Star,
   Settings2,
-  FolderMinus,
-  SquareMousePointer,
   Sliders,
+  SquareMousePointer,
+  Star,
+  Trash2,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import {
@@ -21,6 +21,7 @@ import {
   includedDirsRowSelectionAtom,
   logsAtom,
 } from '~/atom/primitive';
+import { currentToolAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
 import { Button, ScrollArea, Textarea, TooltipButton } from '~/components';
 import {
@@ -37,17 +38,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/shadcn/dialog';
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from '~/components/shadcn/resizable';
 import { Tabs, TabsList, TabsTrigger } from '~/components/shadcn/tabs';
 import { useBoolean, useT } from '~/hooks';
 import type { DirsType } from '~/types';
 import { cn } from '~/utils/cn';
 import { getRowSelectionKeys, splitStr } from '~/utils/common';
-import { Operations } from './operations';
-import { ToolSettings } from './tool-settings';
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '~/components/shadcn/resizable';
-import { RowSelectionMenu } from './row-selection-menu';
-import { currentToolAtom } from '~/atom/primitive';
 import { FileFilter } from './file-filter';
+import { Operations } from './operations';
+import { RowSelectionMenu } from './row-selection-menu';
+import { ToolSettings } from './tool-settings';
 
 const DisplayType = {
   Dirs: 'dirs',
@@ -76,7 +80,7 @@ export function BottomBar() {
   const excludedDirsDialogOpen = useBoolean();
   const [settings, setSettings] = useAtom(settingsAtom);
   const [rowSelection, setRowSelection] = useAtom(excludedDirsRowSelectionAtom);
-  
+
   return (
     <div className="flex flex-col px-2 py-1 gap-1 border-t">
       <div className="flex justify-between items-center">
@@ -96,9 +100,15 @@ export function BottomBar() {
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          <Dialog open={excludedDirsDialogOpen.value} onOpenChange={excludedDirsDialogOpen.set}>
+          <Dialog
+            open={excludedDirsDialogOpen.value}
+            onOpenChange={excludedDirsDialogOpen.set}
+          >
             <DialogTrigger asChild>
-              <TooltipButton tooltip={t('Exclude Directories')} variant="outline">
+              <TooltipButton
+                tooltip={t('Exclude Directories')}
+                variant="outline"
+              >
                 <FolderMinus />
               </TooltipButton>
             </DialogTrigger>
@@ -129,10 +139,7 @@ export function BottomBar() {
         </div>
       </div>
       {!minimizeBottomBar.value && (
-        <ResizablePanelGroup
-          direction="vertical"
-          className="min-h-[200px]"
-        >
+        <ResizablePanelGroup direction="vertical" className="min-h-[200px]">
           <ResizablePanel defaultSize={100} minSize={20}>
             {displayType === DisplayType.Dirs ? (
               <ResizablePanelGroup direction="horizontal">
@@ -160,7 +167,7 @@ export function BottomBar() {
 
 function ToolControlsPanel() {
   const t = useT();
-  
+
   return (
     <div className="h-full flex flex-col border rounded-md overflow-hidden">
       <div className="bg-muted/30 p-2 border-b">
@@ -170,7 +177,11 @@ function ToolControlsPanel() {
         </h3>
       </div>
       <div className="flex-1 overflow-auto p-2 hide-scrollbar">
-        <ToolSettings inPanel={true} showControls={true} showAlgorithms={false} />
+        <ToolSettings
+          inPanel={true}
+          showControls={true}
+          showAlgorithms={false}
+        />
       </div>
     </div>
   );
@@ -178,7 +189,7 @@ function ToolControlsPanel() {
 
 function ToolAlgorithmPanel() {
   const t = useT();
-  
+
   return (
     <div className="h-full flex flex-col border rounded-md overflow-hidden">
       <div className="bg-muted/30 p-2 border-b">
@@ -188,7 +199,11 @@ function ToolAlgorithmPanel() {
         </h3>
       </div>
       <div className="flex-1 overflow-auto p-2 hide-scrollbar">
-        <ToolSettings inPanel={true} showControls={false} showAlgorithms={true} />
+        <ToolSettings
+          inPanel={true}
+          showControls={false}
+          showAlgorithms={true}
+        />
       </div>
     </div>
   );
@@ -233,13 +248,20 @@ function IncludedDirsTable() {
         return (
           <div className="flex justify-center">
             <Button
-              variant={isReference ? "default" : "ghost"}
+              variant={isReference ? 'default' : 'ghost'}
               size="icon"
               className="h-6 w-6"
               onClick={() => handleReferenceToggle(row.original.path)}
               title={t('Use as reference')}
             >
-              <Star className={cn("h-4 w-4", isReference ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground")} />
+              <Star
+                className={cn(
+                  'h-4 w-4',
+                  isReference
+                    ? 'text-yellow-500 fill-yellow-500'
+                    : 'text-muted-foreground',
+                )}
+              />
             </Button>
           </div>
         );
@@ -258,11 +280,12 @@ function IncludedDirsTable() {
 
   const handleReferenceToggle = (path: string) => {
     setSettings((old) => {
-      const isCurrentlyReference = old.includedDirectoriesReferenced.includes(path);
+      const isCurrentlyReference =
+        old.includedDirectoriesReferenced.includes(path);
       const newReferences = isCurrentlyReference
         ? old.includedDirectoriesReferenced.filter((p) => p !== path)
         : [...old.includedDirectoriesReferenced, path];
-      
+
       return {
         ...old,
         includedDirectoriesReferenced: newReferences,
@@ -412,22 +435,25 @@ function DirsActions(props: PropsWithRowSelection<Pick<TableData, 'field'>>) {
         return {
           ...settings,
           [field]: [],
-          includedDirectoriesReferenced: []
+          includedDirectoriesReferenced: [],
         };
       }
       return {
         ...settings,
-        [field]: []
+        [field]: [],
       };
     });
     onRowSelectionChange({});
   };
 
-  const checkPathForReferenceKeywords = (path: string, keywords: string): boolean => {
+  const checkPathForReferenceKeywords = (
+    path: string,
+    keywords: string,
+  ): boolean => {
     if (field !== 'includedDirectories') return false;
-    
+
     const keywordList = splitStr(keywords);
-    return keywordList.some(keyword => keyword && path.includes(keyword));
+    return keywordList.some((keyword) => keyword && path.includes(keyword));
   };
 
   const handleAddPath = async () => {
@@ -437,35 +463,37 @@ function DirsActions(props: PropsWithRowSelection<Pick<TableData, 'field'>>) {
     if (!dirs || dirs.length === 0) {
       return;
     }
-    
+
     setSettings((settings) => {
       const currentDirs = settings[field];
       const newDirs = Array.isArray(dirs) ? dirs : [dirs];
-      const uniqueDirs = newDirs.filter(dir => !currentDirs.includes(dir));
-      
+      const uniqueDirs = newDirs.filter((dir) => !currentDirs.includes(dir));
+
       if (uniqueDirs.length === 0) {
         return settings;
       }
-      
+
       // Check for reference keywords if this is for includedDirectories
       if (field === 'includedDirectories') {
         const newReferenceDirs = [...settings.includedDirectoriesReferenced];
-        
+
         for (const dir of uniqueDirs) {
-          if (checkPathForReferenceKeywords(dir, settings.referencePathKeywords)) {
+          if (
+            checkPathForReferenceKeywords(dir, settings.referencePathKeywords)
+          ) {
             if (!newReferenceDirs.includes(dir)) {
               newReferenceDirs.push(dir);
             }
           }
         }
-        
+
         return {
           ...settings,
           [field]: [...uniqueDirs, ...currentDirs],
           includedDirectoriesReferenced: newReferenceDirs,
         };
       }
-      
+
       return {
         ...settings,
         [field]: [...uniqueDirs, ...currentDirs],
@@ -479,22 +507,24 @@ function DirsActions(props: PropsWithRowSelection<Pick<TableData, 'field'>>) {
       // Check for reference keywords if this is for includedDirectories
       if (field === 'includedDirectories') {
         const newReferenceDirs = [...settings.includedDirectoriesReferenced];
-        
+
         for (const path of paths) {
-          if (checkPathForReferenceKeywords(path, settings.referencePathKeywords)) {
+          if (
+            checkPathForReferenceKeywords(path, settings.referencePathKeywords)
+          ) {
             if (!newReferenceDirs.includes(path)) {
               newReferenceDirs.push(path);
             }
           }
         }
-        
+
         return {
           ...settings,
           [field]: Array.from(new Set([...paths, ...settings[field]])),
           includedDirectoriesReferenced: newReferenceDirs,
         };
       }
-      
+
       return {
         ...settings,
         [field]: Array.from(new Set([...paths, ...settings[field]])),
@@ -545,10 +575,18 @@ function DirsActions(props: PropsWithRowSelection<Pick<TableData, 'field'>>) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <TooltipButton tooltip={t('Remove selected')} onClick={handleRemovePaths} size="sm">
+      <TooltipButton
+        tooltip={t('Remove selected')}
+        onClick={handleRemovePaths}
+        size="sm"
+      >
         <Trash2 className="h-4 w-4" />
       </TooltipButton>
-      <TooltipButton tooltip={t('Clear all')} onClick={handleClearAllPaths} size="sm">
+      <TooltipButton
+        tooltip={t('Clear all')}
+        onClick={handleClearAllPaths}
+        size="sm"
+      >
         <FolderMinus className="h-4 w-4" />
       </TooltipButton>
     </div>
