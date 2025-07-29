@@ -188,7 +188,7 @@ export const zh: Record<TranslationKeys, string> = {
   'Please add path': '请添加路径',
   Add: '添加',
   'Manual add': '手动添加',
-  'Manually add paths desc': '手动填写路径(一行一个)',
+  'Manually add paths desc': '手动填写路径（一行一个，或用逗号/分号分隔）',
   'Remove selected': '移除已选择的',
   'Clear all': '清空全部',
   'Select custom': '自定义选择',

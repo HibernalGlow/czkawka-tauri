@@ -190,7 +190,7 @@ export const en = {
   'Please add path': 'Please add path',
   Add: 'Add',
   'Manual add': 'Manual add',
-  'Manually add paths desc': 'Manually add paths(one per line)',
+  'Manually add paths desc': 'Manually add paths (one per line, or separated by commas/semicolons)',
   'Remove selected': 'Remove selected',
   'Clear all': 'Clear all',
   'Select custom': 'Select custom',

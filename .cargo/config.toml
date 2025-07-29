@@ -8,11 +8,7 @@ rustflags = ["-C", "target-cpu=native"]
 jobs = 12  # 调整为你CPU核心数的1.5-2倍
 
 # 使用sccache作为编译缓存
-[target.'cfg(not(target_env = "msvc"))']
-rustc-wrapper = "sccache"
 
-[target.'cfg(target_env = "msvc")']
-rustc-wrapper = "sccache"
 
 # 启用增量编译
 [profile.dev]
