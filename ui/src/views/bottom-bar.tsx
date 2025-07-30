@@ -23,7 +23,7 @@ import {
   logsAtom,
 } from '~/atom/primitive';
 import { currentToolAtom } from '~/atom/primitive';
-import { similarImagesFoldersAtom } from '~/atom/tools';
+import { currentToolDataAtom } from '~/atom/tools';
 import { settingsAtom } from '~/atom/settings';
 import { Button, ScrollArea, Textarea, TooltipButton } from '~/components';
 import {
@@ -117,8 +117,22 @@ export function BottomBar() {
   const excludedDirsDialogOpen = useBoolean();
   const [settings, setSettings] = useAtom(settingsAtom);
   const [rowSelection, setRowSelection] = useAtom(excludedDirsRowSelectionAtom);
+  const currentToolData = useAtomValue(currentToolDataAtom);
   const currentTool = useAtomValue(currentToolAtom);
-  const foldersFromScanResult = useAtomValue(similarImagesFoldersAtom);
+  const [foldersFromScanResult, setFoldersFromScanResult] = useState<FolderStat[]>([]);
+  useEffect(() => {
+    // 只在相似图片工具下处理
+    if (currentTool === Tools.SimilarImages && currentToolData && Array.isArray(currentToolData) && currentToolData.length > 0) {
+      const maybeFolders = (currentToolData as any)[0]?.folders;
+      if (maybeFolders && Array.isArray(maybeFolders)) {
+        setFoldersFromScanResult(maybeFolders);
+      } else {
+        setFoldersFromScanResult([]);
+      }
+    } else {
+      setFoldersFromScanResult([]);
+    }
+  }, [currentToolData, currentTool]);
 
   return (
     <div className="flex flex-col px-2 py-1 gap-1 border-t">

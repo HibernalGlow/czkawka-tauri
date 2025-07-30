@@ -1,10 +1,7 @@
-
-import type { FolderStat } from '~/types';
-export const similarImagesFoldersAtom = atom<FolderStat[]>([]);
 import { type PrimitiveAtom, atom } from 'jotai';
 import type { RowSelection } from '~/components/data-table';
 import { Tools } from '~/consts';
-import type { ToolsValues } from '~/types';
+import type { ToolsValues, FolderStat } from '~/types';
 import {
   badExtensionsAtom,
   badExtensionsRowSelectionAtom,
@@ -31,6 +28,9 @@ import {
   temporaryFilesAtom,
   temporaryFilesRowSelectionAtom,
 } from './primitive';
+
+// 相似图片文件夹统计数据
+export const similarImagesFoldersAtom = atom<FolderStat[]>([]);
 
 const dataAtomMap: Record<ToolsValues, PrimitiveAtom<any[]>> = {
   [Tools.DuplicateFiles]: duplicateFilesAtom,
