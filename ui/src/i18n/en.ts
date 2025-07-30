@@ -157,6 +157,21 @@ export const en = {
   'Select all except newest': 'Select all except newest',
   'Select all except oldest': 'Select all except oldest',
 
+  // Path based selection
+  'Path based': 'Path based',
+  'Select the longest path': 'Select the longest path',
+  'Select the shortest path': 'Select the shortest path',
+  'Select all except longest path': 'Select all except longest path',
+  'Select all except shortest path': 'Select all except shortest path',
+  'Keep one per folder': 'Keep one per folder',
+
+  // Name based selection
+  'Name based': 'Name based',
+  'Select the first name': 'Select the first name',
+  'Select the last name': 'Select the last name',
+  'Select all except first name': 'Select all except first name',
+  'Select all except last name': 'Select all except last name',
+
   Move: 'Move',
   'Moving files': 'Moving files',
   'Move confirm':
@@ -253,6 +268,7 @@ export const en = {
   'Apply Filter': 'Apply Filter',
   Equals: 'Equals',
   Contains: 'Contains',
+  'Not Contains': 'Not Contains',
   'Starts with': 'Starts with',
   'Ends with': 'Ends with',
   'Greater than': 'Greater than',

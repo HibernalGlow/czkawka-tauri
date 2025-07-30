@@ -156,6 +156,21 @@ export const zh: Record<TranslationKeys, string> = {
   'Select all except newest': '选择除最新外的所有',
   'Select all except oldest': '选择除最旧外的所有',
 
+  // Path based selection
+  'Path based': '基于路径',
+  'Select the longest path': '选择路径最长的',
+  'Select the shortest path': '选择路径最短的',
+  'Select all except longest path': '选择除最长路径外的所有',
+  'Select all except shortest path': '选择除最短路径外的所有',
+  'Keep one per folder': '每个文件夹保留一个',
+
+  // Name based selection
+  'Name based': '基于名称',
+  'Select the first name': '选择名称靠前的',
+  'Select the last name': '选择名称靠后的',
+  'Select all except first name': '选择除名称靠前外的所有',
+  'Select all except last name': '选择除名称靠后外的所有',
+
   Move: '移动',
   'Moving files': '移动文件',
   'Move confirm':
@@ -246,6 +261,7 @@ export const zh: Record<TranslationKeys, string> = {
   'Apply Filter': '应用筛选',
   Equals: '等于',
   Contains: '包含',
+  'Not Contains': '不包含',
   'Starts with': '开头是',
   'Ends with': '结尾是',
   'Greater than': '大于',

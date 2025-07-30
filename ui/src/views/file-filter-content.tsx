@@ -377,6 +377,9 @@ export function FileFilterContent() {
   // 清空所有
   const clearFilters = () => {
     setConditions([]);
+    if (originalData.length > 0) {
+      setData([...originalData]);
+    }
     setCurrentField('');
     setCurrentOperator('');
     setCurrentValue('');

@@ -159,8 +159,8 @@ pub fn scan_similar_images(app: AppHandle, settins: Settings) {
 			.collect::<Vec<_>>();
 
 		let folders = similar_folders::collect_folders(&list, &is_in_reference_path, 2);
-		dbg!("similar_images list", &list);
-		dbg!("similar_images folders", &folders);
+		// dbg!("similar_images list", &list);
+		// dbg!("similar_images folders", &folders);
 		app.emit(
 			"scan-result",
 			ScanResult {
