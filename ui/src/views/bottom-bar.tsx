@@ -139,7 +139,7 @@ export function BottomBar() {
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <Operations />
-          <SimilarFoldersButton folders={foldersFromScanResult} />
+          {/* 相似文件夹批量操作入口已移除，相关功能已集成到主表格切换 */}
           <RowSelectionMenu disabled={false} />
           <FileFilter />
         </div>
