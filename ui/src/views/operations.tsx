@@ -9,6 +9,60 @@ import { RowSelectionMenu } from './row-selection-menu';
 import { SaveResult } from './save-result';
 import { ScanButton } from './scan-button';
 import { ToolSettings } from './tool-settings';
+import { Info } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/shadcn/dialog';
+import { TooltipButton } from '~/components';
+import { useState } from 'react';
+import { getAllSimilarityLevelsWithRanges, getSimilarityLevelText } from '~/utils/similarity-utils';
+
+function SimilarityQuickTableDialog() {
+  const [open, setOpen] = useState(false);
+  const hashSizes = [8, 16, 32, 64];
+  // 获取所有级别
+  const levels = getAllSimilarityLevelsWithRanges(16).map(l => l.level);
+  // 构造表格数据：每行一个级别，每列一个hashSize
+  const tableData = levels.map(level => {
+    return {
+      level,
+      text: getSimilarityLevelText(level),
+      ranges: hashSizes.map(hs => getAllSimilarityLevelsWithRanges(hs).find(l => l.level === level)?.range || '')
+    };
+  });
+  return (
+    <>
+      <TooltipButton tooltip="相似度速查表" onClick={() => setOpen(true)} size="sm">
+        <Info className="h-4 w-4" />
+      </TooltipButton>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>相似度与哈希大小速查表</DialogTitle>
+          </DialogHeader>
+          <table className="w-full border border-border rounded text-xs whitespace-nowrap">
+            <thead>
+              <tr className="bg-muted/40">
+                <th className="px-2 py-1 font-medium text-left">级别</th>
+                {hashSizes.map(hs => (
+                  <th key={hs} className="px-2 py-1 font-medium text-left">hashSize {hs}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {tableData.map(row => (
+                <tr key={row.level} className="border-t border-border">
+                  <td className="px-2 py-1 text-left align-middle">{row.text}</td>
+                  {row.ranges.map((range, idx) => (
+                    <td key={idx} className="px-2 py-1 text-left align-middle">{range}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
 
 export function Operations() {
   const progress = useAtomValue(progressAtom);
@@ -26,6 +80,7 @@ export function Operations() {
       <DeleteFiles disabled={disabled} />
       <SaveResult disabled={disabled} />
       {currentTool === Tools.BadExtensions && <RenameExt disabled={disabled} />}
+      <SimilarityQuickTableDialog />
     </div>
   );
 }

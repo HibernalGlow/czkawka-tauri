@@ -56,6 +56,8 @@ import { RowSelectionMenu } from './row-selection-menu';
 import { ToolSettings } from './tool-settings';
 import type { FolderStat } from '~/types';
 import { Tools } from '~/consts';
+import { getAllSimilarityLevelsWithRanges } from '~/utils/similarity-utils';
+import { Info } from 'lucide-react';
 
 const DisplayType = {
   Dirs: 'dirs',

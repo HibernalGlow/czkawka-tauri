@@ -784,6 +784,14 @@ body {
   margin-top: 0.5rem;
 }
 
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
 .block {
   display: block;
 }
@@ -1525,6 +1533,10 @@ body {
   background-color: rgb(254 252 232 / var(--tw-bg-opacity, 1));
 }
 
+.bg-muted\/40 {
+  background-color: hsl(var(--muted) / 0.4);
+}
+
 .fill-current {
   fill: currentColor;
 }
@@ -1694,6 +1706,10 @@ body {
   text-align: right;
 }
 
+.align-middle {
+  vertical-align: middle;
+}
+
 .font-serif {
   font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 }
@@ -1732,6 +1748,10 @@ body {
 
 .font-semibold {
   font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
 }
 
 .leading-none {
