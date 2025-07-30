@@ -24,15 +24,21 @@ export function SimilarImages() {
   const [viewMode, setViewMode] = useState<'images' | 'folders'>('images');
   const imagesData = useAtomValue(similarImagesAtom);
   const foldersData = useAtomValue(similarImagesFoldersAtom);
+  const settings = useAtomValue(settingsAtom);
   
   const [rowSelection, setRowSelection] = useAtom(
     similarImagesRowSelectionAtom,
   );
   const t = useT();
 
+  // 根据阈值过滤文件夹数据
+  const filteredFoldersData = useMemo(() => {
+    return foldersData.filter(folder => folder.count >= settings.similarImagesFolderThreshold);
+  }, [foldersData, settings.similarImagesFolderThreshold]);
+
   // 将文件夹数据转换为表格行格式，复用现有的列结构
   const transformedFoldersData = useMemo(() => {
-    return foldersData.map((folder: FolderStat, index: number) => ({
+    return filteredFoldersData.map((folder: FolderStat, index: number) => ({
       id: `folder-${index}`,
       similarity: '',
       size: `${folder.count} 张图片`,
@@ -46,7 +52,7 @@ export function SimilarImages() {
       // 为文件夹添加标识，用于区分是否为文件夹行
       isFolder: true,
     }));
-  }, [foldersData]);
+  }, [filteredFoldersData]);
 
   // 根据视图模式选择数据源
   const data = viewMode === 'images' ? imagesData : transformedFoldersData;
@@ -168,7 +174,7 @@ export function SimilarImages() {
         </Button>
         {viewMode === 'folders' && (
           <span className="text-sm text-muted-foreground ml-2">
-            共 {foldersData.length} 个文件夹
+            共 {filteredFoldersData.length} 个文件夹 (≥{settings.similarImagesFolderThreshold}张图片)
           </span>
         )}
       </div>

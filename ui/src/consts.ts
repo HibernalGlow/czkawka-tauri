@@ -97,6 +97,7 @@ export function getDefaultSettings(): Settings {
     similarImagesSubResizeAlgorithm: SimilarImagesResizeAlgorithm.Lanczos3,
     similarImagesSubIgnoreSameSize: false,
     similarImagesSubSimilarity: 10,
+    similarImagesFolderThreshold: 5,
 
     biggestFilesSubMethod: BigFilesSearchMode.BiggestFiles,
     biggestFilesSubNumberOfFiles: 50,

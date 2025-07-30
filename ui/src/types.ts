@@ -53,6 +53,7 @@ export interface Settings {
   similarImagesSubResizeAlgorithm: string;
   similarImagesSubIgnoreSameSize: boolean;
   similarImagesSubSimilarity: number;
+  similarImagesFolderThreshold: number;
 
   biggestFilesSubMethod: string;
   biggestFilesSubNumberOfFiles: number;

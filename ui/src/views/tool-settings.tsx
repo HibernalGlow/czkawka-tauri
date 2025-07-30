@@ -1,8 +1,8 @@
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { Settings2 } from 'lucide-react';
 import { currentToolAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
-import { OperationButton } from '~/components';
+import { OperationButton, Button } from '~/components';
 import { InputNumber } from '~/components';
 import { CheckboxWithLabel, Select, Slider, Switch } from '~/components';
 import {
@@ -252,7 +252,12 @@ function SimilarImagesSettings({
   showAlgorithms = true,
 }: { showControls?: boolean; showAlgorithms?: boolean }) {
   const settings = useAtomValue(settingsAtom);
+  const setSettings = useSetAtom(settingsAtom);
   const t = useT();
+
+  const handlePresetClick = (value: number) => {
+    setSettings(prev => ({ ...prev, similarImagesSubSimilarity: value }));
+  };
 
   return (
     <>
@@ -303,13 +308,6 @@ function SimilarImagesSettings({
       {showControls && (
         <>
           <FormItem
-            name="similarImagesSubIgnoreSameSize"
-            label={t('Ignore same size')}
-            comp="select"
-          >
-            <Switch />
-          </FormItem>
-          <FormItem
             name="similarImagesSubSimilarity"
             label={t('Max difference')}
             comp="slider"
@@ -317,9 +315,26 @@ function SimilarImagesSettings({
           >
             <Slider min={0} max={40} />
           </FormItem>
+          <FormItem
+            name="similarImagesFolderThreshold"
+            label="文件夹阈值"
+            // description="只显示包含相似图片数量达到此阈值的文件夹"
+            comp="slider"
+            suffix={<span>{settings.similarImagesFolderThreshold} </span>}
+          >
+            <Slider min={1} max={50} />
+          </FormItem>
+          <FormItem
+            name="similarImagesSubIgnoreSameSize"
+            label={t('Ignore same size')}
+            comp="select"
+          >
+            <Switch />
+          </FormItem>
         </>
       )}
-      <PathDisplaySettings />
+      {/* 只在算法设置中保留路径显示设置 */}
+      {showAlgorithms && <PathDisplaySettings />}
     </>
   );
 }
