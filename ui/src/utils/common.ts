@@ -33,6 +33,13 @@ export function splitStr(s: string): string[] {
     .replace(/[\u2068\u2069]/g, '')
     .split(/\r?\n|,|;/)
     .map((s) => s.trim())
+    .map((s) => {
+      // 去除路径两端的双引号（Windows标准复制路径格式）
+      if (s.startsWith('"') && s.endsWith('"') && s.length > 1) {
+        return s.slice(1, -1);
+      }
+      return s;
+    })
     .filter((s) => s.length > 0);
 }
 
