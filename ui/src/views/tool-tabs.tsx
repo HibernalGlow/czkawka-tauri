@@ -1,8 +1,22 @@
 import { useAtom, useAtomValue } from 'jotai';
-import { LoaderCircle } from 'lucide-react';
+import { 
+  LoaderCircle, 
+  Copy, 
+  FolderX, 
+  HardDrive, 
+  FileX, 
+  Trash2, 
+  Images, 
+  Video, 
+  Music, 
+  Link, 
+  FileQuestion, 
+  Tag,
+  Menu
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { currentToolAtom, progressAtom } from '~/atom/primitive';
-import { Button, ScrollArea } from '~/components';
+import { currentToolAtom, progressAtom, toolTabsCollapsedAtom } from '~/atom/primitive';
+import { Button, ScrollArea, TooltipButton } from '~/components';
 import { Tools } from '~/consts';
 import type { ToolsValues } from '~/types';
 import { cn } from '~/utils/cn';
@@ -13,8 +27,24 @@ function isValidTool(s: string): s is ToolsValues {
   return toolSet.has(s);
 }
 
+// 工具图标映射
+const toolIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  [Tools.DuplicateFiles]: Copy,
+  [Tools.EmptyFolders]: FolderX,
+  [Tools.BigFiles]: HardDrive,
+  [Tools.EmptyFiles]: FileX,
+  [Tools.TemporaryFiles]: Trash2,
+  [Tools.SimilarImages]: Images,
+  [Tools.SimilarVideos]: Video,
+  [Tools.MusicDuplicates]: Music,
+  [Tools.InvalidSymlinks]: Link,
+  [Tools.BrokenFiles]: FileQuestion,
+  [Tools.BadExtensions]: Tag,
+};
+
 export function ToolTabs() {
   const [currentTool, setCurrentTool] = useAtom(currentToolAtom);
+  const [collapsed, setCollapsed] = useAtom(toolTabsCollapsedAtom);
   const progress = useAtomValue(progressAtom);
   const { t } = useTranslation();
 
@@ -25,33 +55,74 @@ export function ToolTabs() {
     setCurrentTool(name);
   };
 
+  const toggleCollapse = () => {
+    setCollapsed(!collapsed);
+  };
+
   return (
     <div
       className={cn(
-        'h-full w-[200px] border-r flex flex-col',
+        'h-full border-r flex flex-col transition-all duration-300',
+        collapsed ? 'w-[60px]' : 'w-[200px]',
         PLATFORM === 'darwin' && 'pt-5',
       )}
     >
-      <div className="flex items-end gap-1 p-3">
-        <img className="size-8" src="/icon.ico" alt="czkawka icon" />
-        <span className="font-serif">{PKG_NAME}</span>
-        <span className="font-extralight text-xs pl-1 pb-[3px]">
-          {PKG_VERSION}
-        </span>
+      {/* 汉堡按钮 */}
+      <div className={cn('flex items-center p-3', collapsed ? 'justify-center' : 'justify-start')}>
+        <TooltipButton
+          tooltip={collapsed ? '展开工具栏' : '折叠工具栏'}
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0 flex-shrink-0"
+          onClick={toggleCollapse}
+        >
+          <Menu className="h-4 w-4" />
+        </TooltipButton>
       </div>
-      <ScrollArea className="px-3 pb-1 flex-1">
+
+
+      <ScrollArea className={cn('px-3 pb-1 flex-1', collapsed && 'px-2')}>
         {Object.values(Tools).map((name) => {
+          const IconComponent = toolIcons[name] || FileQuestion;
+          const isActive = currentTool === name;
+          const isLoading = progress.tool === name;
+          
+          if (collapsed) {
+            return (
+              <TooltipButton
+                key={name}
+                tooltip={t(name)}
+                className={cn(
+                  'w-full h-10 justify-center mt-1 cursor-pointer',
+                )}
+                tabIndex={-1}
+                variant={isActive ? 'default' : 'ghost'}
+                onClick={() => handleClick(name)}
+              >
+                <div className="relative">
+                  <IconComponent className="h-5 w-5" />
+                  {isLoading && (
+                    <LoaderCircle className="absolute inset-0 h-5 w-5 animate-spin" />
+                  )}
+                </div>
+              </TooltipButton>
+            );
+          }
+
           return (
             <Button
               key={name}
               className="w-full h-10 justify-between mt-1 cursor-pointer"
               tabIndex={-1}
-              variant={currentTool === name ? 'default' : 'ghost'}
+              variant={isActive ? 'default' : 'ghost'}
               onClick={() => handleClick(name)}
             >
-              {t(name)}
-              {progress.tool === name && (
-                <LoaderCircle className="animate-spin" />
+              <div className="flex items-center gap-2">
+                <IconComponent className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">{t(name)}</span>
+              </div>
+              {isLoading && (
+                <LoaderCircle className="h-4 w-4 animate-spin flex-shrink-0" />
               )}
             </Button>
           );

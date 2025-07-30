@@ -116,3 +116,6 @@ export const sidebarImagePreviewAtom = atom<{
   position: null,
   size: { width: 320, height: 480 },
 });
+
+// 工具栏折叠状态
+export const toolTabsCollapsedAtom = atomWithStorage('tool-tabs-collapsed', false);

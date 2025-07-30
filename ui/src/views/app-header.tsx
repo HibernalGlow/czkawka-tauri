@@ -13,9 +13,16 @@ import { ThemeToggle } from './theme-toggle';
 export function AppHeader() {
   return (
     <div
-      className="w-full h-11 flex justify-end items-center px-4 py-1 border-b border-border/50 dark:border-border"
+      className="w-full h-11 flex justify-between items-center px-4 py-1 border-b border-border/50 dark:border-border"
       data-tauri-drag-region={PLATFORM === 'darwin' ? true : undefined}
     >
+      {/* 左侧应用图标和版本号 */}
+      <div className="flex items-center gap-2">
+        <img className="size-8 flex-shrink-0" src="/icon.ico" alt="czkawka icon" />
+        <span className="font-serif">{PKG_NAME}</span>
+        <span className="font-extralight text-xs pl-1 pb-[3px]">{PKG_VERSION}</span>
+      </div>
+      {/* 右侧操作按钮 */}
       <div className="flex items-center gap-1.5">
         <ChangeLanguageButton />
         <SettingsButton />
