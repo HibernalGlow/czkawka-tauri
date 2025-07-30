@@ -25,7 +25,7 @@ import {
 import { currentToolAtom } from '~/atom/primitive';
 import { currentToolDataAtom } from '~/atom/tools';
 import { settingsAtom } from '~/atom/settings';
-import { Button, ScrollArea, Textarea, TooltipButton } from '~/components';
+import { Button, ScrollArea, Textarea, TooltipButton, Checkbox } from '~/components';
 import {
   DataTable,
   type RowSelection,
@@ -97,7 +97,10 @@ function SimilarFoldersButton({ folders }: { folders: FolderStat[] }) {
               <ul>
                 {folders.map(f => (
                   <li key={f.path} style={{marginBottom: 8}}>
-                    <input type="checkbox" /> {f.path}（{f.count} 张图片）
+                    <div className="flex items-center gap-2">
+                      <Checkbox />
+                      <span>{f.path}（{f.count} 张图片）</span>
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -277,6 +280,20 @@ function IncludedDirsTable() {
     });
   }, [settings]);
 
+  // 判断是否全选参考路径
+  const allReferenceSelected = data.length > 0 && data.every(d => d.isReference);
+
+  const handleReferenceSelectAll = (checked: boolean) => {
+    setSettings((old) => {
+      return {
+        ...old,
+        includedDirectoriesReferenced: checked
+          ? data.map(d => d.path)
+          : [],
+      };
+    });
+  };
+
   const columns = createColumns<TableData>([
     {
       accessorKey: 'path',
@@ -288,7 +305,13 @@ function IncludedDirsTable() {
     {
       id: 'reference',
       header: () => (
-        <div className="flex justify-center">
+        <div className="flex items-center justify-center gap-2">
+          <Checkbox
+            checked={allReferenceSelected}
+            onCheckedChange={handleReferenceSelectAll}
+            title="全选/取消全选参考路径"
+            className="translate-y-[2px]"
+          />
           <span className="text-xs text-muted-foreground font-normal">
             {t('Reference')}
           </span>
