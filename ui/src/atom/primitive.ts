@@ -119,3 +119,16 @@ export const sidebarImagePreviewAtom = atom<{
 
 // 工具栏折叠状态
 export const toolTabsCollapsedAtom = atomWithStorage('tool-tabs-collapsed', false);
+
+// 筛选面板状态
+export const filterPanelAtom = atom<{
+  isOpen: boolean;
+  mode: 'floating' | 'fixed';
+  position: { x: number; y: number } | null;
+  size: { width: number; height: number };
+}>({
+  isOpen: false,
+  mode: 'fixed',
+  position: null,
+  size: { width: 400, height: 500 },
+});

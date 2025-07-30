@@ -268,6 +268,11 @@ export const en = {
   Small: 'Small',
   'Very Small': 'Very Small',
   Minimal: 'Minimal',
+  
+  // Floating panel
+  'Pin panel': 'Pin panel',
+  'Unpin panel': 'Unpin panel',
+  Close: 'Close',
 };
 
 export type TranslationKeys = keyof typeof en;

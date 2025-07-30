@@ -3,6 +3,7 @@ import { TooltipProvider } from '~/components/shadcn/tooltip';
 import { AppBody } from '~/views/app-body';
 import { AppHeader } from '~/views/app-header';
 import { BottomBar } from '~/views/bottom-bar';
+import { FloatingFilterPanel } from '~/views/floating-filter-panel';
 import { SidebarImagePreview } from '~/views/sidebar-image-preview';
 import { ToolTabs } from '~/views/tool-tabs';
 
@@ -21,6 +22,7 @@ export default function App() {
       </TooltipProvider>
       <Toaster />
       <SidebarImagePreview />
+      <FloatingFilterPanel />
     </div>
   );
 }

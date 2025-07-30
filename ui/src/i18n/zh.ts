@@ -261,4 +261,9 @@ export const zh: Record<TranslationKeys, string> = {
   Small: '较小',
   'Very Small': '极小',
   Minimal: '极微',
+  
+  // 浮动面板相关
+  'Pin panel': '固定面板',
+  'Unpin panel': '取消固定',
+  Close: '关闭',
 };
