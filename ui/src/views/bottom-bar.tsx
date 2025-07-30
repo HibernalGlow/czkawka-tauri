@@ -145,7 +145,7 @@ export function BottomBar() {
         <div className="flex items-center gap-2">
           <Operations />
           {/* 相似文件夹批量操作入口已移除，相关功能已集成到主表格切换 */}
-          <RowSelectionMenu disabled={false} />
+          {/* <RowSelectionMenu disabled={false} /> */}
           <FileFilter />
         </div>
         <div className="flex items-center gap-1">
