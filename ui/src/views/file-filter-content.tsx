@@ -38,6 +38,7 @@ interface FilterCondition {
 const OPERATORS = {
   EQUALS: 'equals',
   CONTAINS: 'contains',
+  NOT_CONTAINS: 'notContains',
   STARTS_WITH: 'startsWith',
   ENDS_WITH: 'endsWith',
   GREATER_THAN: 'gt',
@@ -118,6 +119,7 @@ function getAvailableOperators(fieldType: string) {
     default:
       return [
         { value: OPERATORS.CONTAINS, label: 'Contains' },
+        { value: OPERATORS.NOT_CONTAINS, label: 'Not Contains' },
         { value: OPERATORS.EQUALS, label: 'Equals' },
         { value: OPERATORS.STARTS_WITH, label: 'Starts with' },
         { value: OPERATORS.ENDS_WITH, label: 'Ends with' },
@@ -215,6 +217,8 @@ function itemMatchesConditions(
         return strValue === filterValue;
       case OPERATORS.CONTAINS:
         return strValue.includes(filterValue);
+      case OPERATORS.NOT_CONTAINS:
+        return !strValue.includes(filterValue);
       case OPERATORS.STARTS_WITH:
         return strValue.startsWith(filterValue);
       case OPERATORS.ENDS_WITH:
