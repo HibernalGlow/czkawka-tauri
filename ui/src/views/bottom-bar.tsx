@@ -314,7 +314,7 @@ function IncludedDirsTable() {
             title="全选/取消全选参考路径"
             className="translate-y-[2px]"
           />
-          <span className="text-xs text-muted-foreground font-normal">
+          <span className="text-xs text-muted-foreground font-normal whitespace-nowrap">
             {t('Reference')}
           </span>
         </div>
