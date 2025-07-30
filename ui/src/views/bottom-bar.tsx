@@ -15,13 +15,15 @@ import {
   Star,
   Trash2,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+
+import { useEffect, useState, useMemo } from 'react';
 import {
   excludedDirsRowSelectionAtom,
   includedDirsRowSelectionAtom,
   logsAtom,
 } from '~/atom/primitive';
 import { currentToolAtom } from '~/atom/primitive';
+import { similarImagesFoldersAtom } from '~/atom/tools';
 import { settingsAtom } from '~/atom/settings';
 import { Button, ScrollArea, Textarea, TooltipButton } from '~/components';
 import {
@@ -52,6 +54,8 @@ import { FileFilter } from './file-filter';
 import { Operations } from './operations';
 import { RowSelectionMenu } from './row-selection-menu';
 import { ToolSettings } from './tool-settings';
+import type { FolderStat } from '~/types';
+import { Tools } from '~/consts';
 
 const DisplayType = {
   Dirs: 'dirs',
@@ -73,6 +77,39 @@ type PropsWithRowSelection<T> = T & {
   onRowSelectionChange: (v: RowSelection) => void;
 };
 
+function SimilarFoldersButton({ folders }: { folders: FolderStat[] }) {
+  const [open, setOpen] = useState(false);
+  // TODO: 可扩展选中状态和批量操作
+  return (
+    <>
+      <TooltipButton tooltip="相似文件夹批量操作" onClick={() => setOpen(true)}>
+        <FolderPlus />
+      </TooltipButton>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>相似文件夹批量操作</DialogTitle>
+          </DialogHeader>
+          <div style={{maxHeight: 400, overflow: 'auto'}}>
+            {folders.length === 0 ? (
+              <div>暂无符合条件的文件夹</div>
+            ) : (
+              <ul>
+                {folders.map(f => (
+                  <li key={f.path} style={{marginBottom: 8}}>
+                    <input type="checkbox" /> {f.path}（{f.count} 张图片）
+                  </li>
+                ))}
+              </ul>
+            )}
+            {/* 这里可以加批量移动/删除按钮，调用已有逻辑 */}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
 export function BottomBar() {
   const [displayType, setDisplayType] = useState<string>(DisplayType.Dirs);
   const minimizeBottomBar = useBoolean();
@@ -80,12 +117,15 @@ export function BottomBar() {
   const excludedDirsDialogOpen = useBoolean();
   const [settings, setSettings] = useAtom(settingsAtom);
   const [rowSelection, setRowSelection] = useAtom(excludedDirsRowSelectionAtom);
+  const currentTool = useAtomValue(currentToolAtom);
+  const foldersFromScanResult = useAtomValue(similarImagesFoldersAtom);
 
   return (
     <div className="flex flex-col px-2 py-1 gap-1 border-t">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <Operations />
+          <SimilarFoldersButton folders={foldersFromScanResult} />
           <RowSelectionMenu disabled={false} />
           <FileFilter />
         </div>

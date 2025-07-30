@@ -1061,7 +1061,7 @@ dependencies = [
 
 [[package]]
 name = "czkawka-tauri"
-version = "1.0.7"
+version = "1.0.9"
 dependencies = [
  "base64 0.22.1",
  "crossbeam-channel",

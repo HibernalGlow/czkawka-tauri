@@ -6,6 +6,7 @@ import { settingsAtom } from '~/atom/settings';
 import {
   toolInProgressDataAtom,
   toolInProgressRowSelectionAtom,
+  similarImagesFoldersAtom,
 } from '~/atom/tools';
 import { OperationButton } from '~/components';
 import { Tools, getDefaultProgress } from '~/consts';
@@ -59,9 +60,8 @@ export function ScanButton() {
   const [progress, setProgress] = useAtom(progressAtom);
   const setLogs = useSetAtom(logsAtom);
   const setToolInProgressData = useSetAtom(toolInProgressDataAtom);
-  const setToolInProgressRowSelection = useSetAtom(
-    toolInProgressRowSelectionAtom,
-  );
+  const setToolInProgressRowSelection = useSetAtom(toolInProgressRowSelectionAtom);
+  const setSimilarImagesFolders = useSetAtom(similarImagesFoldersAtom);
   const t = useT();
 
   useEffect(() => {
@@ -69,12 +69,17 @@ export function ScanButton() {
   }, []);
 
   useListenEffect('scan-result', (result: AllScanResult) => {
-    const { cmd, message, list } = result;
+    const { cmd, message, list, folders } = result as any;
     setLogs(message);
-    const convertFn = convertFnMap[cmd];
+    const convertFn = convertFnMap[cmd as ScanCmd];
     const data = convertFn(list);
     setToolInProgressData(data);
     setToolInProgressRowSelection({});
+    if (cmd === 'scan_similar_images' && Array.isArray(folders)) {
+      setSimilarImagesFolders(folders);
+    } else {
+      setSimilarImagesFolders([]);
+    }
     setProgress(getDefaultProgress());
   });
 

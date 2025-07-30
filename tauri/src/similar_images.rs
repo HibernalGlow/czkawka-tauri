@@ -10,13 +10,58 @@ use rayon::prelude::*;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter};
 
+
 use crate::{
 	scaner::{set_scaner_common_settings, spawn_scaner_thread},
 	settings::Settings,
 	state::get_stop_flag_and_progress_tx,
 };
 
-#[derive(Serialize, Clone)]
+mod similar_folders {
+	use std::collections::HashMap;
+	use super::CustomImagesEntry;
+
+	#[derive(serde::Serialize, Clone, Debug)]
+	pub struct FolderStat {
+		pub path: String,
+		pub count: usize,
+	}
+
+	pub fn collect_folders(
+		raw_list: &[(Option<CustomImagesEntry>, Vec<CustomImagesEntry>)],
+		is_in_reference_path: &dyn Fn(&str) -> bool,
+		threshold: usize,
+	) -> Vec<FolderStat> {
+		let mut folder_count: HashMap<String, usize> = HashMap::new();
+		for (ref_item, group) in raw_list {
+			// 统计参考图片
+			if let Some(entry) = ref_item {
+				if let Some(folder) = std::path::Path::new(&entry.path).parent() {
+					let folder_str = folder.to_string_lossy().to_string();
+					if !is_in_reference_path(&folder_str) {
+						*folder_count.entry(folder_str).or_insert(0) += 1;
+					}
+				}
+			}
+			// 统计组内图片
+			for entry in group {
+				if let Some(folder) = std::path::Path::new(&entry.path).parent() {
+					let folder_str = folder.to_string_lossy().to_string();
+					if !is_in_reference_path(&folder_str) {
+						*folder_count.entry(folder_str).or_insert(0) += 1;
+					}
+				}
+			}
+		}
+		folder_count
+			.into_iter()
+			.filter(|(_, count)| *count >= threshold)
+			.map(|(path, count)| FolderStat { path, count })
+			.collect()
+	}
+}
+
+#[derive(Serialize, Clone, Debug)]
 struct CustomImagesEntry {
 	path: String,
 	size: u64,
@@ -31,6 +76,7 @@ struct ScanResult {
 	cmd: &'static str,
 	list: Vec<(Option<CustomImagesEntry>, Vec<CustomImagesEntry>)>,
 	message: String,
+	folders: Vec<similar_folders::FolderStat>,
 }
 
 pub fn scan_similar_images(app: AppHandle, settins: Settings) {
@@ -112,12 +158,16 @@ pub fn scan_similar_images(app: AppHandle, settins: Settings) {
 			})
 			.collect::<Vec<_>>();
 
+		let folders = similar_folders::collect_folders(&list, &is_in_reference_path, 2);
+		dbg!("similar_images list", &list);
+		dbg!("similar_images folders", &folders);
 		app.emit(
 			"scan-result",
 			ScanResult {
 				cmd: "scan_similar_images",
 				list,
 				message,
+				folders,
 			},
 		)
 		.unwrap();
@@ -138,6 +188,11 @@ fn images_entry_to_custom(
 		modified_date: value.modified_date,
 		similarity: get_string_from_similarity(&value.similarity, hash_size),
 	}
+}
+
+fn is_in_reference_path(_folder: &str) -> bool {
+	// TODO: 替换为你的实际判断逻辑
+	false
 }
 
 crate::gen_set_scaner_state_fn!(

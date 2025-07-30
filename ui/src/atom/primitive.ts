@@ -100,6 +100,8 @@ export const badExtensionsAtom = atom<BadFileEntry[]>([]);
 
 export const badExtensionsRowSelectionAtom = atom<RowSelection>({});
 
+export const scanResultAtom = atom<any>(null);
+
 // 侧边栏图片预览状态
 export const sidebarImagePreviewAtom = atom<{
   isOpen: boolean;

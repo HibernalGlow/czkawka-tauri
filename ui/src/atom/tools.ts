@@ -1,3 +1,6 @@
+
+import type { FolderStat } from '~/types';
+export const similarImagesFoldersAtom = atom<FolderStat[]>([]);
 import { type PrimitiveAtom, atom } from 'jotai';
 import type { RowSelection } from '~/components/data-table';
 import { Tools } from '~/consts';

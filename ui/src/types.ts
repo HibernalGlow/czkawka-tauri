@@ -298,6 +298,14 @@ export type AllScanResult =
   | ScanResult<'scan_broken_files', RawBrokenEntry[]>
   | ScanResult<'scan_bad_extensions', RawBadFileEntry[]>;
 
+export interface FolderStat {
+  path: string;
+  count: number;
+}
+export interface ScanResultWithFolders extends ScanResult<'scan_similar_images', TupleWithRefItem<RawImagesEntry>[]> {
+  folders: FolderStat[];
+}
+
 export interface ImageInfo {
   base64: string;
   mimeType: string;
