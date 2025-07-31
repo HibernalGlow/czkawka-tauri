@@ -152,13 +152,13 @@ impl ThumbnailManager {
             .unwrap_or("unknown");
         
         let hash = format!("{:x}", md5::compute(format!("{}-{}-{}", image_path, image_size, image_modified)));
-        let thumbnail_filename = format!("{}_{}.jpg", hash, file_name);
+        let thumbnail_filename = format!("{}_{}.webp", hash, file_name);
         let thumbnail_path = self.cache_dir.join(thumbnail_filename);
 
-        // 保存缩略图为 JPEG 格式
+        // 保存缩略图为 WebP 格式
         let mut output = Vec::new();
         let mut cursor = Cursor::new(&mut output);
-        thumbnail.write_to(&mut cursor, image::ImageFormat::Jpeg)?;
+        thumbnail.write_to(&mut cursor, image::ImageFormat::WebP)?;
 
         fs::write(&thumbnail_path, &output)?;
 
@@ -187,7 +187,7 @@ impl ThumbnailManager {
         
         Ok(ThumbnailInfo {
             base64,
-            mime_type: "image/jpeg".to_string(),
+            mime_type: "image/webp".to_string(),
             width,
             height,
         })
