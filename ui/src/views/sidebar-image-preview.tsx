@@ -298,15 +298,9 @@ function ImageContent({ path }: { path: string }) {
 
     const readImage = async () => {
       try {
-        if (settings.similarImagesEnableThumbnails) {
-          // 使用缩略图
-          const { mimeType, base64 } = await ipc.readThumbnail(path);
-          setSrc(`data:${mimeType};base64,${base64}`);
-        } else {
-          // 使用原图
-          const { mimeType, base64 } = await ipc.readImage(path);
-          setSrc(`data:${mimeType};base64,${base64}`);
-        }
+        // 始终使用原图
+        const { mimeType, base64 } = await ipc.readImage(path);
+        setSrc(`data:${mimeType};base64,${base64}`);
       } catch (err) {
         console.error('Failed to read image:', err);
         setError(true);
@@ -316,7 +310,7 @@ function ImageContent({ path }: { path: string }) {
     };
 
     readImage();
-  }, [path, settings.similarImagesEnableThumbnails]);
+  }, [path]);
 
   if (loading) {
     return (

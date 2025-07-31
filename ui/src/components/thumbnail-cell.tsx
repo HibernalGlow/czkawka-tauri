@@ -25,15 +25,15 @@ export function ThumbnailCell({
   
   // 根据size设置尺寸
   const sizeClasses = {
-    sm: 'w-12 h-12',
-    md: 'w-16 h-16',
-    lg: 'w-20 h-20'
+    sm: 'w-10 h-10',
+    md: 'w-14 h-14',
+    lg: 'w-18 h-18'
   };
   
   const iconSizes = {
-    sm: 'w-4 h-4',
-    md: 'w-6 h-6',
-    lg: 'w-8 h-8'
+    sm: 'w-3 h-3',
+    md: 'w-5 h-5',
+    lg: 'w-7 h-7'
   };
   
   const sizeClass = sizeClasses[size];

@@ -16,18 +16,22 @@ pub struct ImageInfo {
 static THUMBNAIL_MANAGER: OnceLock<Mutex<Option<ThumbnailManager>>> = OnceLock::new();
 
 // 初始化缩略图管理器
-pub fn init_thumbnail_manager(cache_dir: std::path::PathBuf, thumbnail_size: u32) -> Result<(), Box<dyn std::error::Error>> {
-    let manager = ThumbnailManager::new(cache_dir, thumbnail_size)?;
-    THUMBNAIL_MANAGER.set(Mutex::new(Some(manager))).map_err(|_| "Failed to initialize thumbnail manager")?;
-    Ok(())
+pub fn init_thumbnail_manager(_cache_dir: std::path::PathBuf, thumbnail_size: u32) -> Result<(), Box<dyn std::error::Error>> {
+	// 强制使用程序文件夹下thumb目录
+	let exe_dir = std::env::current_exe()?.parent().unwrap().to_path_buf();
+	let thumb_dir = exe_dir.join("thumb");
+	std::fs::create_dir_all(&thumb_dir)?;
+	let manager = ThumbnailManager::new(thumb_dir, thumbnail_size)?;
+	THUMBNAIL_MANAGER.set(Mutex::new(Some(manager))).map_err(|_| "Failed to initialize thumbnail manager")?;
+	Ok(())
 }
 
 // 获取缩略图管理器
 fn get_thumbnail_manager() -> Option<ThumbnailManager> {
-    THUMBNAIL_MANAGER.get()?
-        .lock().ok()?
-        .as_ref()
-        .cloned()
+	THUMBNAIL_MANAGER.get()?
+		.lock().ok()?
+		.as_ref()
+		.cloned()
 }
 
 fn get_mime_type_from_extension(path: &str) -> Option<&'static str> {

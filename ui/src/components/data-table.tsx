@@ -153,7 +153,7 @@ function DataTableBody<T>(props: TableBodyProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const rowVirtualizer = useVirtualizer<HTMLDivElement, HTMLDivElement>({
     count: rows.length,
-    estimateSize: () => rowHeight, // 使用动态行高度
+    estimateSize: () => rowHeight, // 紧密排列，不额外增加间距
     getScrollElement: () => containerRef.current,
     measureElement: (element) => element?.getBoundingClientRect().height,
     overscan: 5,
@@ -185,13 +185,15 @@ function DataTableBody<T>(props: TableBodyProps<T>) {
                 data-index={virtualRow.index}
                 ref={(node) => rowVirtualizer.measureElement(node)}
                 className={cn(
-                  'absolute w-full items-center px-2',
+                  'absolute w-full items-center px-1',
                   isGrid && 'grid grid-cols-12',
                   isResizeable && 'flex',
                 )}
                 style={{ 
                   transform: `translateY(${virtualRow.start}px)`,
-                  height: `${rowHeight}px` 
+                  height: `${rowHeight}px`,
+                  borderBottom: '1px solid hsl(var(--border))',
+                  marginBottom: '0px'
                 }}
               >
                 {row.getVisibleCells().map((cell) => {
@@ -199,7 +201,7 @@ function DataTableBody<T>(props: TableBodyProps<T>) {
                   return (
                     <TableCell
                       key={cell.id}
-                      className="truncate"
+                      className="truncate px-1 py-1"
                       title={cell.getValue<any>()}
                       style={{
                         gridColumn:

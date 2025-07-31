@@ -111,7 +111,7 @@ export function DuplicateFiles() {
       columns={columns}
       rowSelection={rowSelection}
       onRowSelectionChange={setRowSelection}
-      rowHeight={settings.similarImagesEnableThumbnails ? 72 : 40}
+      rowHeight={settings.similarImagesEnableThumbnails ? 60 : 36}
     />
   );
 }
