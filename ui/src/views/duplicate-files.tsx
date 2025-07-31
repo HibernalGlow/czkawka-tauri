@@ -1,7 +1,5 @@
 import type { ColumnDef, Row } from '@tanstack/react-table';
 import { useAtom, useAtomValue } from 'jotai';
-import { Image } from 'lucide-react';
-import { useEffect, useState } from 'react';
 import {
   duplicateFilesAtom,
   duplicateFilesRowSelectionAtom,
@@ -13,8 +11,8 @@ import {
   TableRowSelectionCell,
   TableRowSelectionHeader,
 } from '~/components/data-table';
+import { ThumbnailCell } from '~/components/thumbnail-cell';
 import { useT } from '~/hooks';
-import { ipc } from '~/ipc';
 import type { DuplicateEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
 import { ClickableImagePreview } from './clickable-image-preview';
@@ -26,68 +24,6 @@ export function DuplicateFiles() {
   );
   const settings = useAtomValue(settingsAtom);
   const t = useT();
-
-  // ThumbnailCell组件
-  const ThumbnailCell = ({ path }: { path: string }) => {
-    const [thumbnailData, setThumbnailData] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [hasError, setHasError] = useState(false);
-    
-    // 检查是否是图片文件
-    const isImageFile = path.toLowerCase().match(/\.(jpg|jpeg|png|gif|bmp|webp|tiff|svg|jxl|avif)$/);
-    
-    useEffect(() => {
-      if (!isImageFile) return;
-      
-      setIsLoading(true);
-      setHasError(false);
-      
-      ipc.readThumbnail(path)
-        .then((result) => {
-          setThumbnailData(`data:${result.mimeType};base64,${result.base64}`);
-        })
-        .catch(() => {
-          setHasError(true);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }, [path, isImageFile]);
-    
-    if (!isImageFile) {
-      return (
-        <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
-          <Image className="w-6 h-6 text-gray-400" />
-        </div>
-      );
-    }
-    
-    if (isLoading) {
-      return (
-        <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
-          <div className="animate-spin w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full" />
-        </div>
-      );
-    }
-    
-    if (hasError || !thumbnailData) {
-      return (
-        <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
-          <Image className="w-6 h-6 text-gray-400" />
-        </div>
-      );
-    }
-    
-    return (
-      <ClickableImagePreview path={path}>
-        <img 
-          src={thumbnailData} 
-          alt="Thumbnail"
-          className="w-16 h-16 object-cover rounded cursor-pointer hover:opacity-80"
-        />
-      </ClickableImagePreview>
-    );
-  };
 
   const columns: ColumnDef<DuplicateEntry>[] = [
     {
@@ -116,7 +52,7 @@ export function DuplicateFiles() {
         if (row.original.isRef) {
           return null;
         }
-        return <ThumbnailCell path={row.original.path} />;
+        return <ThumbnailCell path={row.original.path} size="md" enableLazyLoad={true} />;
       },
     }] : []),
     {
