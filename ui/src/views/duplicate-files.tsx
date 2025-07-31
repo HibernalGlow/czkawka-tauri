@@ -1,5 +1,6 @@
 import type { ColumnDef, Row } from '@tanstack/react-table';
 import { useAtom, useAtomValue } from 'jotai';
+import { useMemo, useState } from 'react';
 import {
   duplicateFilesAtom,
   duplicateFilesRowSelectionAtom,
@@ -12,18 +13,31 @@ import {
   TableRowSelectionHeader,
 } from '~/components/data-table';
 import { ThumbnailCell } from '~/components/thumbnail-cell';
+import { DynamicThumbnailCell } from '~/components/dynamic-thumbnail-cell';
 import { useT } from '~/hooks';
 import type { DuplicateEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
 import { ClickableImagePreview } from './clickable-image-preview';
 
 export function DuplicateFiles() {
+  const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80); // 追踪缩略图列宽
   const data = useAtomValue(duplicateFilesAtom);
   const [rowSelection, setRowSelection] = useAtom(
     duplicateFilesRowSelectionAtom,
   );
   const settings = useAtomValue(settingsAtom);
   const t = useT();
+
+  // 根据缩略图列宽动态计算行高
+  const dynamicRowHeight = useMemo(() => {
+    if (!settings.similarImagesEnableThumbnails) {
+      return 36; // 没有缩略图时的默认行高
+    }
+    // 缩略图大小计算：Math.max(20, Math.min(thumbnailColumnWidth - 8, 200))
+    const thumbnailSize = Math.max(20, Math.min(thumbnailColumnWidth - 8, 200));
+    // 行高 = 缩略图高度 + 上下padding (16px)
+    return Math.max(36, thumbnailSize + 16);
+  }, [settings.similarImagesEnableThumbnails, thumbnailColumnWidth]);
 
   const columns: ColumnDef<DuplicateEntry>[] = [
     {
@@ -47,12 +61,17 @@ export function DuplicateFiles() {
       id: 'thumbnail',
       header: t('Thumbnail'),
       size: 80,
-      minSize: 80,
+      minSize: 60,
+      maxSize: 120,
       cell: ({ row }: { row: any }) => {
         if (row.original.isRef) {
           return null;
         }
-        return <ThumbnailCell path={row.original.path} size="md" enableLazyLoad={true} />;
+        return <DynamicThumbnailCell 
+          path={row.original.path} 
+          enableLazyLoad={true}
+          onSizeChange={setThumbnailColumnWidth}
+        />;
       },
     }] : []),
     {
@@ -111,7 +130,7 @@ export function DuplicateFiles() {
       columns={columns}
       rowSelection={rowSelection}
       onRowSelectionChange={setRowSelection}
-      rowHeight={settings.similarImagesEnableThumbnails ? 60 : 36}
+      rowHeight={dynamicRowHeight}
     />
   );
 }

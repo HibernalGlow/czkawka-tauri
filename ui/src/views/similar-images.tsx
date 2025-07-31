@@ -16,6 +16,7 @@ import {
   TableRowSelectionHeader,
 } from '~/components/data-table';
 import { ThumbnailCell } from '~/components/thumbnail-cell';
+import { DynamicThumbnailCell } from '~/components/dynamic-thumbnail-cell';
 import { useT } from '~/hooks';
 import { ipc } from '~/ipc';
 import type { FolderStat, ImagesEntry } from '~/types';
@@ -24,6 +25,7 @@ import { ClickableImagePreview } from './clickable-image-preview';
 
 export function SimilarImages() {
   const [viewMode, setViewMode] = useState<'images' | 'folders'>('images');
+  const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80); // 追踪缩略图列宽
   const imagesData = useAtomValue(similarImagesAtom);
   const foldersData = useAtomValue(similarImagesFoldersAtom);
   const settings = useAtomValue(settingsAtom);
@@ -61,6 +63,17 @@ export function SimilarImages() {
   // 根据视图模式选择数据源
   const data = viewMode === 'images' ? imagesData : transformedFoldersData;
 
+  // 根据缩略图列宽动态计算行高
+  const dynamicRowHeight = useMemo(() => {
+    if (!settings.similarImagesEnableThumbnails) {
+      return 36; // 没有缩略图时的默认行高
+    }
+    // 缩略图大小计算：Math.max(20, Math.min(thumbnailColumnWidth - 8, 200))
+    const thumbnailSize = Math.max(20, Math.min(thumbnailColumnWidth - 8, 200));
+    // 行高 = 缩略图高度 + 上下padding (16px)
+    return Math.max(36, thumbnailSize + 16);
+  }, [settings.similarImagesEnableThumbnails, thumbnailColumnWidth]);
+
   // 获取文件夹下的第一张图片路径
   const getFirstImageInFolder = (folderPath: string): string | null => {
     // 在相似图片数据中查找该文件夹下的第一张图片
@@ -94,7 +107,8 @@ export function SimilarImages() {
       id: 'thumbnail',
       header: t('Thumbnail'),
       size: 80,
-      minSize: 80,
+      minSize: 60,
+      maxSize: 120,
       cell: ({ row }: { row: any }) => {
         if (row.original.isRef) {
           return null;
@@ -103,7 +117,11 @@ export function SimilarImages() {
           ? getFirstImageInFolder(row.original.path)
           : row.original.path;
         
-        return <ThumbnailCell path={imagePath || row.original.path} size="md" enableLazyLoad={true} />;
+        return <DynamicThumbnailCell 
+          path={imagePath || row.original.path} 
+          enableLazyLoad={true}
+          onSizeChange={setThumbnailColumnWidth}
+        />;
       },
     }] : []),
     {
@@ -205,7 +223,7 @@ export function SimilarImages() {
         columns={columns}
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
-        rowHeight={settings.similarImagesEnableThumbnails ? 60 : 36}
+        rowHeight={dynamicRowHeight}
       />
     </div>
   );

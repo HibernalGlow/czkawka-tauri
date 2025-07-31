@@ -5,16 +5,18 @@ import { ThumbnailLoader, isImageFile } from '~/utils/thumbnail-loader';
 
 interface ThumbnailCellProps {
   path: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'dynamic';
   className?: string;
   enableLazyLoad?: boolean;
+  dynamicSize?: number; // 动态尺寸，用于列宽适应
 }
 
 export function ThumbnailCell({ 
   path, 
   size = 'md', 
   className = '',
-  enableLazyLoad = true 
+  enableLazyLoad = true,
+  dynamicSize
 }: ThumbnailCellProps) {
   const [thumbnailData, setThumbnailData] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,8 +38,25 @@ export function ThumbnailCell({
     lg: 'w-7 h-7'
   };
   
-  const sizeClass = sizeClasses[size];
-  const iconClass = iconSizes[size];
+  // 动态尺寸计算
+  let sizeClass, iconClass, thumbnailStyle: React.CSSProperties = {};
+  
+  if (size === 'dynamic' && dynamicSize) {
+    // 动态尺寸：基于列宽计算，允许更大的范围
+    const thumbnailSize = Math.max(20, Math.min(dynamicSize - 8, 200)); // 增加最大值到200px
+    sizeClass = '';
+    iconClass = thumbnailSize < 40 ? 'w-3 h-3' : thumbnailSize < 80 ? 'w-4 h-4' : 'w-6 h-6';
+    thumbnailStyle = {
+      width: `${thumbnailSize}px`,
+      height: `${thumbnailSize}px`,
+      minWidth: `${thumbnailSize}px`,
+      minHeight: `${thumbnailSize}px`,
+      flexShrink: 0, // 防止被压缩
+    };
+  } else {
+    sizeClass = sizeClasses[size as keyof typeof sizeClasses];
+    iconClass = iconSizes[size as keyof typeof iconSizes];
+  }
   
   // 检查是否是图片文件
   const isImage = isImageFile(path);
@@ -104,24 +123,36 @@ export function ThumbnailCell({
   
   if (!isImage) {
     return (
-      <div className={`${sizeClass} bg-gray-200 rounded flex items-center justify-center ${className}`}>
+      <div 
+        className={`${sizeClass} bg-gray-200 rounded flex items-center justify-center ${className}`}
+        style={thumbnailStyle}
+      >
         <Image className={`${iconClass} text-gray-400`} />
       </div>
     );
   }
   
   return (
-    <div ref={imgRef} className={`${sizeClass} ${className}`}>
+    <div ref={imgRef} className={`${sizeClass} ${className}`} style={thumbnailStyle}>
       {!isVisible ? (
-        <div className={`${sizeClass} bg-gray-100 rounded flex items-center justify-center`}>
+        <div 
+          className={`${sizeClass} bg-gray-100 rounded flex items-center justify-center`}
+          style={thumbnailStyle}
+        >
           <Image className={`${iconClass} text-gray-300`} />
         </div>
       ) : isLoading ? (
-        <div className={`${sizeClass} bg-gray-100 rounded flex items-center justify-center`}>
+        <div 
+          className={`${sizeClass} bg-gray-100 rounded flex items-center justify-center`}
+          style={thumbnailStyle}
+        >
           <div className="animate-spin w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full" />
         </div>
       ) : hasError || !thumbnailData ? (
-        <div className={`${sizeClass} bg-gray-200 rounded flex items-center justify-center`}>
+        <div 
+          className={`${sizeClass} bg-gray-200 rounded flex items-center justify-center`}
+          style={thumbnailStyle}
+        >
           <Image className={`${iconClass} text-gray-400`} />
         </div>
       ) : (
@@ -130,6 +161,7 @@ export function ThumbnailCell({
             src={thumbnailData} 
             alt="Thumbnail"
             className={`${sizeClass} object-cover rounded cursor-pointer hover:opacity-80 transition-opacity`}
+            style={thumbnailStyle}
           />
         </ClickableImagePreview>
       )}
