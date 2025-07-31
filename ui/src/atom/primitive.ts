@@ -118,7 +118,10 @@ export const sidebarImagePreviewAtom = atom<{
 });
 
 // 工具栏折叠状态
-export const toolTabsCollapsedAtom = atomWithStorage('tool-tabs-collapsed', false);
+export const toolTabsCollapsedAtom = atomWithStorage(
+  'tool-tabs-collapsed',
+  false,
+);
 
 // 筛选面板状态
 export const filterPanelAtom = atom<{

@@ -1,22 +1,22 @@
 import type { ColumnDef, Row } from '@tanstack/react-table';
 import { useAtom, useAtomValue } from 'jotai';
-import { useState, useMemo } from 'react';
-import { List, FolderTree } from 'lucide-react';
+import { FolderTree, List } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import {
   similarImagesAtom,
   similarImagesRowSelectionAtom,
 } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
 import { similarImagesFoldersAtom } from '~/atom/tools';
+import { Button } from '~/components';
 import {
   DataTable,
   TableActions,
   TableRowSelectionCell,
   TableRowSelectionHeader,
 } from '~/components/data-table';
-import { Button } from '~/components';
 import { useT } from '~/hooks';
-import type { ImagesEntry, FolderStat } from '~/types';
+import type { FolderStat, ImagesEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
 import { ClickableImagePreview } from './clickable-image-preview';
 
@@ -25,7 +25,7 @@ export function SimilarImages() {
   const imagesData = useAtomValue(similarImagesAtom);
   const foldersData = useAtomValue(similarImagesFoldersAtom);
   const settings = useAtomValue(settingsAtom);
-  
+
   const [rowSelection, setRowSelection] = useAtom(
     similarImagesRowSelectionAtom,
   );
@@ -33,7 +33,9 @@ export function SimilarImages() {
 
   // 根据阈值过滤文件夹数据
   const filteredFoldersData = useMemo(() => {
-    return foldersData.filter(folder => folder.count >= settings.similarImagesFolderThreshold);
+    return foldersData.filter(
+      (folder) => folder.count >= settings.similarImagesFolderThreshold,
+    );
   }, [foldersData, settings.similarImagesFolderThreshold]);
 
   // 将文件夹数据转换为表格行格式，复用现有的列结构
@@ -174,7 +176,8 @@ export function SimilarImages() {
         </Button>
         {viewMode === 'folders' && (
           <span className="text-sm text-muted-foreground ml-2">
-            共 {filteredFoldersData.length} 个文件夹 (≥{settings.similarImagesFolderThreshold}张图片)
+            共 {filteredFoldersData.length} 个文件夹 (≥
+            {settings.similarImagesFolderThreshold}张图片)
           </span>
         )}
       </div>
@@ -203,8 +206,8 @@ function FileName(props: { row: Row<ImagesEntry> }) {
   const isFolder = (row.original as any).isFolder;
   if (isFolder) {
     // 查找该文件夹下的第一张图片
-    const firstImage = imagesData.find(img => 
-      img.path.startsWith(path) && !img.isRef
+    const firstImage = imagesData.find(
+      (img) => img.path.startsWith(path) && !img.isRef,
     );
 
     if (settings.similarImagesShowImagePreview && firstImage) {
@@ -246,8 +249,8 @@ function ClickablePath(props: { row: Row<ImagesEntry> }) {
   // 如果是文件夹行，支持点击预览第一张图片
   const isFolder = (row.original as any).isFolder;
   if (isFolder) {
-    const firstImage = imagesData.find(img => 
-      img.path.startsWith(path) && !img.isRef
+    const firstImage = imagesData.find(
+      (img) => img.path.startsWith(path) && !img.isRef,
     );
 
     if (settings.similarImagesShowImagePreview && firstImage) {
@@ -287,8 +290,8 @@ function ClickableCell(props: { row: Row<ImagesEntry>; value: string }) {
   // 如果是文件夹行，支持点击预览第一张图片
   const isFolder = (row.original as any).isFolder;
   if (isFolder) {
-    const firstImage = imagesData.find(img => 
-      img.path.startsWith(path) && !img.isRef
+    const firstImage = imagesData.find(
+      (img) => img.path.startsWith(path) && !img.isRef,
     );
 
     if (settings.similarImagesShowImagePreview && firstImage) {

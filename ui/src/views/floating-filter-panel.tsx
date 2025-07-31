@@ -174,9 +174,7 @@ export function FloatingFilterPanel() {
     <div
       className={cn(
         'bg-background border border-border shadow-lg rounded-lg overflow-hidden',
-        isFloating
-          ? 'fixed z-50'
-          : 'fixed right-4 top-16 z-50',
+        isFloating ? 'fixed z-50' : 'fixed right-4 top-16 z-50',
       )}
       style={
         isFloating && position

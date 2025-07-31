@@ -1,21 +1,25 @@
 import { useAtom, useAtomValue } from 'jotai';
-import { 
-  LoaderCircle, 
-  Copy, 
-  FolderX, 
-  HardDrive, 
-  FileX, 
-  Trash2, 
-  Images, 
-  Video, 
-  Music, 
-  Link, 
-  FileQuestion, 
+import {
+  Copy,
+  FileQuestion,
+  FileX,
+  FolderX,
+  HardDrive,
+  Images,
+  Link,
+  LoaderCircle,
+  Menu,
+  Music,
   Tag,
-  Menu
+  Trash2,
+  Video,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { currentToolAtom, progressAtom, toolTabsCollapsedAtom } from '~/atom/primitive';
+import {
+  currentToolAtom,
+  progressAtom,
+  toolTabsCollapsedAtom,
+} from '~/atom/primitive';
 import { Button, ScrollArea, TooltipButton } from '~/components';
 import { Tools } from '~/consts';
 import type { ToolsValues } from '~/types';
@@ -68,7 +72,12 @@ export function ToolTabs() {
       )}
     >
       {/* 汉堡按钮 */}
-      <div className={cn('flex items-center p-3', collapsed ? 'justify-center' : 'justify-start')}>
+      <div
+        className={cn(
+          'flex items-center p-3',
+          collapsed ? 'justify-center' : 'justify-start',
+        )}
+      >
         <TooltipButton
           tooltip={collapsed ? '展开工具栏' : '折叠工具栏'}
           variant="ghost"
@@ -80,21 +89,18 @@ export function ToolTabs() {
         </TooltipButton>
       </div>
 
-
       <ScrollArea className={cn('px-3 pb-1 flex-1', collapsed && 'px-2')}>
         {Object.values(Tools).map((name) => {
           const IconComponent = toolIcons[name] || FileQuestion;
           const isActive = currentTool === name;
           const isLoading = progress.tool === name;
-          
+
           if (collapsed) {
             return (
               <TooltipButton
                 key={name}
                 tooltip={t(name)}
-                className={cn(
-                  'w-full h-10 justify-center mt-1 cursor-pointer',
-                )}
+                className={cn('w-full h-10 justify-center mt-1 cursor-pointer')}
                 tabIndex={-1}
                 variant={isActive ? 'default' : 'ghost'}
                 onClick={() => handleClick(name)}

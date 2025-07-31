@@ -32,6 +32,9 @@ pub struct Settings {
 	pub similar_images_sub_resize_algorithm: String,
 	pub similar_images_sub_ignore_same_size: bool,
 	pub similar_images_sub_similarity: i32,
+	#[allow(dead_code)] // 用于前端UI预览控制，后端暂未使用
+	pub similar_images_show_image_preview: bool,
+	pub similar_images_enable_thumbnails: bool,
 	pub duplicates_sub_check_method: String,
 	pub duplicates_sub_available_hash_type: String,
 	pub duplicates_sub_name_case_sensitive: bool,

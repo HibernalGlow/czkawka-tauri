@@ -1,7 +1,7 @@
 import { type PrimitiveAtom, atom } from 'jotai';
 import type { RowSelection } from '~/components/data-table';
 import { Tools } from '~/consts';
-import type { ToolsValues, FolderStat } from '~/types';
+import type { FolderStat, ToolsValues } from '~/types';
 import {
   badExtensionsAtom,
   badExtensionsRowSelectionAtom,

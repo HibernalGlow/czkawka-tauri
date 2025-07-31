@@ -8,10 +8,11 @@ use czkawka_core::{
 use image_hasher::{FilterType, HashAlg};
 use rayon::prelude::*;
 use serde::Serialize;
-use tauri::{AppHandle, Emitter};
+use tauri::{AppHandle, Emitter, Manager};
 
 
 use crate::{
+	image,
 	scaner::{set_scaner_common_settings, spawn_scaner_thread},
 	settings::Settings,
 	state::get_stop_flag_and_progress_tx,
@@ -82,6 +83,17 @@ struct ScanResult {
 pub fn scan_similar_images(app: AppHandle, settins: Settings) {
 	spawn_scaner_thread(move || {
 		let (stop_flag, progress_tx) = get_stop_flag_and_progress_tx(&app);
+
+		// 如果启用了缩略图，初始化缩略图管理器
+		if settins.similar_images_enable_thumbnails {
+			if let Ok(cache_dir) = app.path().app_cache_dir() {
+				let thumbnail_dir = cache_dir.join("thumbnails");
+				let thumbnail_size = 256; // 固定尺寸，未来可配置
+				if let Err(e) = image::init_thumbnail_manager(thumbnail_dir, thumbnail_size) {
+					eprintln!("Failed to initialize thumbnail manager: {}", e);
+				}
+			}
+		}
 
 		let hash_alg = match settins.similar_images_sub_hash_alg.as_ref() {
 			"Gradient" => HashAlg::Gradient,

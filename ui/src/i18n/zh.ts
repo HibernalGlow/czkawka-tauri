@@ -133,6 +133,7 @@ export const zh: Record<TranslationKeys, string> = {
   Pdf: 'Pdf',
   Archive: '压缩包',
   Image: '图片',
+  'Enable thumbnails': '启用缩略图',
 
   Ok: '确定',
   Cancel: '取消',
@@ -277,9 +278,15 @@ export const zh: Record<TranslationKeys, string> = {
   Small: '较小',
   'Very Small': '极小',
   Minimal: '极微',
-  
+
   // 浮动面板相关
   'Pin panel': '固定面板',
   'Unpin panel': '取消固定',
   Close: '关闭',
+
+  // 缩略图缓存管理
+  'Thumbnail cache': '缩略图缓存',
+  files: '文件',
+  'Clear cache': '清空缓存',
+  'Clearing...': '清空中...',
 };

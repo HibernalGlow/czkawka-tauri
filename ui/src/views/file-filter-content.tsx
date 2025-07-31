@@ -17,13 +17,7 @@ import {
 } from '~/components/shadcn/select';
 import { Slider } from '~/components/shadcn/slider';
 import { Tools } from '~/consts';
-import type {
-  BaseEntry,
-  DuplicateEntry,
-  ImagesEntry,
-  MusicEntry,
-  VideosEntry,
-} from '~/types';
+import type { BaseEntry } from '~/types';
 
 // 筛选条件接口
 interface FilterCondition {
@@ -115,7 +109,6 @@ function getAvailableOperators(fieldType: string) {
         { value: OPERATORS.LESS_THAN, label: 'Less than' },
         { value: OPERATORS.EQUALS, label: 'Equals' },
       ];
-    case 'text':
     default:
       return [
         { value: OPERATORS.CONTAINS, label: 'Contains' },
@@ -133,7 +126,7 @@ function parseSizeToBytes(sizeStr: string): number {
   if (!match) return 0;
 
   const [, num, unit] = match;
-  const value = parseFloat(num);
+  const value = Number.parseFloat(num);
   const multiplier =
     {
       B: 1,
@@ -162,20 +155,23 @@ function itemMatchesConditions(
   availableFields: any[],
 ): boolean {
   return conditions.every((condition) => {
-    const fieldConfig = availableFields.find(f => f.value === condition.field);
+    const fieldConfig = availableFields.find(
+      (f) => f.value === condition.field,
+    );
     const itemValue = item[condition.field];
-    
+
     if (itemValue === undefined || itemValue === null) return false;
 
     if (fieldConfig?.type === 'size') {
       const itemBytes = parseSizeToBytes(String(itemValue));
-      const filterValue = typeof condition.value === 'string' 
-        ? parseSizeToBytes(condition.value)
-        : condition.value;
-        
+      const filterValue =
+        typeof condition.value === 'string'
+          ? parseSizeToBytes(condition.value)
+          : condition.value;
+
       switch (condition.operator) {
         case OPERATORS.EQUALS:
-          return Math.abs(itemBytes - filterValue) < (filterValue * 0.01);
+          return Math.abs(itemBytes - filterValue) < filterValue * 0.01;
         case OPERATORS.GREATER_THAN:
           return itemBytes > filterValue;
         case OPERATORS.LESS_THAN:
@@ -192,7 +188,7 @@ function itemMatchesConditions(
     if (fieldConfig?.type === 'similarity' || fieldConfig?.type === 'number') {
       const itemNum = Number(itemValue);
       const filterValue = Number(condition.value);
-      
+
       switch (condition.operator) {
         case OPERATORS.EQUALS:
           return Math.abs(itemNum - filterValue) < 0.01;
@@ -211,7 +207,7 @@ function itemMatchesConditions(
 
     const strValue = String(itemValue).toLowerCase();
     const filterValue = String(condition.value).toLowerCase();
-    
+
     switch (condition.operator) {
       case OPERATORS.EQUALS:
         return strValue === filterValue;
@@ -253,7 +249,7 @@ function applyFilters<T extends BaseEntry>(
   const addGroupIfMatches = () => {
     if (groupHasMatches && currentGroup.length > 0) {
       result.push(...currentGroup);
-      
+
       if (pendingSeparator && result.length > currentGroup.length) {
         const insertIndex = result.length - currentGroup.length;
         result.splice(insertIndex, 0, pendingSeparator);
@@ -272,7 +268,7 @@ function applyFilters<T extends BaseEntry>(
     }
 
     currentGroup.push(item);
-    
+
     if (itemMatchesConditions(item, conditions, availableFields)) {
       groupHasMatches = true;
     }
@@ -331,7 +327,7 @@ export function FileFilterContent() {
         SIMILARITY_LEVELS[currentValue as keyof typeof SIMILARITY_LEVELS];
       displayValue = currentValue;
     } else if (currentFieldConfig?.type === 'number') {
-      processedValue = parseFloat(currentValue);
+      processedValue = Number.parseFloat(currentValue);
     }
 
     const newCondition: FilterCondition = {
@@ -414,7 +410,7 @@ export function FileFilterContent() {
             placeholder={t('Enter number')}
           />
           <Slider
-            value={[parseFloat(currentValue) || 0]}
+            value={[Number.parseFloat(currentValue) || 0]}
             onValueChange={([value]) => setCurrentValue(value.toString())}
             max={100}
             step={1}
@@ -509,9 +505,7 @@ export function FileFilterContent() {
               <Button
                 size="sm"
                 onClick={addCondition}
-                disabled={
-                  !currentField || !currentOperator || !currentValue
-                }
+                disabled={!currentField || !currentOperator || !currentValue}
               >
                 {t('Add')}
               </Button>

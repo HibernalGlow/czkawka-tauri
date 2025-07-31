@@ -1,8 +1,9 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { Settings2 } from 'lucide-react';
+import { Settings2, Trash2 } from 'lucide-react';
+import { useEffect, useState, useCallback } from 'react';
 import { currentToolAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
-import { OperationButton, Button } from '~/components';
+import { Button, OperationButton } from '~/components';
 import { InputNumber } from '~/components';
 import { CheckboxWithLabel, Select, Slider, Switch } from '~/components';
 import {
@@ -24,6 +25,7 @@ import {
   Tools,
 } from '~/consts';
 import { useBoolean, useT } from '~/hooks';
+import { ipc } from '~/ipc';
 
 // 通用路径显示设置组件
 function PathDisplaySettings() {
@@ -253,11 +255,48 @@ function SimilarImagesSettings({
 }: { showControls?: boolean; showAlgorithms?: boolean }) {
   const settings = useAtomValue(settingsAtom);
   const setSettings = useSetAtom(settingsAtom);
+  const [clearingCache, setClearingCache] = useState(false);
+  const [cacheStats, setCacheStats] = useState<{
+    count: number;
+    size: string;
+  } | null>(null);
   const t = useT();
 
   const handlePresetClick = (value: number) => {
-    setSettings(prev => ({ ...prev, similarImagesSubSimilarity: value }));
+    setSettings((prev) => ({ ...prev, similarImagesSubSimilarity: value }));
   };
+
+  const loadCacheStats = useCallback(async () => {
+    try {
+      const [count, sizeBytes] = await ipc.getThumbnailCacheStats();
+      const sizeStr =
+        sizeBytes > 1024 * 1024
+          ? `${(sizeBytes / (1024 * 1024)).toFixed(1)} MB`
+          : `${(sizeBytes / 1024).toFixed(1)} KB`;
+      setCacheStats({ count, size: sizeStr });
+    } catch (error) {
+      console.error('Failed to load cache stats:', error);
+    }
+  }, []);
+
+  const handleClearCache = async () => {
+    setClearingCache(true);
+    try {
+      await ipc.clearThumbnailCache();
+      await loadCacheStats(); // 重新加载统计信息
+    } catch (error) {
+      console.error('Failed to clear cache:', error);
+    } finally {
+      setClearingCache(false);
+    }
+  };
+
+  // 当缩略图设置开启时加载缓存统计
+  useEffect(() => {
+    if (settings.similarImagesEnableThumbnails) {
+      loadCacheStats();
+    }
+  }, [settings.similarImagesEnableThumbnails, loadCacheStats]);
 
   return (
     <>
@@ -315,6 +354,35 @@ function SimilarImagesSettings({
           >
             <Slider min={0} max={40} />
           </FormItem>
+          <FormItem
+            name="similarImagesEnableThumbnails"
+            label={t('Enable thumbnails')}
+            comp="switch"
+          >
+            <Switch />
+          </FormItem>
+          {settings.similarImagesEnableThumbnails && (
+            <div className="space-y-2 pl-4 border-l-2 border-muted">
+              <div className="text-sm text-muted-foreground">
+                {t('Thumbnail cache')}
+              </div>
+              {cacheStats && (
+                <div className="text-xs text-muted-foreground">
+                  {cacheStats.count} {t('files')}, {cacheStats.size}
+                </div>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleClearCache}
+                disabled={clearingCache}
+                className="h-8 px-3"
+              >
+                <Trash2 className="w-3 h-3 mr-1" />
+                {clearingCache ? t('Clearing...') : t('Clear cache')}
+              </Button>
+            </div>
+          )}
           <FormItem
             name="similarImagesFolderThreshold"
             label="文件夹阈值"

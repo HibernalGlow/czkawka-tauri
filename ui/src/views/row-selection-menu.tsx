@@ -59,9 +59,13 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
   const handleSelectXXX = (
     type: 'size' | 'date' | 'resolution' | 'path' | 'name',
     dir: 'asc' | 'desc',
-    inverse: boolean = false,
+    inverse = false,
   ) => {
-    if (type !== 'path' && type !== 'name' && !toolsWithSizeAndDateSelect.has(currentTool)) {
+    if (
+      type !== 'path' &&
+      type !== 'name' &&
+      !toolsWithSizeAndDateSelect.has(currentTool)
+    ) {
       return;
     }
     setCurrentToolRowSelection(selectItem(currentToolData, type, dir, inverse));
@@ -71,7 +75,7 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
     setCurrentToolRowSelection(selectByFolder(currentToolData));
   };
 
-  const handleCustomSelect = (unselect: boolean = false) => {
+  const handleCustomSelect = (unselect = false) => {
     if (!customPattern.trim()) return;
 
     try {
@@ -81,9 +85,8 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
       const matchedPaths = paths.filter((path) => {
         if (isRegex) {
           return (pattern as RegExp).test(path);
-        } else {
-          return path.includes(pattern as string);
         }
+        return path.includes(pattern as string);
       });
 
       if (unselect) {
@@ -142,18 +145,12 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
 
           {/* 路径长度选择 */}
           <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              {t('Path based')}
-            </DropdownMenuSubTrigger>
+            <DropdownMenuSubTrigger>{t('Path based')}</DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
-              <DropdownMenuItem
-                onClick={() => handleSelectXXX('path', 'asc')}
-              >
+              <DropdownMenuItem onClick={() => handleSelectXXX('path', 'asc')}>
                 {t('Select the longest path')}
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleSelectXXX('path', 'desc')}
-              >
+              <DropdownMenuItem onClick={() => handleSelectXXX('path', 'desc')}>
                 {t('Select the shortest path')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -172,18 +169,12 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
 
           {/* 文件名选择 */}
           <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              {t('Name based')}
-            </DropdownMenuSubTrigger>
+            <DropdownMenuSubTrigger>{t('Name based')}</DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
-              <DropdownMenuItem
-                onClick={() => handleSelectXXX('name', 'asc')}
-              >
+              <DropdownMenuItem onClick={() => handleSelectXXX('name', 'asc')}>
                 {t('Select the first name')}
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleSelectXXX('name', 'desc')}
-              >
+              <DropdownMenuItem onClick={() => handleSelectXXX('name', 'desc')}>
                 {t('Select the last name')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -440,7 +431,7 @@ function selectItem<T extends BaseEntry & RefEntry & WithRaw>(
   data: T[],
   type: 'size' | 'date' | 'resolution' | 'path' | 'name',
   dir: 'asc' | 'desc',
-  inverse: boolean = false,
+  inverse = false,
 ): RowSelection {
   const paths: string[] = [];
   let compareFn: ((a: T, b: T) => T) | null = null;
@@ -457,9 +448,9 @@ function selectItem<T extends BaseEntry & RefEntry & WithRaw>(
   } else if (type === 'resolution' && dir === 'desc') {
     compareFn = pickLowestResolution;
   } else if (type === 'path' && dir === 'asc') {
-    compareFn = (a: T, b: T) => a.path.length >= b.path.length ? a : b;
+    compareFn = (a: T, b: T) => (a.path.length >= b.path.length ? a : b);
   } else if (type === 'path' && dir === 'desc') {
-    compareFn = (a: T, b: T) => a.path.length <= b.path.length ? a : b;
+    compareFn = (a: T, b: T) => (a.path.length <= b.path.length ? a : b);
   } else if (type === 'name' && dir === 'asc') {
     // 选择文件名字典序靠前的（A-Z）
     compareFn = (a: T, b: T) => {
@@ -527,7 +518,9 @@ function pickLowestResolution<T extends WithRaw>(a: T, b: T): T {
 }
 
 // 按文件夹选择：每个组内的每个文件夹保留一个文件
-function selectByFolder<T extends BaseEntry & RefEntry>(data: T[]): RowSelection {
+function selectByFolder<T extends BaseEntry & RefEntry>(
+  data: T[],
+): RowSelection {
   // 先按 groupId 分组
   const groups = groupBy(data);
   const paths: string[] = [];
@@ -536,37 +529,47 @@ function selectByFolder<T extends BaseEntry & RefEntry>(data: T[]): RowSelection
     // 检查当前组的所有文件是否都在同一个文件夹
     const folders = new Set<string>();
     for (const item of group) {
-      const folder = item.path.substring(0, item.path.lastIndexOf('\\') !== -1 ? item.path.lastIndexOf('\\') : item.path.lastIndexOf('/'));
+      const folder = item.path.substring(
+        0,
+        item.path.lastIndexOf('\\') !== -1
+          ? item.path.lastIndexOf('\\')
+          : item.path.lastIndexOf('/'),
+      );
       folders.add(folder);
     }
 
     if (folders.size === 1) {
       // 如果整个组都在同一个文件夹，选择整个组（但优先选择非参考文件）
-      const nonRefItems = group.filter(item => !item.isRef);
+      const nonRefItems = group.filter((item) => !item.isRef);
       if (nonRefItems.length > 0) {
-        paths.push(...nonRefItems.map(item => item.path));
+        paths.push(...nonRefItems.map((item) => item.path));
       } else {
-        paths.push(...group.map(item => item.path));
+        paths.push(...group.map((item) => item.path));
       }
     } else {
       // 如果组内有多个文件夹，每个文件夹保留一个
       const folderMap = new Map<string, T[]>();
       for (const item of group) {
-        const folder = item.path.substring(0, item.path.lastIndexOf('\\') !== -1 ? item.path.lastIndexOf('\\') : item.path.lastIndexOf('/'));
+        const folder = item.path.substring(
+          0,
+          item.path.lastIndexOf('\\') !== -1
+            ? item.path.lastIndexOf('\\')
+            : item.path.lastIndexOf('/'),
+        );
         if (!folderMap.has(folder)) {
           folderMap.set(folder, []);
         }
-        folderMap.get(folder)!.push(item);
+        folderMap.get(folder)?.push(item);
       }
-      
+
       for (const folderItems of folderMap.values()) {
         if (folderItems.length === 0) continue;
-        const nonRefItem = folderItems.find(item => !item.isRef);
+        const nonRefItem = folderItems.find((item) => !item.isRef);
         const selectedItem = nonRefItem || folderItems[0];
         paths.push(selectedItem.path);
       }
     }
   }
-  
+
   return pathsToRowSelection(paths);
 }

@@ -154,8 +154,8 @@ export function formatSimilarityDisplay(
   similarity: string,
   hashSize: number,
 ): string {
-  const similarityNum = parseInt(similarity, 10);
-  if (isNaN(similarityNum)) {
+  const similarityNum = Number.parseInt(similarity, 10);
+  if (Number.isNaN(similarityNum)) {
     return similarity;
   }
 
@@ -208,8 +208,8 @@ export function matchesSimilarityFilter(
 ): boolean {
   if (!filterLevel) return true;
 
-  const similarityNum = parseInt(similarity, 10);
-  if (isNaN(similarityNum)) return true;
+  const similarityNum = Number.parseInt(similarity, 10);
+  if (Number.isNaN(similarityNum)) return true;
 
   const currentLevel = getSimilarityLevel(similarityNum, hashSize);
   const levelOrder = [

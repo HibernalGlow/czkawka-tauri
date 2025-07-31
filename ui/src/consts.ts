@@ -91,6 +91,7 @@ export function getDefaultSettings(): Settings {
 
     similarImagesHideHardLinks: true,
     similarImagesShowImagePreview: true,
+    similarImagesEnableThumbnails: false,
     similarImagesDeleteOutdatedEntries: true,
     similarImagesSubHashSize: '16',
     similarImagesSubHashAlg: SimilarImagesHashAlgorithm.Mean,

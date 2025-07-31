@@ -1,7 +1,8 @@
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { ImageOff, LoaderCircle, Pin, PinOff, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { sidebarImagePreviewAtom } from '~/atom/primitive';
+import { settingsAtom } from '~/atom/settings';
 import { Button } from '~/components/shadcn/button';
 import { useT } from '~/hooks';
 import { ipc } from '~/ipc';
@@ -287,6 +288,7 @@ function ImageContent({ path }: { path: string }) {
   const [src, setSrc] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const settings = useAtomValue(settingsAtom);
   const t = useT();
 
   useEffect(() => {
@@ -296,8 +298,15 @@ function ImageContent({ path }: { path: string }) {
 
     const readImage = async () => {
       try {
-        const { mimeType, base64 } = await ipc.readImage(path);
-        setSrc(`data:${mimeType};base64,${base64}`);
+        if (settings.similarImagesEnableThumbnails) {
+          // 使用缩略图
+          const { mimeType, base64 } = await ipc.readThumbnail(path);
+          setSrc(`data:${mimeType};base64,${base64}`);
+        } else {
+          // 使用原图
+          const { mimeType, base64 } = await ipc.readImage(path);
+          setSrc(`data:${mimeType};base64,${base64}`);
+        }
       } catch (err) {
         console.error('Failed to read image:', err);
         setError(true);
@@ -307,7 +316,7 @@ function ImageContent({ path }: { path: string }) {
     };
 
     readImage();
-  }, [path]);
+  }, [path, settings.similarImagesEnableThumbnails]);
 
   if (loading) {
     return (

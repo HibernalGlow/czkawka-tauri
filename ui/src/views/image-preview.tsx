@@ -1,5 +1,7 @@
+import { useAtomValue } from 'jotai';
 import { ImageOff, LoaderCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { settingsAtom } from '~/atom/settings';
 import {
   HoverCard,
   HoverCardContent,
@@ -30,14 +32,22 @@ function Image(props: { path: string }) {
 
   const [src, setSrc] = useState('');
   const [loading, setLoading] = useState(true);
+  const settings = useAtomValue(settingsAtom);
   const t = useT();
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     const readImage = async () => {
       try {
-        const { mimeType, base64 } = await ipc.readImage(path);
-        setSrc(`data:${mimeType};base64,${base64}`);
+        if (settings.similarImagesEnableThumbnails) {
+          // 使用缩略图
+          const { mimeType, base64 } = await ipc.readThumbnail(path);
+          setSrc(`data:${mimeType};base64,${base64}`);
+        } else {
+          // 使用原图
+          const { mimeType, base64 } = await ipc.readImage(path);
+          setSrc(`data:${mimeType};base64,${base64}`);
+        }
       } catch (_) {
         //
       } finally {
@@ -45,7 +55,7 @@ function Image(props: { path: string }) {
       }
     };
     readImage();
-  }, []);
+  }, [settings.similarImagesEnableThumbnails]);
 
   if (src) {
     return (

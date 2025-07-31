@@ -1,5 +1,4 @@
 import { readText, writeText } from '@tauri-apps/plugin-clipboard-manager';
-import { open } from '@tauri-apps/plugin-dialog';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   Download,
@@ -151,7 +150,7 @@ export function PresetSelect(props: PresetSelectProps) {
       let importedData;
       try {
         importedData = JSON.parse(clipboardText);
-      } catch (e) {
+      } catch (_e) {
         toast.error('Invalid JSON format in clipboard');
         return;
       }

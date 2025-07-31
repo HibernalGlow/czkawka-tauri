@@ -11,21 +11,25 @@ import {
   ScrollText,
   Settings2,
   Sliders,
-  SquareMousePointer,
   Star,
   Trash2,
 } from 'lucide-react';
-
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   excludedDirsRowSelectionAtom,
   includedDirsRowSelectionAtom,
   logsAtom,
 } from '~/atom/primitive';
 import { currentToolAtom } from '~/atom/primitive';
-import { currentToolDataAtom } from '~/atom/tools';
 import { settingsAtom } from '~/atom/settings';
-import { Button, ScrollArea, Textarea, TooltipButton, Checkbox } from '~/components';
+import { currentToolDataAtom } from '~/atom/tools';
+import {
+  Button,
+  Checkbox,
+  ScrollArea,
+  Textarea,
+  TooltipButton,
+} from '~/components';
 import {
   DataTable,
   type RowSelection,
@@ -46,18 +50,15 @@ import {
   ResizablePanelGroup,
 } from '~/components/shadcn/resizable';
 import { Tabs, TabsList, TabsTrigger } from '~/components/shadcn/tabs';
+import { Tools } from '~/consts';
 import { useBoolean, useT } from '~/hooks';
 import type { DirsType } from '~/types';
+import type { FolderStat } from '~/types';
 import { cn } from '~/utils/cn';
 import { getRowSelectionKeys, splitStr } from '~/utils/common';
 import { FileFilter } from './file-filter';
 import { Operations } from './operations';
-import { RowSelectionMenu } from './row-selection-menu';
 import { ToolSettings } from './tool-settings';
-import type { FolderStat } from '~/types';
-import { Tools } from '~/consts';
-import { getAllSimilarityLevelsWithRanges } from '~/utils/similarity-utils';
-import { Info } from 'lucide-react';
 
 const DisplayType = {
   Dirs: 'dirs',
@@ -92,16 +93,18 @@ function SimilarFoldersButton({ folders }: { folders: FolderStat[] }) {
           <DialogHeader>
             <DialogTitle>相似文件夹批量操作</DialogTitle>
           </DialogHeader>
-          <div style={{maxHeight: 400, overflow: 'auto'}}>
+          <div style={{ maxHeight: 400, overflow: 'auto' }}>
             {folders.length === 0 ? (
               <div>暂无符合条件的文件夹</div>
             ) : (
               <ul>
-                {folders.map(f => (
-                  <li key={f.path} style={{marginBottom: 8}}>
+                {folders.map((f) => (
+                  <li key={f.path} style={{ marginBottom: 8 }}>
                     <div className="flex items-center gap-2">
                       <Checkbox />
-                      <span>{f.path}（{f.count} 张图片）</span>
+                      <span>
+                        {f.path}（{f.count} 张图片）
+                      </span>
                     </div>
                   </li>
                 ))}
@@ -120,14 +123,23 @@ export function BottomBar() {
   const minimizeBottomBar = useBoolean();
   const t = useT();
   const excludedDirsDialogOpen = useBoolean();
-  const [settings, setSettings] = useAtom(settingsAtom);
-  const [rowSelection, setRowSelection] = useAtom(excludedDirsRowSelectionAtom);
+  const [_settings, _setSettings] = useAtom(settingsAtom);
+  const [_rowSelection, _setRowSelection] = useAtom(
+    excludedDirsRowSelectionAtom,
+  );
   const currentToolData = useAtomValue(currentToolDataAtom);
   const currentTool = useAtomValue(currentToolAtom);
-  const [foldersFromScanResult, setFoldersFromScanResult] = useState<FolderStat[]>([]);
+  const [_foldersFromScanResult, setFoldersFromScanResult] = useState<
+    FolderStat[]
+  >([]);
   useEffect(() => {
     // 只在相似图片工具下处理
-    if (currentTool === Tools.SimilarImages && currentToolData && Array.isArray(currentToolData) && currentToolData.length > 0) {
+    if (
+      currentTool === Tools.SimilarImages &&
+      currentToolData &&
+      Array.isArray(currentToolData) &&
+      currentToolData.length > 0
+    ) {
       const maybeFolders = (currentToolData as any)[0]?.folders;
       if (maybeFolders && Array.isArray(maybeFolders)) {
         setFoldersFromScanResult(maybeFolders);
@@ -283,15 +295,14 @@ function IncludedDirsTable() {
   }, [settings]);
 
   // 判断是否全选参考路径
-  const allReferenceSelected = data.length > 0 && data.every(d => d.isReference);
+  const allReferenceSelected =
+    data.length > 0 && data.every((d) => d.isReference);
 
   const handleReferenceSelectAll = (checked: boolean) => {
     setSettings((old) => {
       return {
         ...old,
-        includedDirectoriesReferenced: checked
-          ? data.map(d => d.path)
-          : [],
+        includedDirectoriesReferenced: checked ? data.map((d) => d.path) : [],
       };
     });
   };
@@ -402,7 +413,7 @@ function IncludedDirsTable() {
 
 function ExcludedDirsTable() {
   const t = useT();
-  const [settings, setSettings] = useAtom(settingsAtom);
+  const [settings, _setSettings] = useAtom(settingsAtom);
   const [rowSelection, setRowSelection] = useAtom(excludedDirsRowSelectionAtom);
   const data: TableData[] = useMemo(() => {
     return settings.excludedDirectories.map((path) => {

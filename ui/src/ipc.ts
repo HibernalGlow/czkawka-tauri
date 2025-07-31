@@ -1,6 +1,12 @@
 import { invoke, isTauri } from '@tauri-apps/api/core';
 import { mockIPC } from '@tauri-apps/api/mocks';
-import type { ImageInfo, PlatformSettings, ScanCmd, Settings } from '~/types';
+import type {
+  ImageInfo,
+  PlatformSettings,
+  ScanCmd,
+  Settings,
+  ThumbnailInfo,
+} from '~/types';
 
 interface MoveFilesOptions {
   paths: string[];
@@ -51,6 +57,18 @@ export const ipc = {
 
   readImage(path: string): Promise<ImageInfo> {
     return invoke('read_image', { path });
+  },
+
+  readThumbnail(path: string): Promise<ThumbnailInfo> {
+    return invoke('read_thumbnail', { path });
+  },
+
+  clearThumbnailCache(): Promise<void> {
+    return invoke('clear_thumbnail_cache');
+  },
+
+  getThumbnailCacheStats(): Promise<[number, number]> {
+    return invoke('get_thumbnail_cache_stats');
   },
 
   moveFiles(options: MoveFilesOptions) {

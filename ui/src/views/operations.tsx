@@ -1,7 +1,20 @@
 import { useAtomValue } from 'jotai';
+import { Info } from 'lucide-react';
+import { useState } from 'react';
 import { currentToolAtom, progressAtom } from '~/atom/primitive';
 import { currentToolDataAtom } from '~/atom/tools';
+import { TooltipButton } from '~/components';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '~/components/shadcn/dialog';
 import { Tools } from '~/consts';
+import {
+  getAllSimilarityLevelsWithRanges,
+  getSimilarityLevelText,
+} from '~/utils/similarity-utils';
 import { DeleteFiles } from './delete-files';
 import { MoveFiles } from './move-files';
 import { RenameExt } from './rename-ext';
@@ -9,28 +22,31 @@ import { RowSelectionMenu } from './row-selection-menu';
 import { SaveResult } from './save-result';
 import { ScanButton } from './scan-button';
 import { ToolSettings } from './tool-settings';
-import { Info } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/shadcn/dialog';
-import { TooltipButton } from '~/components';
-import { useState } from 'react';
-import { getAllSimilarityLevelsWithRanges, getSimilarityLevelText } from '~/utils/similarity-utils';
 
 function SimilarityQuickTableDialog() {
   const [open, setOpen] = useState(false);
   const hashSizes = [8, 16, 32, 64];
   // 获取所有级别
-  const levels = getAllSimilarityLevelsWithRanges(16).map(l => l.level);
+  const levels = getAllSimilarityLevelsWithRanges(16).map((l) => l.level);
   // 构造表格数据：每行一个级别，每列一个hashSize
-  const tableData = levels.map(level => {
+  const tableData = levels.map((level) => {
     return {
       level,
       text: getSimilarityLevelText(level),
-      ranges: hashSizes.map(hs => getAllSimilarityLevelsWithRanges(hs).find(l => l.level === level)?.range || '')
+      ranges: hashSizes.map(
+        (hs) =>
+          getAllSimilarityLevelsWithRanges(hs).find((l) => l.level === level)
+            ?.range || '',
+      ),
     };
   });
   return (
     <>
-      <TooltipButton tooltip="相似度速查表" onClick={() => setOpen(true)} size="sm">
+      <TooltipButton
+        tooltip="相似度速查表"
+        onClick={() => setOpen(true)}
+        size="sm"
+      >
         <Info className="h-4 w-4" />
       </TooltipButton>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -42,17 +58,23 @@ function SimilarityQuickTableDialog() {
             <thead>
               <tr className="bg-muted/40">
                 <th className="px-2 py-1 font-medium text-left">级别</th>
-                {hashSizes.map(hs => (
-                  <th key={hs} className="px-2 py-1 font-medium text-left">hashSize {hs}</th>
+                {hashSizes.map((hs) => (
+                  <th key={hs} className="px-2 py-1 font-medium text-left">
+                    hashSize {hs}
+                  </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {tableData.map(row => (
+              {tableData.map((row) => (
                 <tr key={row.level} className="border-t border-border">
-                  <td className="px-2 py-1 text-left align-middle">{row.text}</td>
+                  <td className="px-2 py-1 text-left align-middle">
+                    {row.text}
+                  </td>
                   {row.ranges.map((range, idx) => (
-                    <td key={idx} className="px-2 py-1 text-left align-middle">{range}</td>
+                    <td key={idx} className="px-2 py-1 text-left align-middle">
+                      {range}
+                    </td>
                   ))}
                 </tr>
               ))}

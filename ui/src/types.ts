@@ -47,6 +47,7 @@ export interface Settings {
 
   similarImagesHideHardLinks: boolean;
   similarImagesShowImagePreview: boolean;
+  similarImagesEnableThumbnails: boolean;
   similarImagesDeleteOutdatedEntries: boolean;
   similarImagesSubHashSize: string;
   similarImagesSubHashAlg: string;
@@ -303,11 +304,22 @@ export interface FolderStat {
   path: string;
   count: number;
 }
-export interface ScanResultWithFolders extends ScanResult<'scan_similar_images', TupleWithRefItem<RawImagesEntry>[]> {
+export interface ScanResultWithFolders
+  extends ScanResult<
+    'scan_similar_images',
+    TupleWithRefItem<RawImagesEntry>[]
+  > {
   folders: FolderStat[];
 }
 
 export interface ImageInfo {
   base64: string;
   mimeType: string;
+}
+
+export interface ThumbnailInfo {
+  base64: string;
+  mimeType: string;
+  width: number;
+  height: number;
 }

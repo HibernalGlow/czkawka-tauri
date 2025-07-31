@@ -41,6 +41,7 @@ export const en = {
   Hash: 'Hash',
   Prehash: 'Prehash',
   'Image preview': 'Image preview',
+  'Enable thumbnails': 'Enable thumbnails',
   'Hide hard links': 'Hide hard links',
   'Use prehash': 'Use prehash',
   'Delete automatically outdated entries':
@@ -284,11 +285,17 @@ export const en = {
   Small: 'Small',
   'Very Small': 'Very Small',
   Minimal: 'Minimal',
-  
+
   // Floating panel
   'Pin panel': 'Pin panel',
   'Unpin panel': 'Unpin panel',
   Close: 'Close',
+
+  // Thumbnail cache management
+  'Thumbnail cache': 'Thumbnail cache',
+  files: 'files',
+  'Clear cache': 'Clear cache',
+  'Clearing...': 'Clearing...',
 };
 
 export type TranslationKeys = keyof typeof en;

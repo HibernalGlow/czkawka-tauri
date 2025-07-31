@@ -4,9 +4,9 @@ import { useEffect } from 'react';
 import { currentToolAtom, logsAtom, progressAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
 import {
+  similarImagesFoldersAtom,
   toolInProgressDataAtom,
   toolInProgressRowSelectionAtom,
-  similarImagesFoldersAtom,
 } from '~/atom/tools';
 import { OperationButton } from '~/components';
 import { Tools, getDefaultProgress } from '~/consts';
@@ -60,7 +60,9 @@ export function ScanButton() {
   const [progress, setProgress] = useAtom(progressAtom);
   const setLogs = useSetAtom(logsAtom);
   const setToolInProgressData = useSetAtom(toolInProgressDataAtom);
-  const setToolInProgressRowSelection = useSetAtom(toolInProgressRowSelectionAtom);
+  const setToolInProgressRowSelection = useSetAtom(
+    toolInProgressRowSelectionAtom,
+  );
   const setSimilarImagesFolders = useSetAtom(similarImagesFoldersAtom);
   const t = useT();
 

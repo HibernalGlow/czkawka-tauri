@@ -18,9 +18,15 @@ export function AppHeader() {
     >
       {/* 左侧应用图标和版本号 */}
       <div className="flex items-center gap-2">
-        <img className="size-8 flex-shrink-0" src="/icon.ico" alt="czkawka icon" />
+        <img
+          className="size-8 flex-shrink-0"
+          src="/icon.ico"
+          alt="czkawka icon"
+        />
         <span className="font-serif">{PKG_NAME}</span>
-        <span className="font-extralight text-xs pl-1 pb-[3px]">{PKG_VERSION}</span>
+        <span className="font-extralight text-xs pl-1 pb-[3px]">
+          {PKG_VERSION}
+        </span>
       </div>
       {/* 右侧操作按钮 */}
       <div className="flex items-center gap-1.5">

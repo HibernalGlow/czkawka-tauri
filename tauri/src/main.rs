@@ -20,6 +20,7 @@ mod similar_images;
 mod similar_videos;
 mod state;
 mod temporary_files;
+mod thumbnail;
 mod utils;
 
 use std::sync::Mutex;
@@ -30,10 +31,11 @@ use czkawka_core::common::{
 use tauri::{AppHandle, Emitter, Manager, State};
 
 use crate::{
-	image::ImageInfo,
+	image::{ImageInfo, init_thumbnail_manager},
 	progress::process_progress_data,
 	settings::{PlatformSettings, Settings},
 	state::AppState,
+	thumbnail::ThumbnailInfo,
 };
 
 fn main() {
@@ -45,6 +47,15 @@ fn main() {
 			if let Ok(resource_dir) = app.path().resource_dir() {
 				utils::set_ffmpeg_path(resource_dir);
 			}
+			
+			// 初始化缩略图管理器
+			if let Ok(cache_dir) = app.path().app_cache_dir() {
+				let thumbnail_cache_dir = cache_dir.join("thumbnails");
+				if let Err(e) = init_thumbnail_manager(thumbnail_cache_dir, 256) {
+					eprintln!("Failed to initialize thumbnail manager: {}", e);
+				}
+			}
+			
 			app.manage(Mutex::new(AppState::default()));
 			Ok(())
 		})
@@ -54,6 +65,9 @@ fn main() {
 			stop_scan,
 			listen_scan_progress,
 			read_image,
+			read_thumbnail,
+			clear_thumbnail_cache,
+			get_thumbnail_cache_stats,
 			scan_duplicate_files,
 			scan_empty_folders,
 			scan_big_files,
@@ -140,6 +154,21 @@ fn listen_scan_progress(app: AppHandle) {
 #[tauri::command]
 fn read_image(path: String) -> Result<ImageInfo, ()> {
 	image::read_image(path)
+}
+
+#[tauri::command]
+fn read_thumbnail(path: String) -> Result<ThumbnailInfo, ()> {
+	image::read_thumbnail(path)
+}
+
+#[tauri::command]
+fn clear_thumbnail_cache() -> Result<(), String> {
+	image::clear_thumbnail_cache()
+}
+
+#[tauri::command]
+fn get_thumbnail_cache_stats() -> Result<(usize, u64), String> {
+	image::get_thumbnail_cache_stats()
 }
 
 #[tauri::command]
