@@ -34,11 +34,35 @@ export class ThumbnailLoader {
       });
     }
 
+    // 优先检查后端是否已有缓存的缩略图
+    try {
+      const hasCached = await ipc.hasThumbnail(path);
+      if (hasCached) {
+        // 直接加载缓存的缩略图，无需排队
+        return this.loadCachedThumbnail(path);
+      }
+    } catch (error) {
+      console.warn('Failed to check thumbnail cache for', path, error);
+    }
+
     return new Promise((resolve, reject) => {
       const task = { path, resolve, reject, aborted: false };
       this.queue.push(task);
       this.processQueue();
     });
+  }
+
+  private async loadCachedThumbnail(path: string): Promise<string> {
+    try {
+      const result = await ipc.readThumbnail(path);
+      const dataUrl = `data:${result.mimeType};base64,${result.base64}`;
+      
+      // 缓存结果
+      this.cache.set(path, dataUrl);
+      return dataUrl;
+    } catch (error) {
+      throw error;
+    }
   }
 
   private async processQueue() {

@@ -6,6 +6,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 use std::io::Cursor;
+use std::sync::mpsc;
 
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -248,5 +249,53 @@ impl ThumbnailManager {
         }
 
         Ok((count, total_size))
+    }
+
+    /// 批量预生成缩略图（后台任务）
+    pub fn batch_generate_thumbnails(&self, image_paths: Vec<String>) -> Result<(), Box<dyn std::error::Error>> {
+        let manager = self.clone();
+        let (tx, _rx) = mpsc::channel();
+        
+        // 启动后台线程进行批量生成
+        std::thread::spawn(move || {
+            for (index, path) in image_paths.iter().enumerate() {
+                if let Err(e) = manager.get_or_create_thumbnail(path) {
+                    eprintln!("Failed to generate thumbnail for {}: {}", path, e);
+                }
+                
+                // 发送进度信息
+                let progress = ((index + 1) as f32 / image_paths.len() as f32 * 100.0) as u32;
+                let _ = tx.send(progress);
+                
+                // 添加小延迟避免过度占用CPU
+                std::thread::sleep(std::time::Duration::from_millis(10));
+            }
+        });
+        
+        Ok(())
+    }
+
+    /// 检查缩略图是否存在（不生成）
+    pub fn has_thumbnail(&self, image_path: &str) -> Result<bool, Box<dyn std::error::Error>> {
+        let path = Path::new(image_path);
+        if !path.exists() {
+            return Ok(false);
+        }
+
+        let metadata = fs::metadata(path)?;
+        let image_size = metadata.len();
+        let image_modified = metadata.modified()?
+            .duration_since(UNIX_EPOCH)?
+            .as_secs();
+
+        let conn = Connection::open(&self.db_path)?;
+        let exists: bool = conn.query_row(
+            "SELECT EXISTS(SELECT 1 FROM thumbnails 
+             WHERE image_path = ?1 AND image_size = ?2 AND image_modified = ?3)",
+            params![image_path, image_size as i64, image_modified as i64],
+            |row| row.get(0),
+        )?;
+
+        Ok(exists)
     }
 }

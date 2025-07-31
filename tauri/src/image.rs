@@ -143,3 +143,21 @@ pub fn get_thumbnail_cache_stats() -> Result<(usize, u64), String> {
 		Err("Thumbnail manager not initialized".to_string())
 	}
 }
+
+// 批量生成缩略图
+pub fn batch_generate_thumbnails(paths: Vec<String>) -> Result<(), String> {
+	if let Some(manager) = get_thumbnail_manager() {
+		manager.batch_generate_thumbnails(paths).map_err(|e| e.to_string())
+	} else {
+		Err("Thumbnail manager not initialized".to_string())
+	}
+}
+
+// 检查缩略图是否存在
+pub fn has_thumbnail(path: String) -> Result<bool, String> {
+	if let Some(manager) = get_thumbnail_manager() {
+		manager.has_thumbnail(&path).map_err(|e| e.to_string())
+	} else {
+		Ok(false)
+	}
+}

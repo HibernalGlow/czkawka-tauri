@@ -21,6 +21,7 @@ import { useT } from '~/hooks';
 import { ipc } from '~/ipc';
 import type { FolderStat, ImagesEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
+import { ThumbnailPreloader } from '~/utils/thumbnail-preloader';
 import { ClickableImagePreview } from './clickable-image-preview';
 
 export function SimilarImages() {
@@ -73,6 +74,24 @@ export function SimilarImages() {
     // 行高 = 缩略图高度 + 上下padding (16px)
     return Math.max(36, thumbnailSize + 16);
   }, [settings.similarImagesEnableThumbnails, thumbnailColumnWidth]);
+
+  // 启动缩略图预加载
+  useEffect(() => {
+    if (settings.similarImagesEnableThumbnails && imagesData.length > 0) {
+      const allImagePaths = imagesData.map(entry => entry.path);
+      const preloader = ThumbnailPreloader.getInstance();
+      
+      // 延迟启动预加载，避免影响初始渲染
+      const timer = setTimeout(() => {
+        preloader.startPreloading(allImagePaths);
+      }, 1000);
+
+      return () => {
+        clearTimeout(timer);
+        preloader.stop();
+      };
+    }
+  }, [imagesData, settings.similarImagesEnableThumbnails]);
 
   // 获取文件夹下的第一张图片路径
   const getFirstImageInFolder = (folderPath: string): string | null => {

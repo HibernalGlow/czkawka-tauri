@@ -2024,6 +2024,10 @@ body {
   animation-duration: 300ms;
 }
 
+.running {
+  animation-play-state: running;
+}
+
 .scrollbar-thin::-webkit-scrollbar-track {
   background-color: var(--scrollbar-track);
   border-radius: var(--scrollbar-track-radius);

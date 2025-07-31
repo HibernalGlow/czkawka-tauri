@@ -63,6 +63,14 @@ export const ipc = {
     return invoke('read_thumbnail', { path });
   },
 
+  batchGenerateThumbnails(paths: string[]): Promise<void> {
+    return invoke('batch_generate_thumbnails', { paths });
+  },
+
+  hasThumbnail(path: string): Promise<boolean> {
+    return invoke('has_thumbnail', { path });
+  },
+
   clearThumbnailCache(): Promise<void> {
     return invoke('clear_thumbnail_cache');
   },

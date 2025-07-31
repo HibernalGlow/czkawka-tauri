@@ -66,6 +66,8 @@ fn main() {
 			listen_scan_progress,
 			read_image,
 			read_thumbnail,
+			batch_generate_thumbnails,
+			has_thumbnail,
 			clear_thumbnail_cache,
 			get_thumbnail_cache_stats,
 			scan_duplicate_files,
@@ -159,6 +161,16 @@ fn read_image(path: String) -> Result<ImageInfo, ()> {
 #[tauri::command]
 fn read_thumbnail(path: String) -> Result<ThumbnailInfo, ()> {
 	image::read_thumbnail(path)
+}
+
+#[tauri::command]
+fn batch_generate_thumbnails(paths: Vec<String>) -> Result<(), String> {
+	image::batch_generate_thumbnails(paths)
+}
+
+#[tauri::command]
+fn has_thumbnail(path: String) -> Result<bool, String> {
+	image::has_thumbnail(path)
 }
 
 #[tauri::command]
