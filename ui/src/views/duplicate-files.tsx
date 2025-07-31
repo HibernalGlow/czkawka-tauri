@@ -83,9 +83,9 @@ export function DuplicateFiles() {
       minSize: 60,
       maxSize: 120,
       cell: ({ row }: { row: any }) => {
-        if (row.original.isRef) {
-          return null;
-        }
+        // if (row.original.isRef) {
+        //   return null;
+        // }
         return <DynamicThumbnailCell 
           path={row.original.path} 
           enableLazyLoad={true}
