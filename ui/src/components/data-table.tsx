@@ -34,6 +34,7 @@ interface DataTableProps<T> {
   layout?: 'grid' | 'resizeable';
   rowSelection: RowSelectionState;
   onRowSelectionChange: (v: RowSelectionState) => void;
+  rowHeight?: number; // 动态行高度
 }
 
 export type RowSelection = RowSelectionState;
@@ -49,6 +50,7 @@ export function DataTable<T extends BaseEntry>(props: DataTableProps<T>) {
     layout = 'resizeable',
     rowSelection,
     onRowSelectionChange,
+    rowHeight = 40, // 默认行高度
   } = props;
 
   const table = useReactTable({
@@ -131,7 +133,7 @@ export function DataTable<T extends BaseEntry>(props: DataTableProps<T>) {
             </TableRow>
           ))}
         </TableHeader>
-        <DataTableBody table={table} emptyTip={emptyTip} layout={layout} />
+        <DataTableBody table={table} emptyTip={emptyTip} layout={layout} rowHeight={rowHeight} />
       </Table>
     </div>
   );
@@ -141,16 +143,17 @@ interface TableBodyProps<T> {
   table: TTable<T>;
   emptyTip?: React.ReactNode;
   layout?: 'grid' | 'resizeable';
+  rowHeight?: number; // 动态行高度
 }
 
 function DataTableBody<T>(props: TableBodyProps<T>) {
-  const { table, emptyTip, layout } = props;
+  const { table, emptyTip, layout, rowHeight = 40 } = props;
   const { rows = [] } = table.getRowModel();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const rowVirtualizer = useVirtualizer<HTMLDivElement, HTMLDivElement>({
     count: rows.length,
-    estimateSize: () => 40,
+    estimateSize: () => rowHeight, // 使用动态行高度
     getScrollElement: () => containerRef.current,
     measureElement: (element) => element?.getBoundingClientRect().height,
     overscan: 5,
@@ -182,11 +185,14 @@ function DataTableBody<T>(props: TableBodyProps<T>) {
                 data-index={virtualRow.index}
                 ref={(node) => rowVirtualizer.measureElement(node)}
                 className={cn(
-                  'absolute w-full items-center px-2 h-10',
+                  'absolute w-full items-center px-2',
                   isGrid && 'grid grid-cols-12',
                   isResizeable && 'flex',
                 )}
-                style={{ transform: `translateY(${virtualRow.start}px)` }}
+                style={{ 
+                  transform: `translateY(${virtualRow.start}px)`,
+                  height: `${rowHeight}px` 
+                }}
               >
                 {row.getVisibleCells().map((cell) => {
                   const span = cell.column.columnDef.meta?.span;

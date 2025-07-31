@@ -71,6 +71,7 @@ export const en = {
   'Folder name': 'Folder name',
   Similarity: 'Similarity',
   Dimensions: 'Dimensions',
+  Thumbnail: 'Thumbnail',
   Title: 'Title',
   Artist: 'Artist',
   Year: 'Year',
@@ -296,6 +297,7 @@ export const en = {
   files: 'files',
   'Clear cache': 'Clear cache',
   'Clearing...': 'Clearing...',
+  'Show image preview': 'Show image preview',
 };
 
 export type TranslationKeys = keyof typeof en;

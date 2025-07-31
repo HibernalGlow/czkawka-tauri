@@ -70,6 +70,7 @@ export const zh: Record<TranslationKeys, string> = {
   'Folder name': '名称',
   Similarity: '相似度',
   Dimensions: '分辨率',
+  Thumbnail: '缩略图',
   Title: '标题',
   Artist: '艺术家',
   Year: '日期',
@@ -289,4 +290,5 @@ export const zh: Record<TranslationKeys, string> = {
   files: '文件',
   'Clear cache': '清空缓存',
   'Clearing...': '清空中...',
+  'Show image preview': '显示图片预览',
 };

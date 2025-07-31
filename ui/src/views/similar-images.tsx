@@ -1,7 +1,7 @@
 import type { ColumnDef, Row } from '@tanstack/react-table';
 import { useAtom, useAtomValue } from 'jotai';
-import { FolderTree, List } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { FolderTree, List, Image } from 'lucide-react';
+import { useMemo, useState, useEffect } from 'react';
 import {
   similarImagesAtom,
   similarImagesRowSelectionAtom,
@@ -16,9 +16,77 @@ import {
   TableRowSelectionHeader,
 } from '~/components/data-table';
 import { useT } from '~/hooks';
+import { ipc } from '~/ipc';
 import type { FolderStat, ImagesEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
 import { ClickableImagePreview } from './clickable-image-preview';
+
+// 缩略图组件
+function ThumbnailCell({ path, isFolder = false }: { path: string; isFolder?: boolean }) {
+  const [thumbnail, setThumbnail] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const settings = useAtomValue(settingsAtom);
+  const imagesData = useAtomValue(similarImagesAtom);
+
+  // 如果是文件夹，获取第一张图片
+  const imagePath = isFolder ? 
+    imagesData.find(img => img.path.startsWith(path) && !img.isRef)?.path || path : 
+    path;
+
+  useEffect(() => {
+    if (!settings.similarImagesEnableThumbnails) {
+      setLoading(false);
+      return;
+    }
+
+    const loadThumbnail = async () => {
+      try {
+        const result = await ipc.readThumbnail(imagePath);
+        setThumbnail(`data:${result.mimeType};base64,${result.base64}`);
+      } catch (error) {
+        console.error('Failed to load thumbnail:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadThumbnail();
+  }, [imagePath, settings.similarImagesEnableThumbnails]);
+
+  if (!settings.similarImagesEnableThumbnails) {
+    return (
+      <div className="w-16 h-16 flex items-center justify-center bg-muted rounded">
+        <Image className="w-6 h-6 text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="w-16 h-16 flex items-center justify-center bg-muted rounded animate-pulse">
+        <Image className="w-6 h-6 text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!thumbnail) {
+    return (
+      <div className="w-16 h-16 flex items-center justify-center bg-muted rounded">
+        <Image className="w-6 h-6 text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return (
+    <ClickableImagePreview path={imagePath}>
+      <img 
+        src={thumbnail} 
+        alt="thumbnail"
+        className="w-16 h-16 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
+      />
+    </ClickableImagePreview>
+  );
+}
 
 export function SimilarImages() {
   const [viewMode, setViewMode] = useState<'images' | 'folders'>('images');
@@ -88,6 +156,28 @@ export function SimilarImages() {
         return <TableRowSelectionCell row={row} />;
       },
     },
+    ...(settings.similarImagesEnableThumbnails ? [{
+      id: 'thumbnail',
+      header: t('Thumbnail'),
+      size: 80,
+      minSize: 80,
+      cell: ({ row }: { row: any }) => {
+        if (row.original.isRef) {
+          return null;
+        }
+        const imagePath = row.original.isFolder 
+          ? getFirstImageInFolder(row.original.path)
+          : row.original.path;
+        
+        if (!imagePath) {
+          return <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
+            <Image className="w-6 h-6 text-gray-400" />
+          </div>;
+        }
+        
+        return <ThumbnailCell path={imagePath} />;
+      },
+    }] : []),
     {
       accessorKey: 'similarity',
       header: t('Similarity'),
@@ -187,6 +277,7 @@ export function SimilarImages() {
         columns={columns}
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
+        rowHeight={settings.similarImagesEnableThumbnails ? 72 : 40}
       />
     </div>
   );
