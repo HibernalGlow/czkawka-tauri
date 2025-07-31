@@ -135,13 +135,8 @@ export function SimilarImages() {
       minSize: 40,
       header: ({ table }) => <TableRowSelectionHeader table={table} />,
       cell: ({ row }) => {
-        const isGroupEnd = (row.original as any)._isGroupEnd;
         if (row.original.isRef) return null;
-        return (
-          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
-            <TableRowSelectionCell row={row} />
-          </div>
-        );
+        return <TableRowSelectionCell row={row} />;
       },
     },
     ...(settings.similarImagesEnableThumbnails ? [{
@@ -152,8 +147,7 @@ export function SimilarImages() {
       maxSize: 120,
       cell: ({ row }: { row: any }) => {
         if (row.original.hidden) {
-          // 只渲染分隔线，不渲染预览图内容
-          return <div style={{height: '1px', minHeight: '1px', background: '#e5e7eb', width: '100%'}} />;
+          return null;
         }
         const imagePath = row.original.isFolder 
           ? getFirstImageInFolder(row.original.path)
@@ -243,12 +237,8 @@ export function SimilarImages() {
       size: 160,
       minSize: 120,
       cell: ({ row }) => {
-        const isGroupEnd = (row.original as any)._isGroupEnd;
-        return (
-          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
-            {row.original.modifiedDate}
-          </div>
-        );
+        // 不加分隔线
+        return row.original.modifiedDate;
       },
     },
     {
@@ -256,12 +246,8 @@ export function SimilarImages() {
       size: 55,
       minSize: 55,
       cell: ({ cell }) => {
-        const isGroupEnd = (cell.row.original as any)._isGroupEnd;
-        return (
-          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
-            <TableActions path={cell.row.original.path} />
-          </div>
-        );
+        // 不加分隔线
+        return <TableActions path={cell.row.original.path} />;
       },
     },
   ];

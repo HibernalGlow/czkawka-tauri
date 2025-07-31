@@ -58,7 +58,10 @@ export function DuplicateFiles() {
     }
   }, [data, settings.similarImagesEnableThumbnails]);
 
-  const columns: ColumnDef<DuplicateEntry>[] = [
+  // 处理分组分隔和隐藏行
+  const processedData = useMemo(() => processDataWithGroups(data), [data]);
+
+  const columns: ColumnDef<DuplicateEntry & { _isGroupEnd?: boolean }>[] = [
     {
       id: 'select',
       meta: {
@@ -70,6 +73,7 @@ export function DuplicateFiles() {
         return <TableRowSelectionHeader table={table} />;
       },
       cell: ({ row }) => {
+        if (row.original.hidden) return null;
         if (row.original.isRef) {
           return null;
         }
@@ -83,6 +87,7 @@ export function DuplicateFiles() {
       minSize: 60,
       maxSize: 120,
       cell: ({ row }: { row: any }) => {
+        if (row.original.hidden) return null;
         if (row.original.isRef) {
           return null;
         }
@@ -99,7 +104,13 @@ export function DuplicateFiles() {
       size: 110,
       minSize: 50,
       cell: ({ row }) => {
-        return <ClickableCell row={row} value={row.original.size} />;
+        if (row.original.hidden) return null;
+        const isGroupEnd = (row.original as any)._isGroupEnd;
+        return (
+          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
+            <ClickableCell row={row} value={row.original.size} />
+          </div>
+        );
       },
     },
     {
@@ -108,7 +119,13 @@ export function DuplicateFiles() {
       size: 180,
       minSize: 100,
       cell: ({ row }) => {
-        return <FileName row={row} />;
+        if (row.original.hidden) return null;
+        const isGroupEnd = (row.original as any)._isGroupEnd;
+        return (
+          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
+            <FileName row={row} />
+          </div>
+        );
       },
     },
     {
@@ -117,10 +134,13 @@ export function DuplicateFiles() {
       size: 320,
       minSize: 100,
       cell: ({ row }) => {
-        if (row.original.hidden) {
-          return null;
-        }
-        return <ClickablePath row={row} />;
+        if (row.original.hidden) return null;
+        const isGroupEnd = (row.original as any)._isGroupEnd;
+        return (
+          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
+            <ClickablePath row={row} />
+          </div>
+        );
       },
     },
     {
@@ -128,12 +148,17 @@ export function DuplicateFiles() {
       header: t('Modified date'),
       size: 160,
       minSize: 120,
+      cell: ({ row }) => {
+        if (row.original.hidden) return null;
+        return row.original.modifiedDate;
+      },
     },
     {
       id: 'actions',
       size: 55,
       minSize: 55,
       cell: ({ cell }) => {
+        if (cell.row.original.hidden) return null;
         if (cell.row.original.isRef) {
           return null;
         }
@@ -145,7 +170,7 @@ export function DuplicateFiles() {
   return (
     <DataTable
       className="flex-1 rounded-none border-none grow"
-      data={data}
+      data={processedData}
       columns={columns}
       rowSelection={rowSelection}
       onRowSelectionChange={setRowSelection}
@@ -215,4 +240,20 @@ function ClickableCell(props: { row: Row<DuplicateEntry>; value: string }) {
   }
 
   return <div>{value}</div>;
+}
+
+// 新增：处理分组逻辑
+export function processDataWithGroups(imagesData: DuplicateEntry[]) {
+  const result: (DuplicateEntry & { _isGroupEnd?: boolean })[] = [];
+  for (let i = 0; i < imagesData.length; i++) {
+    const curr = imagesData[i];
+    if (curr.hidden) continue; // 跳过 hidden 行
+    // 判断下一行是否为 hidden
+    const next = imagesData[i + 1];
+    result.push({
+      ...curr,
+      _isGroupEnd: !!(next && next.hidden), // 新增分组结束标记
+    });
+  }
+  return result;
 }
