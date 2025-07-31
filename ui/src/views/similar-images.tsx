@@ -129,9 +129,9 @@ export function SimilarImages() {
       minSize: 60,
       maxSize: 120,
       cell: ({ row }: { row: any }) => {
-        if (row.original.isRef) {
-          return null;
-        }
+        // if (row.original.isRef) {
+        //   return null;
+        // }
         const imagePath = row.original.isFolder 
           ? getFirstImageInFolder(row.original.path)
           : row.original.path;

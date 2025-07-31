@@ -134,9 +134,9 @@ export function DuplicateFiles() {
       size: 55,
       minSize: 55,
       cell: ({ cell }) => {
-        if (cell.row.original.isRef) {
-          return null;
-        }
+        // if (cell.row.original.isRef) {
+        //   return null;
+        // }
         return <TableActions path={cell.row.original.path} />;
       },
     },
