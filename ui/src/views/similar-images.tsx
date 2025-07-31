@@ -19,7 +19,12 @@ import { ThumbnailCell } from '~/components/thumbnail-cell';
 import { DynamicThumbnailCell } from '~/components/dynamic-thumbnail-cell';
 import { useT } from '~/hooks';
 import { ipc } from '~/ipc';
-import type { FolderStat, ImagesEntry } from '~/types';
+import type { FolderStat, ImagesEntry as BaseImagesEntry } from '~/types';
+
+// 扩展 ImagesEntry 类型，添加 _isGroupEnd 可选属性
+type ImagesEntry = BaseImagesEntry & {
+  _isGroupEnd?: boolean;
+};
 import { formatPathDisplay } from '~/utils/path-utils';
 import { ThumbnailPreloader } from '~/utils/thumbnail-preloader';
 import { ClickableImagePreview } from './clickable-image-preview';
@@ -104,22 +109,39 @@ export function SimilarImages() {
     return null;
   };
 
+  // 1. 处理表格数据，生成分组分隔标记
+  const processedData = useMemo(() => {
+    // 只处理 images 模式，folders 模式原样返回
+    if (viewMode !== 'images') return data;
+    const result: ImagesEntry[] = [];
+    for (let i = 0; i < imagesData.length; i++) {
+      const curr = imagesData[i];
+      if (curr.hidden) continue; // 跳过 hidden 行
+      // 判断下一行是否为 hidden
+      const next = imagesData[i + 1];
+      result.push({
+        ...curr,
+        _isGroupEnd: !!(next && next.hidden), // 新增分组结束标记
+      });
+    }
+    return result;
+  }, [imagesData, viewMode, data]);
+
   const columns: ColumnDef<ImagesEntry>[] = [
     {
       id: 'select',
-      meta: {
-        span: 1,
-      },
+      meta: { span: 1 },
       size: 40,
       minSize: 40,
-      header: ({ table }) => {
-        return <TableRowSelectionHeader table={table} />;
-      },
+      header: ({ table }) => <TableRowSelectionHeader table={table} />,
       cell: ({ row }) => {
-        if (row.original.isRef) {
-          return null;
-        }
-        return <TableRowSelectionCell row={row} />;
+        const isGroupEnd = (row.original as any)._isGroupEnd;
+        if (row.original.isRef) return null;
+        return (
+          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
+            <TableRowSelectionCell row={row} />
+          </div>
+        );
       },
     },
     ...(settings.similarImagesEnableThumbnails ? [{
@@ -129,18 +151,20 @@ export function SimilarImages() {
       minSize: 60,
       maxSize: 120,
       cell: ({ row }: { row: any }) => {
-        // if (row.original.isRef) {
-        //   return null;
-        // }
+        if (row.original.hidden) {
+          // 只渲染分隔线，不渲染预览图内容
+          return <div style={{height: '1px', minHeight: '1px', background: '#e5e7eb', width: '100%'}} />;
+        }
         const imagePath = row.original.isFolder 
           ? getFirstImageInFolder(row.original.path)
           : row.original.path;
-        
-        return <DynamicThumbnailCell 
-          path={imagePath || row.original.path} 
-          enableLazyLoad={true}
-          onSizeChange={setThumbnailColumnWidth}
-        />;
+        return (
+          <DynamicThumbnailCell 
+            path={imagePath || row.original.path} 
+            enableLazyLoad={true}
+            onSizeChange={setThumbnailColumnWidth}
+          />
+        );
       },
     }] : []),
     {
@@ -149,7 +173,12 @@ export function SimilarImages() {
       size: 100,
       minSize: 80,
       cell: ({ row }) => {
-        return <ClickableCell row={row} value={row.original.similarity} />;
+        const isGroupEnd = (row.original as any)._isGroupEnd;
+        return (
+          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
+            <ClickableCell row={row} value={row.original.similarity} />
+          </div>
+        );
       },
     },
     {
@@ -158,7 +187,12 @@ export function SimilarImages() {
       size: 100,
       minSize: 50,
       cell: ({ row }) => {
-        return <ClickableCell row={row} value={row.original.size} />;
+        const isGroupEnd = (row.original as any)._isGroupEnd;
+        return (
+          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
+            <ClickableCell row={row} value={row.original.size} />
+          </div>
+        );
       },
     },
     {
@@ -167,7 +201,12 @@ export function SimilarImages() {
       size: 100,
       minSize: 100,
       cell: ({ row }) => {
-        return <ClickableCell row={row} value={row.original.dimensions} />;
+        const isGroupEnd = (row.original as any)._isGroupEnd;
+        return (
+          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
+            <ClickableCell row={row} value={row.original.dimensions} />
+          </div>
+        );
       },
     },
     {
@@ -176,7 +215,12 @@ export function SimilarImages() {
       size: 150,
       minSize: 100,
       cell: ({ row }) => {
-        return <FileName row={row} />;
+        const isGroupEnd = (row.original as any)._isGroupEnd;
+        return (
+          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
+            <FileName row={row} />
+          </div>
+        );
       },
     },
     {
@@ -185,10 +229,12 @@ export function SimilarImages() {
       size: 160,
       minSize: 100,
       cell: ({ row }) => {
-        if (row.original.hidden) {
-          return null;
-        }
-        return <ClickablePath row={row} />;
+        const isGroupEnd = (row.original as any)._isGroupEnd;
+        return (
+          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
+            <ClickablePath row={row} />
+          </div>
+        );
       },
     },
     {
@@ -196,16 +242,26 @@ export function SimilarImages() {
       header: t('Modified date'),
       size: 160,
       minSize: 120,
+      cell: ({ row }) => {
+        const isGroupEnd = (row.original as any)._isGroupEnd;
+        return (
+          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
+            {row.original.modifiedDate}
+          </div>
+        );
+      },
     },
     {
       id: 'actions',
       size: 55,
       minSize: 55,
       cell: ({ cell }) => {
-        // if (cell.row.original.isRef) {
-        //   return null;
-        // }
-        return <TableActions path={cell.row.original.path} />;
+        const isGroupEnd = (cell.row.original as any)._isGroupEnd;
+        return (
+          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
+            <TableActions path={cell.row.original.path} />
+          </div>
+        );
       },
     },
   ];
@@ -238,7 +294,7 @@ export function SimilarImages() {
       </div>
       <DataTable
         className="flex-1 rounded-none border-none grow"
-        data={data}
+        data={processedData}
         columns={columns}
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}

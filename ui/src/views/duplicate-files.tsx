@@ -83,9 +83,9 @@ export function DuplicateFiles() {
       minSize: 60,
       maxSize: 120,
       cell: ({ row }: { row: any }) => {
-        // if (row.original.isRef) {
-        //   return null;
-        // }
+        if (row.original.isRef) {
+          return null;
+        }
         return <DynamicThumbnailCell 
           path={row.original.path} 
           enableLazyLoad={true}
@@ -134,9 +134,9 @@ export function DuplicateFiles() {
       size: 55,
       minSize: 55,
       cell: ({ cell }) => {
-        // if (cell.row.original.isRef) {
-        //   return null;
-        // }
+        if (cell.row.original.isRef) {
+          return null;
+        }
         return <TableActions path={cell.row.original.path} />;
       },
     },
