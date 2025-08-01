@@ -95,7 +95,6 @@ export function DataTable<T extends BaseEntry>(props: DataTableProps<T>) {
             <TableRow
               key={headerGroup.id}
               className={cn(
-                'px-2',
                 isGrid && 'grid grid-cols-12',
                 isResizeable && 'flex',
               )}
@@ -105,7 +104,10 @@ export function DataTable<T extends BaseEntry>(props: DataTableProps<T>) {
                 return (
                   <TableHead
                     key={header.id}
-                    className="relative flex items-center"
+                    className={cn(
+                      'relative flex items-center',
+                      header.column.id === 'select' && 'justify-center',
+                    )}
                     style={{
                       gridColumn:
                         isGrid && span
@@ -190,7 +192,7 @@ function DataTableBody<T>(props: TableBodyProps<T>) {
                 data-index={virtualRow.index}
                 ref={(node) => rowVirtualizer.measureElement(node)}
                 className={cn(
-                  'absolute w-full items-center px-1',
+                  'absolute w-full items-center',
                   isGrid && 'grid grid-cols-12',
                   isResizeable && 'flex',
                 )}
@@ -206,7 +208,11 @@ function DataTableBody<T>(props: TableBodyProps<T>) {
                   return (
                     <TableCell
                       key={cell.id}
-                      className="truncate px-1 py-1"
+                    className={cn(
+                      'truncate py-1',
+                      cell.column.id !== 'select' && 'px-1',
+                      cell.column.id === 'select' && 'flex justify-center items-center',
+                    )}
                       title={cell.getValue<any>()}
                       style={{
                         gridColumn:
@@ -245,6 +251,7 @@ export function TableRowSelectionHeader<T>(props: { table: TTable<T> }) {
 
   return (
     <Checkbox
+      className="block mx-auto my-0 py-1"
       checked={
         table.getIsAllRowsSelected() ||
         (table.getIsSomeRowsSelected() && 'indeterminate')

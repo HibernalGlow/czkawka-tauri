@@ -31,8 +31,6 @@ export const en = {
   'Recursive search': 'Recursive search',
   'Also save cache as JSON file': 'Also save cache as JSON file',
   'Move deleted files to trash': 'Move deleted files to trash',
-  'Table text wrapping': 'Table text wrapping',
-  'Enable text wrapping in table cells': 'Enable text wrapping in table cells',
   'Reverse path display': 'Reverse path display',
   'Reverse path display hint':
     'Display paths in reverse order to easily compare the last folder when prefix paths are the same',
