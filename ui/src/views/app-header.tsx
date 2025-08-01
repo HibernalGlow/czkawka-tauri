@@ -5,12 +5,16 @@ import { useTranslation } from 'react-i18next';
 import { Select, TooltipButton } from '~/components';
 import { GitHub } from '~/components/icons';
 import { SelectIconTrigger } from '~/components/one-select';
-import { useT } from '~/hooks';
+import { useT, useTableSelectionStats } from '~/hooks';
 import { storage } from '~/utils/storage';
+
 import { SettingsButton } from './settings';
 import { ThemeToggle } from './theme-toggle';
 
+// 新增 selectionStats props，便于顶栏显示统计信息
 export function AppHeader() {
+  const selectionStats = useTableSelectionStats();
+
   return (
     <div
       className="w-full h-11 flex justify-between items-center px-4 py-1 border-b border-border/50 dark:border-border"
@@ -28,15 +32,35 @@ export function AppHeader() {
           {PKG_VERSION}
         </span>
       </div>
-      {/* 右侧操作按钮 */}
-      <div className="flex items-center gap-1.5">
-        <ChangeLanguageButton />
-        <SettingsButton />
-        <ThemeToggle />
-        <ViewGitHubButton />
+      {/* 右侧统计信息和操作按钮 */}
+      <div className="flex items-center gap-4">
+        {selectionStats && (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/60 rounded px-2 py-0.5">
+            <span>已选 {selectionStats.count} 项</span>
+            <span>|</span>
+            <span>总大小 {formatSize(selectionStats.totalSize)}</span>
+            <span>|</span>
+            <span>格式 {selectionStats.formats.join(', ')}</span>
+          </div>
+        )}
+        <div className="flex items-center gap-1.5">
+          <ChangeLanguageButton />
+          <SettingsButton />
+          <ThemeToggle />
+          <ViewGitHubButton />
+        </div>
       </div>
     </div>
   );
+}
+
+// 文件大小格式化
+function formatSize(size: number): string {
+  if (size >= 1024 * 1024 * 1024)
+    return `${(size / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+  if (size >= 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+  if (size >= 1024) return `${(size / 1024).toFixed(2)} KB`;
+  return `${size} B`;
 }
 
 function ViewGitHubButton() {

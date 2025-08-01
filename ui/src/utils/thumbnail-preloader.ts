@@ -28,33 +28,40 @@ export class ThumbnailPreloader {
     }
 
     // 过滤出图片文件
-    const imagePaths = allPaths.filter(path => isImageFile(path));
+    const imagePaths = allPaths.filter((path) => isImageFile(path));
     if (imagePaths.length === 0) {
       console.log('No image files to preload');
       return;
     }
 
-    console.log(`Starting thumbnail preloading for ${imagePaths.length} images`);
+    console.log(
+      `Starting thumbnail preloading for ${imagePaths.length} images`,
+    );
     this.isRunning = true;
 
     try {
       // 首先检查哪些图片已经有缩略图了
-      const pathsNeedingThumbnails = await this.filterPathsNeedingThumbnails(imagePaths);
-      
+      const pathsNeedingThumbnails =
+        await this.filterPathsNeedingThumbnails(imagePaths);
+
       if (pathsNeedingThumbnails.length === 0) {
         console.log('All thumbnails already exist');
         return;
       }
 
-      console.log(`${pathsNeedingThumbnails.length} images need thumbnail generation`);
+      console.log(
+        `${pathsNeedingThumbnails.length} images need thumbnail generation`,
+      );
 
       // 分批处理
       for (let i = 0; i < pathsNeedingThumbnails.length; i += this.batchSize) {
         if (!this.isRunning) break; // 如果被停止了，退出循环
 
         const batch = pathsNeedingThumbnails.slice(i, i + this.batchSize);
-        console.log(`Processing batch ${Math.floor(i / this.batchSize) + 1}/${Math.ceil(pathsNeedingThumbnails.length / this.batchSize)}: ${batch.length} images`);
-        
+        console.log(
+          `Processing batch ${Math.floor(i / this.batchSize) + 1}/${Math.ceil(pathsNeedingThumbnails.length / this.batchSize)}: ${batch.length} images`,
+        );
+
         try {
           await ipc.batchGenerateThumbnails(batch);
         } catch (error) {
@@ -95,7 +102,9 @@ export class ThumbnailPreloader {
   /**
    * 过滤出需要生成缩略图的路径
    */
-  private async filterPathsNeedingThumbnails(paths: string[]): Promise<string[]> {
+  private async filterPathsNeedingThumbnails(
+    paths: string[],
+  ): Promise<string[]> {
     const results = await Promise.allSettled(
       paths.map(async (path) => {
         try {
@@ -104,20 +113,26 @@ export class ThumbnailPreloader {
         } catch {
           return { path, needsThumbnail: true }; // 如果检查失败，假设需要生成
         }
-      })
+      }),
     );
 
     return results
-      .filter((result): result is PromiseFulfilledResult<{ path: string; needsThumbnail: boolean }> => 
-        result.status === 'fulfilled')
-      .filter(result => result.value.needsThumbnail)
-      .map(result => result.value.path);
+      .filter(
+        (
+          result,
+        ): result is PromiseFulfilledResult<{
+          path: string;
+          needsThumbnail: boolean;
+        }> => result.status === 'fulfilled',
+      )
+      .filter((result) => result.value.needsThumbnail)
+      .map((result) => result.value.path);
   }
 
   /**
    * 延迟函数
    */
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

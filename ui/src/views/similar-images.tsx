@@ -1,7 +1,7 @@
 import type { ColumnDef, Row } from '@tanstack/react-table';
 import { useAtom, useAtomValue } from 'jotai';
-import { FolderTree, List, Image } from 'lucide-react';
-import { useMemo, useState, useEffect } from 'react';
+import { FolderTree, Image, List } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   similarImagesAtom,
   similarImagesRowSelectionAtom,
@@ -15,11 +15,11 @@ import {
   TableRowSelectionCell,
   TableRowSelectionHeader,
 } from '~/components/data-table';
-import { ThumbnailCell } from '~/components/thumbnail-cell';
 import { DynamicThumbnailCell } from '~/components/dynamic-thumbnail-cell';
+import { ThumbnailCell } from '~/components/thumbnail-cell';
 import { useT } from '~/hooks';
 import { ipc } from '~/ipc';
-import type { FolderStat, ImagesEntry as BaseImagesEntry } from '~/types';
+import type { ImagesEntry as BaseImagesEntry, FolderStat } from '~/types';
 
 // 扩展 ImagesEntry 类型，添加 _isGroupEnd 可选属性
 type ImagesEntry = BaseImagesEntry & {
@@ -83,9 +83,9 @@ export function SimilarImages() {
   // 启动缩略图预加载
   useEffect(() => {
     if (settings.similarImagesEnableThumbnails && imagesData.length > 0) {
-      const allImagePaths = imagesData.map(entry => entry.path);
+      const allImagePaths = imagesData.map((entry) => entry.path);
       const preloader = ThumbnailPreloader.getInstance();
-      
+
       // 延迟启动预加载，避免影响初始渲染
       const timer = setTimeout(() => {
         preloader.startPreloading(allImagePaths);
@@ -139,28 +139,32 @@ export function SimilarImages() {
         return <TableRowSelectionCell row={row} />;
       },
     },
-    ...(settings.similarImagesEnableThumbnails ? [{
-      id: 'thumbnail',
-      header: t('Thumbnail'),
-      size: 80,
-      minSize: 60,
-      maxSize: 120,
-      cell: ({ row }: { row: any }) => {
-        if (row.original.hidden) {
-          return null;
-        }
-        const imagePath = row.original.isFolder 
-          ? getFirstImageInFolder(row.original.path)
-          : row.original.path;
-        return (
-          <DynamicThumbnailCell 
-            path={imagePath || row.original.path} 
-            enableLazyLoad={true}
-            onSizeChange={setThumbnailColumnWidth}
-          />
-        );
-      },
-    }] : []),
+    ...(settings.similarImagesEnableThumbnails
+      ? [
+          {
+            id: 'thumbnail',
+            header: t('Thumbnail'),
+            size: 80,
+            minSize: 60,
+            maxSize: 120,
+            cell: ({ row }: { row: any }) => {
+              if (row.original.hidden) {
+                return null;
+              }
+              const imagePath = row.original.isFolder
+                ? getFirstImageInFolder(row.original.path)
+                : row.original.path;
+              return (
+                <DynamicThumbnailCell
+                  path={imagePath || row.original.path}
+                  enableLazyLoad={true}
+                  onSizeChange={setThumbnailColumnWidth}
+                />
+              );
+            },
+          },
+        ]
+      : []),
     {
       accessorKey: 'similarity',
       header: t('Similarity'),
@@ -169,7 +173,11 @@ export function SimilarImages() {
       cell: ({ row }) => {
         const isGroupEnd = (row.original as any)._isGroupEnd;
         return (
-          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
+          <div
+            style={
+              isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined
+            }
+          >
             <ClickableCell row={row} value={row.original.similarity} />
           </div>
         );
@@ -183,7 +191,11 @@ export function SimilarImages() {
       cell: ({ row }) => {
         const isGroupEnd = (row.original as any)._isGroupEnd;
         return (
-          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
+          <div
+            style={
+              isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined
+            }
+          >
             <ClickableCell row={row} value={row.original.size} />
           </div>
         );
@@ -197,7 +209,11 @@ export function SimilarImages() {
       cell: ({ row }) => {
         const isGroupEnd = (row.original as any)._isGroupEnd;
         return (
-          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
+          <div
+            style={
+              isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined
+            }
+          >
             <ClickableCell row={row} value={row.original.dimensions} />
           </div>
         );
@@ -211,7 +227,11 @@ export function SimilarImages() {
       cell: ({ row }) => {
         const isGroupEnd = (row.original as any)._isGroupEnd;
         return (
-          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
+          <div
+            style={
+              isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined
+            }
+          >
             <FileName row={row} />
           </div>
         );
@@ -225,7 +245,11 @@ export function SimilarImages() {
       cell: ({ row }) => {
         const isGroupEnd = (row.original as any)._isGroupEnd;
         return (
-          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
+          <div
+            style={
+              isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined
+            }
+          >
             <ClickablePath row={row} />
           </div>
         );

@@ -56,7 +56,7 @@ export class ThumbnailLoader {
     try {
       const result = await ipc.readThumbnail(path);
       const dataUrl = `data:${result.mimeType};base64,${result.base64}`;
-      
+
       // 缓存结果
       this.cache.set(path, dataUrl);
       return dataUrl;
@@ -82,18 +82,20 @@ export class ThumbnailLoader {
     try {
       const result = await ipc.readThumbnail(task.path);
       const dataUrl = `data:${result.mimeType};base64,${result.base64}`;
-      
+
       // 缓存结果
       this.cache.set(task.path, dataUrl);
-      
+
       // 解决所有等待此路径的Promise
-      const waitingTasks = this.queue.filter(t => t.path === task.path && !t.aborted);
-      waitingTasks.forEach(t => {
+      const waitingTasks = this.queue.filter(
+        (t) => t.path === task.path && !t.aborted,
+      );
+      waitingTasks.forEach((t) => {
         t.resolve(dataUrl);
         const index = this.queue.indexOf(t);
         if (index > -1) this.queue.splice(index, 1);
       });
-      
+
       task.resolve(dataUrl);
     } catch (error) {
       task.reject(error as Error);
@@ -107,7 +109,7 @@ export class ThumbnailLoader {
 
   abortRequest(path: string) {
     // 标记队列中的请求为已取消
-    this.queue.forEach(task => {
+    this.queue.forEach((task) => {
       if (task.path === path) {
         task.aborted = true;
       }
@@ -133,5 +135,7 @@ export class ThumbnailLoader {
 
 // 检查是否是图片文件的工具函数
 export function isImageFile(path: string): boolean {
-  return !!path.toLowerCase().match(/\.(jpg|jpeg|png|gif|bmp|webp|tiff|svg|jxl|avif)$/);
+  return !!path
+    .toLowerCase()
+    .match(/\.(jpg|jpeg|png|gif|bmp|webp|tiff|svg|jxl|avif)$/);
 }

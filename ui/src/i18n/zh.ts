@@ -33,6 +33,8 @@ export const zh: Record<TranslationKeys, string> = {
   'Recursive search': '递归搜索',
   'Also save cache as JSON file': '同时保存缓存为JSON文件',
   'Move deleted files to trash': '删除的文件移动到回收站',
+  'Table text wrapping': '表格文字折行',
+  'Enable text wrapping in table cells': '启用表格单元格文字折行显示',
   'Reverse path display': '路径逆向显示',
   'Reverse path display hint':
     '逆向显示路径，方便在前置路径相同时比较最后一个文件夹',

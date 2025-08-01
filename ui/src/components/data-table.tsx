@@ -133,7 +133,12 @@ export function DataTable<T extends BaseEntry>(props: DataTableProps<T>) {
             </TableRow>
           ))}
         </TableHeader>
-        <DataTableBody table={table} emptyTip={emptyTip} layout={layout} rowHeight={rowHeight} />
+        <DataTableBody
+          table={table}
+          emptyTip={emptyTip}
+          layout={layout}
+          rowHeight={rowHeight}
+        />
       </Table>
     </div>
   );
@@ -189,11 +194,11 @@ function DataTableBody<T>(props: TableBodyProps<T>) {
                   isGrid && 'grid grid-cols-12',
                   isResizeable && 'flex',
                 )}
-                style={{ 
+                style={{
                   transform: `translateY(${virtualRow.start}px)`,
                   height: `${rowHeight}px`,
                   borderBottom: '1px solid hsl(var(--border))',
-                  marginBottom: '0px'
+                  marginBottom: '0px',
                 }}
               >
                 {row.getVisibleCells().map((cell) => {

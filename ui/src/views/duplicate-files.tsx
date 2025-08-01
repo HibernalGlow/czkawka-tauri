@@ -1,6 +1,6 @@
 import type { ColumnDef, Row } from '@tanstack/react-table';
 import { useAtom, useAtomValue } from 'jotai';
-import { useMemo, useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   duplicateFilesAtom,
   duplicateFilesRowSelectionAtom,
@@ -12,8 +12,8 @@ import {
   TableRowSelectionCell,
   TableRowSelectionHeader,
 } from '~/components/data-table';
-import { ThumbnailCell } from '~/components/thumbnail-cell';
 import { DynamicThumbnailCell } from '~/components/dynamic-thumbnail-cell';
+import { ThumbnailCell } from '~/components/thumbnail-cell';
 import { useT } from '~/hooks';
 import type { DuplicateEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
@@ -43,9 +43,11 @@ export function DuplicateFiles() {
   // 启动缩略图预加载
   useEffect(() => {
     if (settings.similarImagesEnableThumbnails && data.length > 0) {
-      const allImagePaths = data.filter(entry => entry.isImage).map(entry => entry.path);
+      const allImagePaths = data
+        .filter((entry) => entry.isImage)
+        .map((entry) => entry.path);
       const preloader = ThumbnailPreloader.getInstance();
-      
+
       // 延迟启动预加载，避免影响初始渲染
       const timer = setTimeout(() => {
         preloader.startPreloading(allImagePaths);
@@ -80,24 +82,30 @@ export function DuplicateFiles() {
         return <TableRowSelectionCell row={row} />;
       },
     },
-    ...(settings.similarImagesEnableThumbnails ? [{
-      id: 'thumbnail',
-      header: t('Thumbnail'),
-      size: 80,
-      minSize: 60,
-      maxSize: 120,
-      cell: ({ row }: { row: any }) => {
-        if (row.original.hidden) return null;
-        if (row.original.isRef) {
-          return null;
-        }
-        return <DynamicThumbnailCell 
-          path={row.original.path} 
-          enableLazyLoad={true}
-          onSizeChange={setThumbnailColumnWidth}
-        />;
-      },
-    }] : []),
+    ...(settings.similarImagesEnableThumbnails
+      ? [
+          {
+            id: 'thumbnail',
+            header: t('Thumbnail'),
+            size: 80,
+            minSize: 60,
+            maxSize: 120,
+            cell: ({ row }: { row: any }) => {
+              if (row.original.hidden) return null;
+              if (row.original.isRef) {
+                return null;
+              }
+              return (
+                <DynamicThumbnailCell
+                  path={row.original.path}
+                  enableLazyLoad={true}
+                  onSizeChange={setThumbnailColumnWidth}
+                />
+              );
+            },
+          },
+        ]
+      : []),
     {
       accessorKey: 'size',
       header: t('Size'),
@@ -107,7 +115,11 @@ export function DuplicateFiles() {
         if (row.original.hidden) return null;
         const isGroupEnd = (row.original as any)._isGroupEnd;
         return (
-          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
+          <div
+            style={
+              isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined
+            }
+          >
             <ClickableCell row={row} value={row.original.size} />
           </div>
         );
@@ -122,7 +134,11 @@ export function DuplicateFiles() {
         if (row.original.hidden) return null;
         const isGroupEnd = (row.original as any)._isGroupEnd;
         return (
-          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
+          <div
+            style={
+              isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined
+            }
+          >
             <FileName row={row} />
           </div>
         );
@@ -137,7 +153,11 @@ export function DuplicateFiles() {
         if (row.original.hidden) return null;
         const isGroupEnd = (row.original as any)._isGroupEnd;
         return (
-          <div style={isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined}>
+          <div
+            style={
+              isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined
+            }
+          >
             <ClickablePath row={row} />
           </div>
         );

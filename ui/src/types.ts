@@ -81,6 +81,9 @@ export interface Settings {
   brokenFilesSubPdf: boolean;
   brokenFilesSubArchive: boolean;
   brokenFilesSubImage: boolean;
+  
+  // 表格显示设置
+  tableWrapText: boolean; // 表格文字折行
 }
 
 export interface PlatformSettings {

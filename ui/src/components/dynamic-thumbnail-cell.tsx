@@ -8,11 +8,11 @@ interface DynamicThumbnailCellProps {
   onSizeChange?: (width: number) => void; // 新增：尺寸变化回调
 }
 
-export function DynamicThumbnailCell({ 
-  path, 
-  enableLazyLoad = true, 
+export function DynamicThumbnailCell({
+  path,
+  enableLazyLoad = true,
   className = '',
-  onSizeChange
+  onSizeChange,
 }: DynamicThumbnailCellProps) {
   const [columnWidth, setColumnWidth] = useState(80);
   const cellRef = useRef<HTMLDivElement>(null);
@@ -23,7 +23,7 @@ export function DynamicThumbnailCell({
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-    
+
     timeoutRef.current = setTimeout(() => {
       if (cellRef.current) {
         const width = cellRef.current.offsetWidth;
@@ -40,9 +40,9 @@ export function DynamicThumbnailCell({
   // 监听窗口大小变化和元素大小变化
   useEffect(() => {
     updateColumnWidth();
-    
+
     let resizeObserver: ResizeObserver | null = null;
-    
+
     if (cellRef.current) {
       resizeObserver = new ResizeObserver((entries) => {
         for (const entry of entries) {
@@ -54,10 +54,10 @@ export function DynamicThumbnailCell({
       });
       resizeObserver.observe(cellRef.current);
     }
-    
+
     // 监听窗口大小变化
     window.addEventListener('resize', updateColumnWidth);
-    
+
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -70,7 +70,10 @@ export function DynamicThumbnailCell({
   }, [updateColumnWidth]);
 
   return (
-    <div ref={cellRef} className="flex items-center justify-center w-full h-full overflow-hidden">
+    <div
+      ref={cellRef}
+      className="flex items-center justify-center w-full h-full overflow-hidden"
+    >
       <ThumbnailCell
         path={path}
         size="dynamic"

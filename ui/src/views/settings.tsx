@@ -165,6 +165,14 @@ function SettingsContent() {
           <Switch />
         </FormItem>
         <FormItem
+          name="tableWrapText"
+          label={t('Table text wrapping')}
+          description={t('Enable text wrapping in table cells')}
+          comp="switch"
+        >
+          <Switch />
+        </FormItem>
+        <FormItem
           name="referencePathKeywords"
           label={t('Reference path keywords')}
           description={t('Reference path keywords hint')}

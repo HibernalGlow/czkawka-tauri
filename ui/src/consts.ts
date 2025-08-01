@@ -125,6 +125,7 @@ export function getDefaultSettings(): Settings {
     brokenFilesSubPdf: false,
     brokenFilesSubArchive: false,
     brokenFilesSubImage: false,
+    tableWrapText: true,
   };
 }
 
