@@ -13,7 +13,6 @@ import {
   TableRowSelectionHeader,
 } from '~/components/data-table';
 import { DynamicThumbnailCell } from '~/components/dynamic-thumbnail-cell';
-import { ThumbnailCell } from '~/components/thumbnail-cell';
 import { useT } from '~/hooks';
 import type { DuplicateEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
@@ -272,7 +271,7 @@ export function processDataWithGroups(imagesData: DuplicateEntry[]) {
     const next = imagesData[i + 1];
     result.push({
       ...curr,
-      _isGroupEnd: !!(next && next.hidden), // 新增分组结束标记
+      _isGroupEnd: !!next?.hidden, // 新增分组结束标记
     });
   }
   return result;

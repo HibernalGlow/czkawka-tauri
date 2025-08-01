@@ -1,6 +1,6 @@
 import { useAtom, useAtomValue } from 'jotai';
 import { ImageOff, LoaderCircle, Pin, PinOff, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { sidebarImagePreviewAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
 import { Button } from '~/components/shadcn/button';
@@ -59,65 +59,77 @@ export function SidebarImagePreview() {
     });
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (isDragging && !isResizing && position) {
-      const newX = Math.max(
-        0,
-        Math.min(e.clientX - dragOffset.x, window.innerWidth - size.width),
-      );
-      const newY = Math.max(
-        0,
-        Math.min(e.clientY - dragOffset.y, window.innerHeight - 40),
-      );
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (isDragging && !isResizing && position) {
+        const newX = Math.max(
+          0,
+          Math.min(e.clientX - dragOffset.x, window.innerWidth - size.width),
+        );
+        const newY = Math.max(
+          0,
+          Math.min(e.clientY - dragOffset.y, window.innerHeight - 40),
+        );
 
-      setSidebarState((prev) => ({
-        ...prev,
-        position: { x: newX, y: newY },
-      }));
-    } else if (isResizing && resizeDirection && position) {
-      const deltaX = e.clientX - resizeStartPos.x;
-      const deltaY = e.clientY - resizeStartPos.y;
+        setSidebarState((prev) => ({
+          ...prev,
+          position: { x: newX, y: newY },
+        }));
+      } else if (isResizing && resizeDirection && position) {
+        const deltaX = e.clientX - resizeStartPos.x;
+        const deltaY = e.clientY - resizeStartPos.y;
 
-      let newWidth = resizeStartSize.width;
-      let newHeight = resizeStartSize.height;
-      let newX = position.x;
-      let newY = position.y;
+        let newWidth = resizeStartSize.width;
+        let newHeight = resizeStartSize.height;
+        let newX = position.x;
+        let newY = position.y;
 
-      // Handle different resize directions
-      if (resizeDirection.includes('e')) {
-        newWidth = Math.max(200, resizeStartSize.width + deltaX);
+        // Handle different resize directions
+        if (resizeDirection.includes('e')) {
+          newWidth = Math.max(200, resizeStartSize.width + deltaX);
+        }
+        if (resizeDirection.includes('w')) {
+          const widthChange = Math.min(resizeStartSize.width - 200, deltaX);
+          newWidth = Math.max(200, resizeStartSize.width - deltaX);
+          newX = resizeStartPos.x + widthChange;
+        }
+        if (resizeDirection.includes('s')) {
+          newHeight = Math.max(150, resizeStartSize.height + deltaY);
+        }
+        if (resizeDirection.includes('n')) {
+          const heightChange = Math.min(resizeStartSize.height - 150, deltaY);
+          newHeight = Math.max(150, resizeStartSize.height - deltaY);
+          newY = resizeStartPos.y + heightChange;
+        }
+
+        // Ensure the preview stays within viewport bounds
+        newX = Math.max(0, Math.min(newX, window.innerWidth - newWidth));
+        newY = Math.max(0, Math.min(newY, window.innerHeight - newHeight));
+
+        setSidebarState((prev) => ({
+          ...prev,
+          position: { x: newX, y: newY },
+          size: { width: newWidth, height: newHeight },
+        }));
       }
-      if (resizeDirection.includes('w')) {
-        const widthChange = Math.min(resizeStartSize.width - 200, deltaX);
-        newWidth = Math.max(200, resizeStartSize.width - deltaX);
-        newX = resizeStartPos.x + widthChange;
-      }
-      if (resizeDirection.includes('s')) {
-        newHeight = Math.max(150, resizeStartSize.height + deltaY);
-      }
-      if (resizeDirection.includes('n')) {
-        const heightChange = Math.min(resizeStartSize.height - 150, deltaY);
-        newHeight = Math.max(150, resizeStartSize.height - deltaY);
-        newY = resizeStartPos.y + heightChange;
-      }
+    },
+    [
+      isDragging,
+      isResizing,
+      position,
+      dragOffset,
+      size,
+      resizeDirection,
+      resizeStartPos,
+      resizeStartSize,
+    ],
+  );
 
-      // Ensure the preview stays within viewport bounds
-      newX = Math.max(0, Math.min(newX, window.innerWidth - newWidth));
-      newY = Math.max(0, Math.min(newY, window.innerHeight - newHeight));
-
-      setSidebarState((prev) => ({
-        ...prev,
-        position: { x: newX, y: newY },
-        size: { width: newWidth, height: newHeight },
-      }));
-    }
-  };
-
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setIsDragging(false);
     setIsResizing(false);
     setResizeDirection(null);
-  };
+  }, []);
 
   const startResize = (e: React.MouseEvent, direction: string) => {
     if (mode !== 'floating') return;
@@ -148,14 +160,7 @@ export function SidebarImagePreview() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [
-    isDragging,
-    isResizing,
-    dragOffset,
-    resizeDirection,
-    resizeStartPos,
-    resizeStartSize,
-  ]);
+  }, [isDragging, isResizing, handleMouseMove, handleMouseUp]);
 
   if (!isOpen || !imagePath) {
     return null;
@@ -288,7 +293,7 @@ function ImageContent({ path }: { path: string }) {
   const [src, setSrc] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const settings = useAtomValue(settingsAtom);
+  const _settings = useAtomValue(settingsAtom);
   const t = useT();
 
   useEffect(() => {

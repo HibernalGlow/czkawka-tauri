@@ -56,19 +56,23 @@ export function getSimilarityLevel(
 
   if (similarity <= thresholds[0]) {
     return SimilarityLevel.VeryHigh;
-  } else if (similarity <= thresholds[1]) {
-    return SimilarityLevel.High;
-  } else if (similarity <= thresholds[2]) {
-    return SimilarityLevel.Medium;
-  } else if (similarity <= thresholds[3]) {
-    return SimilarityLevel.Small;
-  } else if (similarity <= thresholds[4]) {
-    return SimilarityLevel.VerySmall;
-  } else if (similarity <= thresholds[5]) {
-    return SimilarityLevel.Minimal;
-  } else {
-    return SimilarityLevel.Minimal; // 超出范围的归为最低级别
   }
+  if (similarity <= thresholds[1]) {
+    return SimilarityLevel.High;
+  }
+  if (similarity <= thresholds[2]) {
+    return SimilarityLevel.Medium;
+  }
+  if (similarity <= thresholds[3]) {
+    return SimilarityLevel.Small;
+  }
+  if (similarity <= thresholds[4]) {
+    return SimilarityLevel.VerySmall;
+  }
+  if (similarity <= thresholds[5]) {
+    return SimilarityLevel.Minimal;
+  }
+  return SimilarityLevel.Minimal; // 超出范围的归为最低级别
 }
 
 /**

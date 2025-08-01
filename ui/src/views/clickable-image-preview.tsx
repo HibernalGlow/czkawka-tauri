@@ -25,7 +25,8 @@ export function ClickableImagePreview(props: ClickableImagePreviewProps) {
     : 'cursor-pointer hover:bg-accent/50 rounded px-1 py-0.5 transition-colors';
 
   return (
-    <div
+    <button
+      type="button"
       className={className || defaultClassName}
       onClick={handleClick}
       onKeyDown={(e) => {
@@ -34,11 +35,8 @@ export function ClickableImagePreview(props: ClickableImagePreviewProps) {
           handleClick();
         }
       }}
-      tabIndex={0}
-      role="button"
-      aria-label="点击预览图片"
     >
       {children}
-    </div>
+    </button>
   );
 }

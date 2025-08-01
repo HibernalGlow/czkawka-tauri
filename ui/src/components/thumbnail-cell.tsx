@@ -39,9 +39,9 @@ export function ThumbnailCell({
   };
 
   // 动态尺寸计算
-  let sizeClass,
-    iconClass,
-    thumbnailStyle: React.CSSProperties = {};
+  let sizeClass: string;
+  let iconClass: string;
+  let thumbnailStyle: React.CSSProperties = {};
 
   if (size === 'dynamic' && dynamicSize) {
     // 动态尺寸：基于列宽计算，允许更大的范围
@@ -77,12 +77,12 @@ export function ThumbnailCell({
 
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
+        for (const entry of entries) {
           if (entry.isIntersecting) {
             setIsVisible(true);
             observer.unobserve(element);
           }
-        });
+        }
       },
       {
         rootMargin: '100px', // 提前100px开始加载

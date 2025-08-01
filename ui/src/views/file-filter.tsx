@@ -6,7 +6,7 @@ import { Button } from '~/components';
 
 export function FileFilter() {
   const { t } = useTranslation();
-  const [panelState, setPanelState] = useAtom(filterPanelAtom);
+  const [_panelState, setPanelState] = useAtom(filterPanelAtom);
 
   const openFilterPanel = () => {
     setPanelState((prev) => ({ ...prev, isOpen: true }));

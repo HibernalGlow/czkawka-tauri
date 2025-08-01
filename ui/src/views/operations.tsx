@@ -72,7 +72,10 @@ function SimilarityQuickTableDialog() {
                     {row.text}
                   </td>
                   {row.ranges.map((range, idx) => (
-                    <td key={idx} className="px-2 py-1 text-left align-middle">
+                    <td
+                      key={`${row.level}-${idx}`}
+                      className="px-2 py-1 text-left align-middle"
+                    >
                       {range}
                     </td>
                   ))}

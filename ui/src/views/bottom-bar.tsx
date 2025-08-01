@@ -80,43 +80,43 @@ type PropsWithRowSelection<T> = T & {
   onRowSelectionChange: (v: RowSelection) => void;
 };
 
-function SimilarFoldersButton({ folders }: { folders: FolderStat[] }) {
-  const [open, setOpen] = useState(false);
-  // TODO: 可扩展选中状态和批量操作
-  return (
-    <>
-      <TooltipButton tooltip="相似文件夹批量操作" onClick={() => setOpen(true)}>
-        <FolderPlus />
-      </TooltipButton>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>相似文件夹批量操作</DialogTitle>
-          </DialogHeader>
-          <div style={{ maxHeight: 400, overflow: 'auto' }}>
-            {folders.length === 0 ? (
-              <div>暂无符合条件的文件夹</div>
-            ) : (
-              <ul>
-                {folders.map((f) => (
-                  <li key={f.path} style={{ marginBottom: 8 }}>
-                    <div className="flex items-center gap-2">
-                      <Checkbox />
-                      <span>
-                        {f.path}（{f.count} 张图片）
-                      </span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {/* 这里可以加批量移动/删除按钮，调用已有逻辑 */}
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
-}
+// function SimilarFoldersButton({ folders }: { folders: FolderStat[] }) {
+//   const [open, setOpen] = useState(false);
+//   // TODO: 可扩展选中状态和批量操作
+//   return (
+//     <>
+//       <TooltipButton tooltip="相似文件夹批量操作" onClick={() => setOpen(true)}>
+//         <FolderPlus />
+//       </TooltipButton>
+//       <Dialog open={open} onOpenChange={setOpen}>
+//         <DialogContent>
+//           <DialogHeader>
+//             <DialogTitle>相似文件夹批量操作</DialogTitle>
+//           </DialogHeader>
+//           <div style={{ maxHeight: 400, overflow: 'auto' }}>
+//             {folders.length === 0 ? (
+//               <div>暂无符合条件的文件夹</div>
+//             ) : (
+//               <ul>
+//                 {folders.map((f) => (
+//                   <li key={f.path} style={{ marginBottom: 8 }}>
+//                     <div className="flex items-center gap-2">
+//                       <Checkbox />
+//                       <span>
+//                         {f.path}（{f.count} 张图片）
+//                       </span>
+//                     </div>
+//                   </li>
+//                 ))}
+//               </ul>
+//             )}
+//             {/* 这里可以加批量移动/删除按钮，调用已有逻辑 */}
+//           </div>
+//         </DialogContent>
+//       </Dialog>
+//     </>
+//   );
+// }
 
 export function BottomBar() {
   const [displayType, setDisplayType] = useState<string>(DisplayType.Dirs);

@@ -1,6 +1,6 @@
 import type { ColumnDef, Row } from '@tanstack/react-table';
 import { useAtom, useAtomValue } from 'jotai';
-import { FolderTree, Image, List } from 'lucide-react';
+import { FolderTree, List } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import {
   similarImagesAtom,
@@ -16,9 +16,7 @@ import {
   TableRowSelectionHeader,
 } from '~/components/data-table';
 import { DynamicThumbnailCell } from '~/components/dynamic-thumbnail-cell';
-import { ThumbnailCell } from '~/components/thumbnail-cell';
 import { useT } from '~/hooks';
-import { ipc } from '~/ipc';
 import type { ImagesEntry as BaseImagesEntry, FolderStat } from '~/types';
 
 // 扩展 ImagesEntry 类型，添加 _isGroupEnd 可选属性
@@ -121,7 +119,7 @@ export function SimilarImages() {
       const next = imagesData[i + 1];
       result.push({
         ...curr,
-        _isGroupEnd: !!(next && next.hidden), // 新增分组结束标记
+        _isGroupEnd: !!next?.hidden, // 新增分组结束标记
       });
     }
     return result;

@@ -35,7 +35,7 @@ export function DynamicThumbnailCell({
         }
       }
     }, 16); // 使用 requestAnimationFrame 频率
-  }, []);
+  }, [onSizeChange]);
 
   // 监听窗口大小变化和元素大小变化
   useEffect(() => {

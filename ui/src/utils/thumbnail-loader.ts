@@ -24,7 +24,10 @@ export class ThumbnailLoader {
   async loadThumbnail(path: string): Promise<string> {
     // 检查缓存
     if (this.cache.has(path)) {
-      return this.cache.get(path)!;
+      const cached = this.cache.get(path);
+      if (cached) {
+        return cached;
+      }
     }
 
     // 如果正在处理，返回现有的Promise
@@ -53,16 +56,12 @@ export class ThumbnailLoader {
   }
 
   private async loadCachedThumbnail(path: string): Promise<string> {
-    try {
-      const result = await ipc.readThumbnail(path);
-      const dataUrl = `data:${result.mimeType};base64,${result.base64}`;
+    const result = await ipc.readThumbnail(path);
+    const dataUrl = `data:${result.mimeType};base64,${result.base64}`;
 
-      // 缓存结果
-      this.cache.set(path, dataUrl);
-      return dataUrl;
-    } catch (error) {
-      throw error;
-    }
+    // 缓存结果
+    this.cache.set(path, dataUrl);
+    return dataUrl;
   }
 
   private async processQueue() {
@@ -90,11 +89,11 @@ export class ThumbnailLoader {
       const waitingTasks = this.queue.filter(
         (t) => t.path === task.path && !t.aborted,
       );
-      waitingTasks.forEach((t) => {
+      for (const t of waitingTasks) {
         t.resolve(dataUrl);
         const index = this.queue.indexOf(t);
         if (index > -1) this.queue.splice(index, 1);
-      });
+      }
 
       task.resolve(dataUrl);
     } catch (error) {
@@ -109,11 +108,11 @@ export class ThumbnailLoader {
 
   abortRequest(path: string) {
     // 标记队列中的请求为已取消
-    this.queue.forEach((task) => {
+    for (const task of this.queue) {
       if (task.path === path) {
         task.aborted = true;
       }
-    });
+    }
   }
 
   clearCache() {

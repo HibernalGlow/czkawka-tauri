@@ -347,7 +347,7 @@ function SimilarImagesSettings({
   const setSettings = useSetAtom(settingsAtom);
   const t = useT();
 
-  const handlePresetClick = (value: number) => {
+  const _handlePresetClick = (value: number) => {
     setSettings((prev) => ({ ...prev, similarImagesSubSimilarity: value }));
   };
 
@@ -432,7 +432,7 @@ function SimilarImagesSettings({
 
 function SimilarVideosSettings({
   showControls = true,
-  showAlgorithms = true,
+  showAlgorithms: _showAlgorithms = true,
 }: { showControls?: boolean; showAlgorithms?: boolean }) {
   const settings = useAtomValue(settingsAtom);
   const t = useT();
@@ -566,7 +566,7 @@ function MusicDuplicatesSettings({
 
 function BrokenFilesSettings({
   showControls = true,
-  showAlgorithms = true,
+  showAlgorithms: _showAlgorithms = true,
 }: { showControls?: boolean; showAlgorithms?: boolean }) {
   const t = useT();
 

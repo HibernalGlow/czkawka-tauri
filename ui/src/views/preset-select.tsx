@@ -147,7 +147,7 @@ export function PresetSelect(props: PresetSelectProps) {
       }
 
       // 尝试解析 JSON
-      let importedData;
+      let importedData: any;
       try {
         importedData = JSON.parse(clipboardText);
       } catch (_e) {

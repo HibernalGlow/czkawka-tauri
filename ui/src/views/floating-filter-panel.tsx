@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai';
 import { Filter, Pin, PinOff, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { filterPanelAtom } from '~/atom/primitive';
 import { Button } from '~/components/shadcn/button';
 import { useT } from '~/hooks';
@@ -60,70 +60,83 @@ export function FloatingFilterPanel() {
     }
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (isDragging && mode === 'floating') {
-      const newX = e.clientX - dragOffset.x;
-      const newY = e.clientY - dragOffset.y;
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (isDragging && mode === 'floating') {
+        const newX = e.clientX - dragOffset.x;
+        const newY = e.clientY - dragOffset.y;
 
-      // Ensure the panel stays within viewport bounds
-      const boundedX = Math.max(
-        0,
-        Math.min(newX, window.innerWidth - size.width),
-      );
-      const boundedY = Math.max(
-        0,
-        Math.min(newY, window.innerHeight - size.height),
-      );
+        // Ensure the panel stays within viewport bounds
+        const boundedX = Math.max(
+          0,
+          Math.min(newX, window.innerWidth - size.width),
+        );
+        const boundedY = Math.max(
+          0,
+          Math.min(newY, window.innerHeight - size.height),
+        );
 
-      setPanelState((prev) => ({
-        ...prev,
-        position: { x: boundedX, y: boundedY },
-      }));
-    }
-
-    if (isResizing && mode === 'floating' && position) {
-      const deltaX = e.clientX - resizeStartPos.x;
-      const deltaY = e.clientY - resizeStartPos.y;
-
-      let newWidth = resizeStartSize.width;
-      let newHeight = resizeStartSize.height;
-      let newX = position.x;
-      let newY = position.y;
-
-      if (resizeDirection?.includes('right')) {
-        newWidth = Math.max(300, resizeStartSize.width + deltaX);
-      }
-      if (resizeDirection?.includes('bottom')) {
-        newHeight = Math.max(200, resizeStartSize.height + deltaY);
-      }
-      if (resizeDirection?.includes('left')) {
-        const widthChange = deltaX;
-        newWidth = Math.max(300, resizeStartSize.width - widthChange);
-        newX = resizeStartPos.x + widthChange;
-      }
-      if (resizeDirection?.includes('top')) {
-        const heightChange = deltaY;
-        newHeight = Math.max(200, resizeStartSize.height - heightChange);
-        newY = resizeStartPos.y + heightChange;
+        setPanelState((prev) => ({
+          ...prev,
+          position: { x: boundedX, y: boundedY },
+        }));
       }
 
-      // Ensure the panel stays within viewport bounds
-      newX = Math.max(0, Math.min(newX, window.innerWidth - newWidth));
-      newY = Math.max(0, Math.min(newY, window.innerHeight - newHeight));
+      if (isResizing && mode === 'floating' && position) {
+        const deltaX = e.clientX - resizeStartPos.x;
+        const deltaY = e.clientY - resizeStartPos.y;
 
-      setPanelState((prev) => ({
-        ...prev,
-        position: { x: newX, y: newY },
-        size: { width: newWidth, height: newHeight },
-      }));
-    }
-  };
+        let newWidth = resizeStartSize.width;
+        let newHeight = resizeStartSize.height;
+        let newX = position.x;
+        let newY = position.y;
 
-  const handleMouseUp = () => {
+        if (resizeDirection?.includes('right')) {
+          newWidth = Math.max(300, resizeStartSize.width + deltaX);
+        }
+        if (resizeDirection?.includes('bottom')) {
+          newHeight = Math.max(200, resizeStartSize.height + deltaY);
+        }
+        if (resizeDirection?.includes('left')) {
+          const widthChange = deltaX;
+          newWidth = Math.max(300, resizeStartSize.width - widthChange);
+          newX = resizeStartPos.x + widthChange;
+        }
+        if (resizeDirection?.includes('top')) {
+          const heightChange = deltaY;
+          newHeight = Math.max(200, resizeStartSize.height - heightChange);
+          newY = resizeStartPos.y + heightChange;
+        }
+
+        // Ensure the panel stays within viewport bounds
+        newX = Math.max(0, Math.min(newX, window.innerWidth - newWidth));
+        newY = Math.max(0, Math.min(newY, window.innerHeight - newHeight));
+
+        setPanelState((prev) => ({
+          ...prev,
+          position: { x: newX, y: newY },
+          size: { width: newWidth, height: newHeight },
+        }));
+      }
+    },
+    [
+      isDragging,
+      mode,
+      dragOffset,
+      isResizing,
+      position,
+      resizeDirection,
+      resizeStartPos,
+      resizeStartSize,
+      size,
+    ],
+  );
+
+  const handleMouseUp = useCallback(() => {
     setIsDragging(false);
     setIsResizing(false);
     setResizeDirection(null);
-  };
+  }, []);
 
   const startResize = (e: React.MouseEvent, direction: string) => {
     if (mode !== 'floating') return;
@@ -154,17 +167,7 @@ export function FloatingFilterPanel() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [
-    isDragging,
-    isResizing,
-    dragOffset,
-    resizeDirection,
-    resizeStartPos,
-    resizeStartSize,
-    mode,
-    position,
-    size,
-  ]);
+  }, [isDragging, isResizing, handleMouseMove, handleMouseUp]);
 
   if (!isOpen) return null;
 
