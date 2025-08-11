@@ -25,11 +25,11 @@ export const BigFilesSearchMode = {
 } as const;
 
 export const SimilarImagesHashAlgorithm = {
-  Mean: 'Mean',
+  DoubleGradient: 'DoubleGradient',
   Gradient: 'Gradient',
+  Mean: 'Mean',
   BlockHash: 'BlockHash',
   VertGradient: 'VertGradient',
-  DoubleGradient: 'DoubleGradient',
   Median: 'Median',
 } as const;
 
