@@ -113,6 +113,7 @@ export const zh: Record<TranslationKeys, string> = {
   'Size and name': '大小和名称',
   'Hash type': '哈希类型',
   'Case sensitive': '大小写敏感(仅名称模式)',
+  'Min group size': '最小重复组大小',
   'Checked files': '检查的文件',
   Biggest: '最大的',
   Smallest: '最小的',

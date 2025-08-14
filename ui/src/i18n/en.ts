@@ -114,6 +114,7 @@ export const en = {
   'Size and name': 'Size and name',
   'Hash type': 'Hash type',
   'Case sensitive': 'Case sensitive(only name modes)',
+  'Min group size': 'Min group size',
   'Checked files': 'Checked files',
   Biggest: 'Biggest',
   Smallest: 'Smallest',

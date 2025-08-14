@@ -250,6 +250,7 @@ function DuplicateFilesSettings({
   showAlgorithms = true,
 }: { showControls?: boolean; showAlgorithms?: boolean }) {
   const t = useT();
+  const settings = useAtomValue(settingsAtom);
 
   return (
     <>
@@ -288,13 +289,23 @@ function DuplicateFilesSettings({
         </>
       )}
       {showControls && (
-        <FormItem
-          name="duplicatesSubNameCaseSensitive"
-          label={t('Case sensitive')}
-          comp="switch"
-        >
-          <Switch />
-        </FormItem>
+        <>
+          <FormItem
+            name="duplicatesSubNameCaseSensitive"
+            label={t('Case sensitive')}
+            comp="switch"
+          >
+            <Switch />
+          </FormItem>
+          <FormItem
+            name="duplicateGroupSizeThreshold"
+            label={t('Min group size')}
+            comp="slider"
+            suffix={<span>≥{settings.duplicateGroupSizeThreshold}</span>}
+          >
+            <Slider min={1} max={10} />
+          </FormItem>
+        </>
       )}
       <ImageDisplaySettings />
       <PathDisplaySettings />

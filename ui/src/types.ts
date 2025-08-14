@@ -44,6 +44,8 @@ export interface Settings {
   duplicatesSubCheckMethod: string;
   duplicatesSubAvailableHashType: string;
   duplicatesSubNameCaseSensitive: boolean;
+  // 最小重复组大小过滤(>=该值的组才显示)
+  duplicateGroupSizeThreshold: number;
 
   similarImagesHideHardLinks: boolean;
   similarImagesShowImagePreview: boolean;

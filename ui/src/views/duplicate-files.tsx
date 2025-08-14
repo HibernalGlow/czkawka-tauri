@@ -60,7 +60,31 @@ export function DuplicateFiles() {
   }, [data, settings.similarImagesEnableThumbnails]);
 
   // 处理分组分隔和隐藏行
-  const processedData = useMemo(() => processDataWithGroups(data), [data]);
+  const processedData = useMemo(() => {
+    const threshold = settings.duplicateGroupSizeThreshold || 1;
+    if (threshold <= 1) return processDataWithGroups(data);
+    const filtered: typeof data = [];
+    let group: typeof data = [];
+    for (const item of data) {
+      if (item.hidden) {
+        // hidden row marks end of current group
+        if (group.length) {
+          const visibleCount = group.filter((e) => !e.hidden).length;
+            if (visibleCount >= threshold) {
+              filtered.push(...group, item); // keep group and its hidden separator
+            }
+        }
+        group = [];
+        continue;
+      }
+      group.push(item);
+    }
+    if (group.length) {
+      const visibleCount = group.filter((e) => !e.hidden).length;
+      if (visibleCount >= threshold) filtered.push(...group);
+    }
+    return processDataWithGroups(filtered);
+  }, [data, settings.duplicateGroupSizeThreshold]);
 
   const columns: ColumnDef<DuplicateEntry & { _isGroupEnd?: boolean }>[] = [
     {

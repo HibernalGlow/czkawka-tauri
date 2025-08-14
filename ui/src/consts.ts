@@ -88,6 +88,7 @@ export function getDefaultSettings(): Settings {
     duplicatesSubCheckMethod: DuplicatesCheckMethod.Hash,
     duplicatesSubAvailableHashType: DuplicatesAvailableHashType.Blake3,
     duplicatesSubNameCaseSensitive: false,
+  duplicateGroupSizeThreshold: 2,
 
     similarImagesHideHardLinks: true,
     similarImagesShowImagePreview: true,

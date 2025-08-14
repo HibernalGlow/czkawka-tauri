@@ -144,7 +144,7 @@ export function convertDuplicateEntries(
       return convertDuplicateEntry(item, false, id);
     });
     if (ref) {
-      convertedItems.unshift(convertDuplicateEntry(ref, true));
+      convertedItems.unshift(convertDuplicateEntry(ref, true, id));
     }
     if (idx !== list.length - 1) {
       const hiddenRow: DuplicateEntry = {
