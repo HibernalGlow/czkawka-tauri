@@ -117,6 +117,21 @@ export const sidebarImagePreviewAtom = atom<{
   size: { width: 320, height: 480 },
 });
 
+// 侧边栏视频预览状态
+export const sidebarVideoPreviewAtom = atom<{
+  isOpen: boolean;
+  videoPath: string | null;
+  mode: 'floating' | 'fixed';
+  position: { x: number; y: number } | null;
+  size: { width: number; height: number };
+}>({
+  isOpen: false,
+  videoPath: null,
+  mode: 'fixed',
+  position: null,
+  size: { width: 480, height: 320 },
+});
+
 // 工具栏折叠状态
 export const toolTabsCollapsedAtom = atomWithStorage(
   'tool-tabs-collapsed',

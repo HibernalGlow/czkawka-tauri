@@ -14,6 +14,7 @@ import {
 import { useT } from '~/hooks';
 import type { VideosEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
+import { ClickableVideoPreview } from './clickable-video-preview';
 
 export function SimilarVideos() {
   const data = useAtomValue(similarVideosAtom);
@@ -52,6 +53,17 @@ export function SimilarVideos() {
       header: t('File name'),
       size: 180,
       minSize: 100,
+      cell: ({ row }) => {
+        if (row.original.hidden) return null;
+        const { path, fileName } = row.original;
+        return (
+          <ClickableVideoPreview path={path}>
+            <div className="truncate cursor-pointer hover:bg-accent/20 rounded px-1 py-0.5 transition-colors">
+              {fileName}
+            </div>
+          </ClickableVideoPreview>
+        );
+      },
     },
     {
       accessorKey: 'path',
@@ -66,7 +78,13 @@ export function SimilarVideos() {
           row.original.path,
           settings.reversePathDisplay,
         );
-        return <div className="truncate">{displayPath}</div>;
+        return (
+          <ClickableVideoPreview path={row.original.path}>
+            <div className="truncate cursor-pointer hover:bg-accent/20 rounded px-1 py-0.5 transition-colors">
+              {displayPath}
+            </div>
+          </ClickableVideoPreview>
+        );
       },
     },
     {

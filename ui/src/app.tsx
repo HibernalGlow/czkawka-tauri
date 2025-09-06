@@ -5,6 +5,7 @@ import { AppHeader } from '~/views/app-header';
 import { BottomBar } from '~/views/bottom-bar';
 import { FloatingFilterPanel } from '~/views/floating-filter-panel';
 import { SidebarImagePreview } from '~/views/sidebar-image-preview';
+import { SidebarVideoPreview } from '~/views/sidebar-video-preview';
 import { ToolTabs } from '~/views/tool-tabs';
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
       </TooltipProvider>
       <Toaster />
       <SidebarImagePreview />
+  <SidebarVideoPreview />
       <FloatingFilterPanel />
     </div>
   );

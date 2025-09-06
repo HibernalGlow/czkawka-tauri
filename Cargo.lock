@@ -1074,6 +1074,8 @@ dependencies = [
  "infer",
  "jxl-oxide 0.12.2",
  "md5",
+ "mime_guess",
+ "percent-encoding",
  "rayon",
  "rusqlite",
  "serde",

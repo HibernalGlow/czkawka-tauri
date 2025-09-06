@@ -90,6 +90,7 @@ export const zh: Record<TranslationKeys, string> = {
   'Failed to read image': '读取图片失败',
   'No data': '无数据',
   'Image Preview': '图片预览',
+  'Video preview': '视频预览',
   'Loading...': '加载中...',
   Format: '格式',
 

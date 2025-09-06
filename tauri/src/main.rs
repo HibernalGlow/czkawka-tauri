@@ -29,6 +29,12 @@ use czkawka_core::common::{
 	get_number_of_threads, set_config_cache_path, set_number_of_threads,
 };
 use tauri::{AppHandle, Emitter, Manager, State};
+use std::{fs::File, io::{Seek, SeekFrom}};
+use std::thread;
+use std::net::{TcpListener, TcpStream};
+use std::io::{Write};
+use std::sync::OnceLock;
+use mime_guess::from_path;
 
 use crate::{
 	image::{ImageInfo, init_thumbnail_manager},
@@ -38,11 +44,66 @@ use crate::{
 	thumbnail::ThumbnailInfo,
 };
 
+static VIDEO_SERVER_PORT: OnceLock<u16> = OnceLock::new();
+
+fn start_video_http_server() -> u16 {
+	// 绑定 127.0.0.1:0 让系统分配端口
+	let listener = TcpListener::bind("127.0.0.1:0").expect("bind video server");
+	let port = listener.local_addr().unwrap().port();
+	thread::spawn(move || {
+		for stream in listener.incoming() {
+			if let Ok(stream) = stream { handle_video_conn(stream); }
+		}
+	});
+	port
+}
+
+#[tauri::command]
+fn get_video_server_port() -> u16 {
+	*VIDEO_SERVER_PORT.get_or_init(|| start_video_http_server())
+}
+
+fn handle_video_conn(mut stream: TcpStream) {
+	use std::io::Read as _;
+	let mut buf = Vec::new();
+	let _ = stream.set_read_timeout(Some(std::time::Duration::from_secs(5)));
+	let mut header_buf = [0u8; 4096];
+	let Ok(n) = stream.read(&mut header_buf) else { return; };
+	let req = String::from_utf8_lossy(&header_buf[..n]);
+	// 只解析首行与 Range/path
+	let mut lines = req.split("\r\n");
+	let first = lines.next().unwrap_or("");
+	let mut path = "";
+	if let Some(p) = first.split_whitespace().nth(1) { path = p; }
+	if !path.starts_with("/video") { return; }
+	let mut file_param = "";
+	if let Some(idx) = path.find("?path=") { file_param = &path[idx+6..]; }
+	let decoded = percent_encoding::percent_decode_str(file_param).decode_utf8_lossy();
+	let full_path = decoded.to_string();
+	let mut range: Option<(u64,u64)> = None;
+	for l in lines.clone() { if l.starts_with("Range:") { if let Some(r) = l.split(':').nth(1) { let r = r.trim(); if let Some(rs) = r.strip_prefix("bytes=") { let mut parts = rs.split('-'); let s = parts.next().unwrap_or("").parse().unwrap_or(0); let e = parts.next().unwrap_or("").parse().unwrap_or(0); if e>0 { range=Some((s,e)); } } } } }
+	let Ok(mut file) = File::open(&full_path) else { let _ = stream.write_all(b"HTTP/1.1 404 Not Found\r\nContent-Length:0\r\n\r\n"); return; };
+	let Ok(meta) = file.metadata() else { let _ = stream.write_all(b"HTTP/1.1 404 Not Found\r\nContent-Length:0\r\n\r\n"); return; };
+	let total = meta.len();
+	let (start,end,status) = match range { Some((s,e)) if e> s && e< total => (s,e,206), _ => (0,total-1,200)};
+	let to_read = end-start+1;
+	if file.seek(SeekFrom::Start(start)).is_err() { let _ = stream.write_all(b"HTTP/1.1 416 Range Not Satisfiable\r\nContent-Length:0\r\n\r\n"); return; }
+	buf.resize(to_read as usize,0); if file.read_exact(&mut buf).is_err() { let _ = stream.write_all(b"HTTP/1.1 500 Internal Server Error\r\nContent-Length:0\r\n\r\n"); return; }
+	let mime = from_path(&full_path).first_or_octet_stream();
+	let mut headers = format!("HTTP/1.1 {} {}\r\nContent-Type: {}\r\nAccept-Ranges: bytes\r\nContent-Length: {}\r\n", status, if status==206 {"Partial Content"} else {"OK"}, mime, buf.len());
+	if status==206 { headers.push_str(&format!("Content-Range: bytes {}-{}/{}\r\n", start,end,total)); }
+	headers.push_str("Connection: close\r\n\r\n");
+	let _ = stream.write_all(headers.as_bytes());
+	let _ = stream.write_all(&buf);
+}
+
 fn main() {
 	set_config_cache_path("Czkawka", "Krokiet");
 
 	tauri::Builder::default()
 		.setup(move |app| {
+			// 启动本地视频 HTTP server (只启动一次)
+			VIDEO_SERVER_PORT.get_or_init(|| start_video_http_server());
 			#[cfg(feature = "ffmpeg")]
 			if let Ok(resource_dir) = app.path().resource_dir() {
 				utils::set_ffmpeg_path(resource_dir);
@@ -60,6 +121,7 @@ fn main() {
 			Ok(())
 		})
 		.invoke_handler(tauri::generate_handler![
+			get_video_server_port,
 			get_platform_settings,
 			setup_number_of_threads,
 			stop_scan,
@@ -85,6 +147,7 @@ fn main() {
 			delete_files,
 			save_result,
 			rename_ext,
+			open_system_path,
 		])
 		.plugin(tauri_plugin_opener::init())
 		.plugin(tauri_plugin_dialog::init())
@@ -256,4 +319,40 @@ fn save_result(app: AppHandle, options: save_result::Options) {
 #[tauri::command]
 fn rename_ext(app: AppHandle, options: rename_ext::Options) {
 	rename_ext::rename_ext(app, options);
+}
+
+#[tauri::command]
+fn open_system_path(path: String) -> Result<(), String> {
+	#[cfg(target_os = "windows")]
+	{
+		// 使用 cmd start 打开默认关联程序
+		// 注意: start 第一个参数是窗口标题, 需要空字符串
+		let mut cmd = std::process::Command::new("cmd");
+		cmd.args(["/C", "start", "", &path]);
+		// 防止在含有 & 的路径被解释
+		// (start 会自动处理引号, 这里简单加引号)
+		if path.contains(' ') || path.contains('&') || path.contains('(') || path.contains(')') {
+			cmd.args([&format!("\"{}\"", path)]);
+		}
+		cmd.spawn().map_err(|e| e.to_string())?;
+		return Ok(());
+	}
+	#[cfg(target_os = "macos")]
+	{
+		std::process::Command::new("open")
+			.arg(&path)
+			.spawn()
+			.map_err(|e| e.to_string())?;
+		return Ok(());
+	}
+	#[cfg(target_os = "linux")]
+	{
+		std::process::Command::new("xdg-open")
+			.arg(&path)
+			.spawn()
+			.map_err(|e| e.to_string())?;
+		return Ok(());
+	}
+	#[allow(unreachable_code)]
+	Err("Unsupported platform".into())
 }

@@ -91,6 +91,7 @@ export const en = {
   'Failed to read image': 'Failed to read image',
   'No data': 'No data',
   'Image Preview': 'Image Preview',
+  'Video preview': 'Video preview',
   'Loading...': 'Loading...',
   Format: 'Format',
 
