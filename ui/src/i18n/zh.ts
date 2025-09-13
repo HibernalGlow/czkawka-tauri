@@ -293,4 +293,15 @@ export const zh: Record<TranslationKeys, string> = {
   'Clear cache': '清空缓存',
   'Clearing...': '清空中...',
   'Show image preview': '显示图片预览',
+  // 相似视频高级参数
+  'Skip forward (s)': '跳过（秒）',
+  'Hash duration (s)': '哈希持续时间（秒）',
+  'Crop detect': '裁剪检测',
+  Letterbox: '信箱黑边',
+  Motion: '运动',
+  None: '无',
+  // 相似视频高级参数描述
+  'Skip forward desc': '取帧前先快进，跳过片头/OP/静止片段。设为 0 表示不跳过。',
+  'Hash duration desc': '参与相似度分析的时长（秒）。越长越准，也越耗时。',
+  'Crop detect desc': '预处理方式：信箱黑边去除边框；运动关注运动区域；无则保留全帧。',
 };

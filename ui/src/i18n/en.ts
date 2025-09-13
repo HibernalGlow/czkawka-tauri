@@ -300,6 +300,17 @@ export const en = {
   'Clear cache': 'Clear cache',
   'Clearing...': 'Clearing...',
   'Show image preview': 'Show image preview',
+  // Similar Videos advanced settings
+  'Skip forward (s)': 'Skip forward (s)',
+  'Hash duration (s)': 'Hash duration (s)',
+  'Crop detect': 'Crop detect',
+  Letterbox: 'Letterbox',
+  Motion: 'Motion',
+  None: 'None',
+  // Similar Videos advanced settings descriptions
+  'Skip forward desc': 'Fast-forward before sampling frames to skip intros, openings or static heads. Set 0 to disable.',
+  'Hash duration desc': 'How long (in seconds) to analyze for similarity. Longer duration increases accuracy but uses more time.',
+  'Crop detect desc': 'Preprocess frames: Letterbox removes black bars, Motion focuses on moving area, None keeps the whole frame.',
 };
 
 export type TranslationKeys = keyof typeof en;

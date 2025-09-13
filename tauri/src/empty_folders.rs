@@ -1,7 +1,8 @@
 use czkawka_core::{
-	common::split_path_compare, common_tool::CommonData,
+	common::{split_path_compare, tool_data::CommonData},
 	tools::empty_folder::EmptyFolder,
 };
+use czkawka_core::common::traits::Search;
 use rayon::prelude::*;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter};
@@ -33,7 +34,8 @@ pub fn scan_empty_folders(app: AppHandle, settings: Settings) {
 
 		set_scaner_common_settings(&mut scaner, settings);
 
-		scaner.find_empty_folders(Some(&stop_flag), Some(&progress_tx));
+	// v10 API: use Search::search(stop_flag, progress_sender)
+	scaner.search(&stop_flag, Some(&progress_tx));
 
 		let mut raw_list = scaner
 			.get_empty_folder_list()

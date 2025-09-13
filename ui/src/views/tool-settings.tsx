@@ -467,6 +467,38 @@ function SimilarVideosSettings({
           >
             <Switch />
           </FormItem>
+          <FormItem
+            name="similarVideosSkipForwardAmount"
+            label={t('Skip forward (s)')}
+            description={t('Skip forward desc')}
+            comp="slider"
+            suffix={<span>{settings.similarVideosSkipForwardAmount}s</span>}
+          >
+            <Slider min={0} max={300} />
+          </FormItem>
+          <FormItem
+            name="similarVideosVidHashDuration"
+            label={t('Hash duration (s)')}
+            description={t('Hash duration desc')}
+            comp="slider"
+            suffix={<span>{settings.similarVideosVidHashDuration}s</span>}
+          >
+            <Slider min={2} max={60} />
+          </FormItem>
+          <FormItem
+            name="similarVideosCropDetect"
+            label={t('Crop detect')}
+            description={t('Crop detect desc')}
+            comp="select"
+          >
+            <Select
+              options={[
+                { label: t('Letterbox'), value: 'letterbox' },
+                { label: t('Motion'), value: 'motion' },
+                { label: t('None'), value: 'none' },
+              ]}
+            />
+          </FormItem>
         </>
       )}
       <ImageDisplaySettings />

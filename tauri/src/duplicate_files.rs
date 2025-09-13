@@ -1,11 +1,10 @@
 use czkawka_core::{
 	common::split_path_compare,
-	common_dir_traversal::CheckingMethod,
-	common_tool::CommonData,
-	tools::duplicate::{
-		DuplicateEntry, DuplicateFinder, DuplicateFinderParameters, HashType,
-	},
+	common::model::{CheckingMethod, HashType},
+	common::tool_data::CommonData,
+	tools::duplicate::{DuplicateEntry, DuplicateFinder, DuplicateFinderParameters},
 };
+use czkawka_core::common::traits::Search;
 use rayon::prelude::*;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter};
@@ -54,7 +53,8 @@ pub fn scan_duplicate_files(app: AppHandle, settings: Settings) {
 		);
 		set_scaner_common_settings(&mut scaner, settings);
 
-		scaner.find_duplicates(Some(&stop_flag), Some(&progress_tx));
+	// v10 API: use Search::search(stop_flag, progress_sender)
+	scaner.search(&stop_flag, Some(&progress_tx));
 
 		let mut message = scaner.get_text_messages().create_messages_text();
 		let mut list;

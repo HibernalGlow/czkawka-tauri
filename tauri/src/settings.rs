@@ -1,7 +1,6 @@
-use czkawka_core::{
-	common::{get_all_available_threads, get_config_cache_path},
-	common_items::{DEFAULT_EXCLUDED_DIRECTORIES, DEFAULT_EXCLUDED_ITEMS},
-};
+use czkawka_core::common::get_all_available_threads;
+use czkawka_core::common::config_cache_path::get_config_cache_path;
+use czkawka_core::common::items::{DEFAULT_EXCLUDED_DIRECTORIES, DEFAULT_EXCLUDED_ITEMS};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize)]
@@ -43,6 +42,10 @@ pub struct Settings {
 	pub similar_videos_hide_hard_links: bool,
 	pub similar_videos_sub_ignore_same_size: bool,
 	pub similar_videos_sub_similarity: i32,
+	// 高级参数：跳过秒数、哈希持续时间、裁剪检测
+	pub similar_videos_skip_forward_amount: i32,
+	pub similar_videos_vid_hash_duration: i32,
+	pub similar_videos_crop_detect: String,
 	pub similar_music_sub_audio_check_type: String,
 	pub similar_music_sub_approximate_comparison: bool,
 	pub similar_music_compare_fingerprints_only_with_similar_titles: bool,
@@ -80,9 +83,7 @@ impl Default for PlatformSettings {
 			excluded_items: default_excluded_items(),
 			available_thread_number: get_all_available_threads(),
 			cache_dir_path: get_config_cache_path()
-				.map(|config_cache| {
-					config_cache.cache_folder.to_string_lossy().to_string()
-				})
+				.map(|p| p.cache_folder.to_string_lossy().to_string())
 				.unwrap_or_default(),
 		}
 	}

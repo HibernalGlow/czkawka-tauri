@@ -26,8 +26,9 @@ mod utils;
 use std::sync::Mutex;
 
 use czkawka_core::common::{
-	get_number_of_threads, set_config_cache_path, set_number_of_threads,
+	get_number_of_threads, set_number_of_threads,
 };
+use czkawka_core::common::config_cache_path::set_config_cache_path;
 use tauri::{AppHandle, Emitter, Manager, State};
 use std::{fs::File, io::{Seek, SeekFrom}};
 use std::thread;
@@ -98,10 +99,12 @@ fn handle_video_conn(mut stream: TcpStream) {
 }
 
 fn main() {
-	set_config_cache_path("Czkawka", "Krokiet");
 
 	tauri::Builder::default()
 		.setup(move |app| {
+			// 初始化 czkawka_core 的配置/缓存目录，避免首次访问时 panic
+			// 传入应用在系统目录下的缓存/配置名，供 czkawka_core 计算路径
+			let _ = set_config_cache_path("czkawka", "czkawka");
 			// 启动本地视频 HTTP server (只启动一次)
 			VIDEO_SERVER_PORT.get_or_init(|| start_video_http_server());
 			#[cfg(feature = "ffmpeg")]

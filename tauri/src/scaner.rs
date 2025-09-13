@@ -1,4 +1,4 @@
-use czkawka_core::{common::DEFAULT_THREAD_SIZE, common_tool::CommonData};
+use czkawka_core::common::tool_data::CommonData;
 
 use crate::{
 	settings::Settings,
@@ -7,7 +7,6 @@ use crate::{
 
 pub fn spawn_scaner_thread<F: FnOnce() + Send + 'static>(f: F) {
 	std::thread::Builder::new()
-		.stack_size(DEFAULT_THREAD_SIZE)
 		.spawn(f)
 		.expect("Failed to spawn scaner thread");
 }

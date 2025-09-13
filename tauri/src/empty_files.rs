@@ -1,7 +1,9 @@
 use czkawka_core::{
-	common::split_path_compare, common_dir_traversal::FileEntry,
-	common_tool::CommonData, tools::empty_files::EmptyFiles,
+	common::{split_path_compare, tool_data::CommonData},
+	common::model::FileEntry,
+	tools::empty_files::EmptyFiles,
 };
+use czkawka_core::common::traits::Search;
 use rayon::prelude::*;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter};
@@ -27,7 +29,8 @@ pub fn scan_empty_files(app: AppHandle, settings: Settings) {
 
 		set_scaner_common_settings(&mut scaner, settings);
 
-		scaner.find_empty_files(Some(&stop_flag), Some(&progress_tx));
+	// v10 API: use Search::search(stop_flag, progress_sender)
+	scaner.search(&stop_flag, Some(&progress_tx));
 
 		let mut list = scaner.get_empty_files().clone();
 		let mut message = scaner.get_text_messages().create_messages_text();

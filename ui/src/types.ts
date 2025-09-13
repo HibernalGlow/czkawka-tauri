@@ -65,6 +65,13 @@ export interface Settings {
   similarVideosDeleteOutdatedEntries: boolean;
   similarVideosSubIgnoreSameSize: boolean;
   similarVideosSubSimilarity: number;
+  // 高级参数：视频相似度计算
+  // 每次取帧前向跳过的秒数（0 表示不跳过）
+  similarVideosSkipForwardAmount: number;
+  // 参与哈希的持续时长（秒）
+  similarVideosVidHashDuration: number;
+  // 裁剪检测策略：letterbox/motion/none
+  similarVideosCropDetect: string;
 
   similarMusicDeleteOutdatedEntries: boolean;
   similarMusicSubAudioCheckType: string;

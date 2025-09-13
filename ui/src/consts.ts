@@ -108,6 +108,10 @@ export function getDefaultSettings(): Settings {
     similarVideosDeleteOutdatedEntries: true,
     similarVideosSubIgnoreSameSize: false,
     similarVideosSubSimilarity: 15,
+    // 高级参数默认值
+    similarVideosSkipForwardAmount: 15,
+    similarVideosVidHashDuration: 10,
+    similarVideosCropDetect: 'letterbox',
 
     similarMusicDeleteOutdatedEntries: true,
     similarMusicSubAudioCheckType: SimilarMusicAudioCheckType.Tags,

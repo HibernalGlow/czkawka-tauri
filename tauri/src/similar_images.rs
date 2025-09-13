@@ -1,10 +1,11 @@
 use czkawka_core::{
-	common_tool::CommonData,
+	common::tool_data::CommonData,
 	tools::similar_images::{
 		ImagesEntry, SimilarImages, SimilarImagesParameters,
-		get_string_from_similarity,
 	},
 };
+use czkawka_core::tools::similar_images::core::get_string_from_similarity;
+use czkawka_core::common::traits::Search;
 use image_hasher::{FilterType, HashAlg};
 use rayon::prelude::*;
 use serde::Serialize;
@@ -129,7 +130,8 @@ pub fn scan_similar_images(app: AppHandle, settins: Settings) {
 		);
 		set_scaner_common_settings(&mut scaner, settins);
 
-		scaner.find_similar_images(Some(&stop_flag), Some(&progress_tx));
+	// v10 API: use Search::search(stop_flag, progress_sender)
+	scaner.search(&stop_flag, Some(&progress_tx));
 
 		let mut message = scaner.get_text_messages().create_messages_text();
 		let mut raw_list: Vec<_> = if scaner.get_use_reference() {

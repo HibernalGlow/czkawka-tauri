@@ -1,6 +1,6 @@
 use czkawka_core::{
-	common_dir_traversal::ToolType,
-	progress_data::{CurrentStage, ProgressData},
+	common::model::ToolType,
+	common::progress_data::{CurrentStage, ProgressData},
 };
 use humansize::{DECIMAL, format_size};
 use serde::Serialize;
