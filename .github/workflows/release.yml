@@ -14,14 +14,9 @@ env:
 
 jobs:
   release:
-    runs-on: ${{ matrix.os }}
-    name: release (${{ matrix.os }})
-
-    strategy:
-      matrix:
-        include:
-          - os: macos-latest
-          - os: windows-latest
+    runs-on: windows-latest
+    name: release (Windows)
+    timeout-minutes: 90
 
     steps:
       - uses: actions/checkout@v4
@@ -32,47 +27,9 @@ jobs:
           node-version: 22
 
       - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.os == 'macos-latest' && 'x86_64-apple-darwin' || '' }}
-
-      # ============ macOS 构建步骤 ============
-      - name: download ffmpeg and ffprobe
-        if: matrix.os == 'macos-latest'
-        run: |
-          mkdir ./tauri/ffmpeg
-          curl -L -o ffmpeg.zip "https://evermeet.cx/ffmpeg/getrelease/zip"
-          unzip ffmpeg.zip -d ./tauri/ffmpeg
-          chmod +x ./tauri/ffmpeg/ffmpeg
-          ./tauri/ffmpeg/ffmpeg -version
-          curl -L -o ffprobe.zip "https://evermeet.cx/ffmpeg/getrelease/ffprobe/zip"
-          unzip ffprobe.zip -d ./tauri/ffmpeg
-          chmod +x ./tauri/ffmpeg/ffprobe
-          ./tauri/ffmpeg/ffprobe -version
-
-      - name: macos bundles
-        if: matrix.os == 'macos-latest'
-        env:
-          GITHUB_REF_NAME: ${{ github.ref_name }}
-        run: |
-          npm i pnpm -g
-          pnpm i
-          node --run build:ui
-          node --run build:tauri:ffmpeg
-          mkdir ./target/ffmpeg-dmg
-          mv ./target/universal-apple-darwin/release/bundle/dmg/CzkawkaTauri_${GITHUB_REF_NAME}_universal.dmg ./target/ffmpeg-dmg/CzkawkaTauri_${GITHUB_REF_NAME}_universal_ffmpeg.dmg
-          node --run build:tauri
-
-      - uses: softprops/action-gh-release@v2
-        if: matrix.os == 'macos-latest'
-        with:
-          draft: true
-          files: |
-            ./target/universal-apple-darwin/release/bundle/dmg/*.dmg
-            ./target/ffmpeg-dmg/*.dmg
 
       # ============ Windows 构建步骤（使用预构建的 dav1d） ============
       - name: extract prebuilt dav1d
-        if: matrix.os == 'windows-latest'
         shell: powershell
         run: |
           $dav1dZip = ".\prebuilt\dav1d-windows-x64.zip"
@@ -104,7 +61,6 @@ jobs:
           }
 
       - name: install pkgconf
-        if: matrix.os == 'windows-latest'
         shell: powershell
         run: |
           Write-Host "Installing pkgconf via chocolatey..."
@@ -120,7 +76,6 @@ jobs:
           }
 
       - name: configure build environment
-        if: matrix.os == 'windows-latest'
         shell: powershell
         run: |
           $dav1dRoot = "C:\dav1d"
@@ -138,7 +93,6 @@ jobs:
           Write-Host "PATH includes: $binPath"
 
       - name: verify dav1d detection
-        if: matrix.os == 'windows-latest'
         shell: powershell
         run: |
           $env:PKG_CONFIG_PATH = "C:\dav1d\lib\pkgconfig"
@@ -157,8 +111,8 @@ jobs:
             exit 1
           }
 
-      - name: windows bundles
-        if: matrix.os == 'windows-latest'
+      - name: build windows bundles
+        timeout-minutes: 60
         shell: powershell
         run: |
           npm i pnpm -g
@@ -167,7 +121,6 @@ jobs:
           node --run build:tauri:win
 
       - uses: softprops/action-gh-release@v2
-        if: matrix.os == 'windows-latest'
         with:
           draft: true
           files: |
