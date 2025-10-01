@@ -86,32 +86,33 @@ jobs:
         if: matrix.os == 'windows-latest'
         shell: powershell
         run: |
-          # 检查是否已安装 vcpkg
-          if (!(Test-Path "C:\vcpkg")) {
+          $vcpkgPath = "C:\vcpkg"
+          $dav1dPc = "$vcpkgPath\installed\x64-windows\lib\pkgconfig\dav1d.pc"
+          
+          if (!(Test-Path $vcpkgPath)) {
             Write-Host "Installing vcpkg..."
-            git clone https://github.com/Microsoft/vcpkg.git C:\vcpkg
-            C:\vcpkg\bootstrap-vcpkg.bat
+            git clone https://github.com/Microsoft/vcpkg.git $vcpkgPath
+            & "$vcpkgPath\bootstrap-vcpkg.bat"
           } else {
             Write-Host "vcpkg already installed, updating..."
-            cd C:\vcpkg
+            Push-Location $vcpkgPath
             git pull
-            .\bootstrap-vcpkg.bat
+            & ".\bootstrap-vcpkg.bat"
+            Pop-Location
           }
           
-          # 安装 dav1d
           Write-Host "Installing dav1d..."
-          C:\vcpkg\vcpkg.exe install dav1d:x64-windows
+          & "$vcpkgPath\vcpkg.exe" install dav1d:x64-windows
           
-          # 安装 pkg-config
-          C:\vcpkg\vcpkg.exe install pkgconf:x64-windows
+          Write-Host "Installing pkgconf..."
+          & "$vcpkgPath\vcpkg.exe" install pkgconf:x64-windows
           
-          # 验证安装
           Write-Host "Verifying installation..."
-          if (Test-Path "C:\vcpkg\installed\x64-windows\lib\pkgconfig\dav1d.pc") {
-            Write-Host "✓ dav1d.pc found"
-            Get-Content "C:\vcpkg\installed\x64-windows\lib\pkgconfig\dav1d.pc" | Select-Object -First 10
+          if (Test-Path $dav1dPc) {
+            Write-Host "Success: dav1d.pc found at $dav1dPc"
+            Get-Content $dav1dPc | Select-Object -First 10
           } else {
-            Write-Error "dav1d.pc not found!"
+            Write-Error "Failed: dav1d.pc not found at $dav1dPc"
             exit 1
           }
 
@@ -119,46 +120,51 @@ jobs:
         if: matrix.os == 'windows-latest'
         shell: powershell
         run: |
-          # 设置环境变量到 GitHub Actions 环境
-          $PkgCfgPath = "C:\vcpkg\installed\x64-windows\lib\pkgconfig"
-          $PkgCfgDebugPath = "C:\vcpkg\installed\x64-windows\debug\lib\pkgconfig"
-          $VcpkgRoot = "C:\vcpkg"
+          $vcpkgRoot = "C:\vcpkg"
+          $pkgCfgPath = "$vcpkgRoot\installed\x64-windows\lib\pkgconfig"
+          $pkgCfgDebugPath = "$vcpkgRoot\installed\x64-windows\debug\lib\pkgconfig"
+          $binPath = "$vcpkgRoot\installed\x64-windows\bin"
+          $toolsPath = "$vcpkgRoot\installed\x64-windows\tools\pkgconf"
           
-          # 添加到 PATH
-          $env:PATH = "C:\vcpkg\installed\x64-windows\bin;C:\vcpkg\installed\x64-windows\tools\pkgconf;$env:PATH"
-          echo "PATH=$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $newPath = "$binPath;$toolsPath;$env:PATH"
+          echo "PATH=$newPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           
-          # 设置 PKG_CONFIG_PATH
-          $PkgConfigPath = "$PkgCfgPath;$PkgCfgDebugPath"
-          echo "PKG_CONFIG_PATH=$PkgConfigPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          
-          # 设置其他环境变量
+          $pkgConfigPath = "$pkgCfgPath;$pkgCfgDebugPath"
+          echo "PKG_CONFIG_PATH=$pkgConfigPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "VCPKG_ROOT=$VcpkgRoot" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "VCPKG_ROOT=$vcpkgRoot" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           
-          Write-Host "Environment configured:"
-          Write-Host "PKG_CONFIG_PATH=$PkgConfigPath"
-          Write-Host "VCPKG_ROOT=$VcpkgRoot"
+          Write-Host "Environment configured successfully"
+          Write-Host "PKG_CONFIG_PATH: $pkgConfigPath"
+          Write-Host "VCPKG_ROOT: $vcpkgRoot"
 
       - name: verify pkg-config
         if: matrix.os == 'windows-latest'
         shell: powershell
         run: |
-          $env:PKG_CONFIG_PATH = "C:\vcpkg\installed\x64-windows\lib\pkgconfig;C:\vcpkg\installed\x64-windows\debug\lib\pkgconfig"
+          $vcpkgRoot = "C:\vcpkg"
+          $pkgCfgPath = "$vcpkgRoot\installed\x64-windows\lib\pkgconfig"
+          $pkgCfgDebugPath = "$vcpkgRoot\installed\x64-windows\debug\lib\pkgconfig"
+          $env:PKG_CONFIG_PATH = "$pkgCfgPath;$pkgCfgDebugPath"
           
-          # 查找 pkg-config 或 pkgconf
           $pkgConfig = Get-Command pkgconf -ErrorAction SilentlyContinue
           if (!$pkgConfig) {
             $pkgConfig = Get-Command pkg-config -ErrorAction SilentlyContinue
           }
           
           if ($pkgConfig) {
-            Write-Host "✓ Found: $($pkgConfig.Path)"
+            Write-Host "Found pkg-config at: $($pkgConfig.Path)"
             & $pkgConfig.Path --version
             Write-Host "Testing dav1d detection..."
             & $pkgConfig.Path --libs --cflags dav1d
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host "Success: dav1d detected correctly"
+            } else {
+              Write-Error "Failed: Could not detect dav1d"
+              exit 1
+            }
           } else {
-            Write-Error "pkg-config/pkgconf not found in PATH!"
+            Write-Error "Failed: pkg-config/pkgconf not found in PATH"
             exit 1
           }
 
