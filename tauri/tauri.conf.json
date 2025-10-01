@@ -27,7 +27,10 @@
         "type": "skip"
       },
       "nsis": {
-        "installerIcon": "../assets/icon.ico"
+        "installerIcon": "../assets/icon.ico",
+        "installMode": "perMachine",
+        "languages": ["English", "SimpChinese"],
+        "displayLanguageSelector": true
       }
     },
     "macOS": {
