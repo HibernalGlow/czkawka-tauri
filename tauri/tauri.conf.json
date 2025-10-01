@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "CzkawkaTauri",
+  "productName": "Czkawka",
   "identifier": "com.shixinhuang.czkawka-tauri",
   "mainBinaryName": "CzkawkaTauri",
   "build": {
@@ -28,9 +28,9 @@
       },
       "nsis": {
         "installerIcon": "../assets/icon.ico",
-        "installMode": "perMachine",
+        "installMode": "currentUser",
         "languages": ["English", "SimpChinese"],
-        "displayLanguageSelector": true
+        "displayLanguageSelector": false
       }
     },
     "macOS": {
