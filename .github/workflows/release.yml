@@ -70,49 +70,52 @@ jobs:
             ./target/universal-apple-darwin/release/bundle/dmg/*.dmg
             ./target/ffmpeg-dmg/*.dmg
 
-      # ============ Windows 构建步骤（完整配置 dav1d） ============
-      - name: setup vcpkg cache
-        if: matrix.os == 'windows-latest'
-        uses: actions/cache@v4
-        with:
-          path: |
-            C:\vcpkg\installed
-            C:\vcpkg\packages
-          key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-vcpkg-
-
-      - name: install vcpkg and dav1d
+      # ============ Windows 构建步骤（使用预构建的 dav1d） ============
+      - name: extract prebuilt dav1d
         if: matrix.os == 'windows-latest'
         shell: powershell
         run: |
-          $vcpkgPath = "C:\vcpkg"
-          $dav1dPc = "$vcpkgPath\installed\x64-windows\lib\pkgconfig\dav1d.pc"
+          $dav1dZip = ".\prebuilt\dav1d-windows-x64.zip"
+          $extractPath = "C:\dav1d"
           
-          if (!(Test-Path $vcpkgPath)) {
-            Write-Host "Installing vcpkg..."
-            git clone https://github.com/Microsoft/vcpkg.git $vcpkgPath
-            & "$vcpkgPath\bootstrap-vcpkg.bat"
+          Write-Host "Extracting prebuilt dav1d from repository..."
+          
+          if (Test-Path $dav1dZip) {
+            New-Item -ItemType Directory -Path $extractPath -Force | Out-Null
+            Expand-Archive -Path $dav1dZip -DestinationPath $extractPath -Force
+            
+            Write-Host "Verifying extraction..."
+            $dav1dPc = "$extractPath\lib\pkgconfig\dav1d.pc"
+            $dav1dDll = "$extractPath\bin\dav1d.dll"
+            
+            if ((Test-Path $dav1dPc) -and (Test-Path $dav1dDll)) {
+              Write-Host "Success: dav1d files extracted"
+              Write-Host "  - $dav1dPc"
+              Write-Host "  - $dav1dDll"
+              Get-Content $dav1dPc | Select-Object -First 5
+            } else {
+              Write-Error "Failed: dav1d files not found after extraction"
+              Get-ChildItem $extractPath -Recurse | Select-Object FullName
+              exit 1
+            }
           } else {
-            Write-Host "vcpkg already installed, updating..."
-            Push-Location $vcpkgPath
-            git pull
-            & ".\bootstrap-vcpkg.bat"
-            Pop-Location
+            Write-Error "Failed: Prebuilt package not found at $dav1dZip"
+            exit 1
           }
+
+      - name: install pkgconf
+        if: matrix.os == 'windows-latest'
+        shell: powershell
+        run: |
+          Write-Host "Installing pkgconf via chocolatey..."
+          choco install pkgconfiglite -y
           
-          Write-Host "Installing dav1d..."
-          & "$vcpkgPath\vcpkg.exe" install dav1d:x64-windows
-          
-          Write-Host "Installing pkgconf..."
-          & "$vcpkgPath\vcpkg.exe" install pkgconf:x64-windows
-          
-          Write-Host "Verifying installation..."
-          if (Test-Path $dav1dPc) {
-            Write-Host "Success: dav1d.pc found at $dav1dPc"
-            Get-Content $dav1dPc | Select-Object -First 10
+          $pkgConfig = Get-Command pkg-config -ErrorAction SilentlyContinue
+          if ($pkgConfig) {
+            Write-Host "Success: pkg-config installed at $($pkgConfig.Path)"
+            & $pkgConfig.Path --version
           } else {
-            Write-Error "Failed: dav1d.pc not found at $dav1dPc"
+            Write-Error "Failed: pkg-config not found after installation"
             exit 1
           }
 
@@ -120,51 +123,37 @@ jobs:
         if: matrix.os == 'windows-latest'
         shell: powershell
         run: |
-          $vcpkgRoot = "C:\vcpkg"
-          $pkgCfgPath = "$vcpkgRoot\installed\x64-windows\lib\pkgconfig"
-          $pkgCfgDebugPath = "$vcpkgRoot\installed\x64-windows\debug\lib\pkgconfig"
-          $binPath = "$vcpkgRoot\installed\x64-windows\bin"
-          $toolsPath = "$vcpkgRoot\installed\x64-windows\tools\pkgconf"
+          $dav1dRoot = "C:\dav1d"
+          $pkgCfgPath = "$dav1dRoot\lib\pkgconfig"
+          $binPath = "$dav1dRoot\bin"
           
-          $newPath = "$binPath;$toolsPath;$env:PATH"
+          $newPath = "$binPath;$env:PATH"
           echo "PATH=$newPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           
-          $pkgConfigPath = "$pkgCfgPath;$pkgCfgDebugPath"
-          echo "PKG_CONFIG_PATH=$pkgConfigPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "PKG_CONFIG_PATH=$pkgCfgPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "VCPKG_ROOT=$vcpkgRoot" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           
           Write-Host "Environment configured successfully"
-          Write-Host "PKG_CONFIG_PATH: $pkgConfigPath"
-          Write-Host "VCPKG_ROOT: $vcpkgRoot"
+          Write-Host "PKG_CONFIG_PATH: $pkgCfgPath"
+          Write-Host "PATH includes: $binPath"
 
-      - name: verify pkg-config
+      - name: verify dav1d detection
         if: matrix.os == 'windows-latest'
         shell: powershell
         run: |
-          $vcpkgRoot = "C:\vcpkg"
-          $pkgCfgPath = "$vcpkgRoot\installed\x64-windows\lib\pkgconfig"
-          $pkgCfgDebugPath = "$vcpkgRoot\installed\x64-windows\debug\lib\pkgconfig"
-          $env:PKG_CONFIG_PATH = "$pkgCfgPath;$pkgCfgDebugPath"
+          $env:PKG_CONFIG_PATH = "C:\dav1d\lib\pkgconfig"
+          $env:PKG_CONFIG_ALLOW_SYSTEM_CFLAGS = "1"
           
-          $pkgConfig = Get-Command pkgconf -ErrorAction SilentlyContinue
-          if (!$pkgConfig) {
-            $pkgConfig = Get-Command pkg-config -ErrorAction SilentlyContinue
-          }
+          Write-Host "Testing dav1d detection with pkg-config..."
+          pkg-config --modversion dav1d
+          pkg-config --libs --cflags dav1d
           
-          if ($pkgConfig) {
-            Write-Host "Found pkg-config at: $($pkgConfig.Path)"
-            & $pkgConfig.Path --version
-            Write-Host "Testing dav1d detection..."
-            & $pkgConfig.Path --libs --cflags dav1d
-            if ($LASTEXITCODE -eq 0) {
-              Write-Host "Success: dav1d detected correctly"
-            } else {
-              Write-Error "Failed: Could not detect dav1d"
-              exit 1
-            }
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "Success: dav1d detected correctly"
           } else {
-            Write-Error "Failed: pkg-config/pkgconf not found in PATH"
+            Write-Error "Failed: Could not detect dav1d"
+            Write-Host "PKG_CONFIG_PATH: $env:PKG_CONFIG_PATH"
+            Get-ChildItem "C:\dav1d\lib\pkgconfig" -ErrorAction SilentlyContinue
             exit 1
           }
 
