@@ -17,7 +17,12 @@ import { useT } from '~/hooks';
 import type { BaseEntry } from '~/types';
 import { cn } from '~/utils/cn';
 import { Checkbox } from './shadcn/checkbox';
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from './shadcn/context-menu';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from './shadcn/context-menu';
 import {
   Table,
   TableBody,
@@ -87,11 +92,12 @@ export function DataTable<T extends BaseEntry>(props: DataTableProps<T>) {
     },
     columnResizeMode: 'onChange',
     enableSorting,
-    ...(onSortingChange && { 
+    ...(onSortingChange && {
       onSortingChange: (updater) => {
-        const newSorting = typeof updater === 'function' ? updater(sorting || []) : updater;
+        const newSorting =
+          typeof updater === 'function' ? updater(sorting || []) : updater;
         onSortingChange(newSorting);
-      }
+      },
     }),
   });
 
@@ -243,11 +249,12 @@ function DataTableBody<T>(props: TableBodyProps<T>) {
                   return (
                     <TableCell
                       key={cell.id}
-                    className={cn(
-                      'truncate py-1',
-                      cell.column.id !== 'select' && 'px-1',
-                      cell.column.id === 'select' && 'flex justify-center items-center',
-                    )}
+                      className={cn(
+                        'truncate py-1',
+                        cell.column.id !== 'select' && 'px-1',
+                        cell.column.id === 'select' &&
+                          'flex justify-center items-center',
+                      )}
                       title={cell.getValue<any>()}
                       style={{
                         gridColumn:
@@ -270,9 +277,7 @@ function DataTableBody<T>(props: TableBodyProps<T>) {
             if (onRowContextMenu) {
               return (
                 <ContextMenu key={row.id}>
-                  <ContextMenuTrigger asChild>
-                    {tableRow}
-                  </ContextMenuTrigger>
+                  <ContextMenuTrigger asChild>{tableRow}</ContextMenuTrigger>
                   <ContextMenuContent>
                     {onRowContextMenu(row, table)}
                   </ContextMenuContent>

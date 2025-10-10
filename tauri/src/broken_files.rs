@@ -1,10 +1,10 @@
-	use czkawka_core::{
-		common::{split_path_compare, tool_data::CommonData},
-		tools::broken_files::{
-			BrokenEntry, BrokenFiles, BrokenFilesParameters, CheckedTypes,
-		},
-	};
 use czkawka_core::common::traits::Search;
+use czkawka_core::{
+	common::{split_path_compare, tool_data::CommonData},
+	tools::broken_files::{
+		BrokenEntry, BrokenFiles, BrokenFilesParameters, CheckedTypes,
+	},
+};
 use rayon::prelude::*;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter};

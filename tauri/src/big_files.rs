@@ -1,9 +1,6 @@
-use czkawka_core::tools::big_file::{BigFile, BigFileParameters, SearchMode};
-use czkawka_core::{
-	common::tool_data::CommonData,
-	common::model::FileEntry,
-};
 use czkawka_core::common::traits::Search;
+use czkawka_core::tools::big_file::{BigFile, BigFileParameters, SearchMode};
+use czkawka_core::{common::model::FileEntry, common::tool_data::CommonData};
 use rayon::prelude::*;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter};
@@ -36,8 +33,8 @@ pub fn scan_big_files(app: AppHandle, settings: Settings) {
 
 		set_scaner_common_settings(&mut scaner, settings);
 
-	// v10 API: use Search::search(stop_flag, progress_sender)
-	scaner.search(&stop_flag, Some(&progress_tx));
+		// v10 API: use Search::search(stop_flag, progress_sender)
+		scaner.search(&stop_flag, Some(&progress_tx));
 
 		let mut list = scaner.get_big_files().clone();
 		let mut message = scaner.get_text_messages().create_messages_text();

@@ -1,14 +1,23 @@
 import type { Row, Table as TTable } from '@tanstack/react-table';
-import { ContextMenuItem, ContextMenuSeparator } from './shadcn/context-menu';
-import type { DuplicateEntry } from '~/types';
 import { ipc } from '~/ipc';
+import type { DuplicateEntry } from '~/types';
+import { ContextMenuItem, ContextMenuSeparator } from './shadcn/context-menu';
 
 interface RightClickMenuProps<T> {
   row: Row<T>;
   table: TTable<T>;
 }
 
-export function DuplicateFilesRightClickMenu({ row, table }: RightClickMenuProps<DuplicateEntry & { _isGroupEnd?: boolean; groupSize?: number; groupId?: number }>) {
+export function DuplicateFilesRightClickMenu({
+  row,
+  table,
+}: RightClickMenuProps<
+  DuplicateEntry & {
+    _isGroupEnd?: boolean;
+    groupSize?: number;
+    groupId?: number;
+  }
+>) {
   const handleSelectGroup = () => {
     const groupId = row.original.groupId;
     const allRows = table.getRowModel().rows;
@@ -16,7 +25,7 @@ export function DuplicateFilesRightClickMenu({ row, table }: RightClickMenuProps
       (r) =>
         r.original.groupId === groupId &&
         !r.original.isRef &&
-        !r.original.hidden
+        !r.original.hidden,
     );
     const newSelection = { ...table.getState().rowSelection };
     groupRows.forEach((r) => {
@@ -47,13 +56,9 @@ export function DuplicateFilesRightClickMenu({ row, table }: RightClickMenuProps
 
   return (
     <>
-      <ContextMenuItem onClick={handleSelectGroup}>
-        选择该组
-      </ContextMenuItem>
+      <ContextMenuItem onClick={handleSelectGroup}>选择该组</ContextMenuItem>
       <ContextMenuSeparator />
-      <ContextMenuItem onClick={handleCopyPath}>
-        复制文件路径
-      </ContextMenuItem>
+      <ContextMenuItem onClick={handleCopyPath}>复制文件路径</ContextMenuItem>
       <ContextMenuItem onClick={handleCopyFileToClipboard}>
         复制文件到剪贴板
       </ContextMenuItem>

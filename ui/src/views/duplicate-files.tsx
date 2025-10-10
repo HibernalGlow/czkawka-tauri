@@ -13,8 +13,8 @@ import {
   TableRowSelectionHeader,
 } from '~/components/data-table';
 import { DynamicThumbnailCell } from '~/components/dynamic-thumbnail-cell';
-import { Checkbox } from '~/components/shadcn/checkbox';
 import { DuplicateFilesRightClickMenu } from '~/components/right-click-menu';
+import { Checkbox } from '~/components/shadcn/checkbox';
 import { useT } from '~/hooks';
 import type { DuplicateEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
@@ -73,9 +73,9 @@ export function DuplicateFiles() {
         // hidden row marks end of current group
         if (group.length) {
           const visibleCount = group.filter((e) => !e.hidden).length;
-            if (visibleCount >= threshold) {
-              filtered.push(...group, item); // keep group and its hidden separator
-            }
+          if (visibleCount >= threshold) {
+            filtered.push(...group, item); // keep group and its hidden separator
+          }
         }
         group = [];
         continue;
@@ -103,7 +103,9 @@ export function DuplicateFiles() {
               if (!match) return 0;
               const num = parseFloat(match[1]);
               const unit = match[2]?.toUpperCase();
-              const multiplier = { B: 1, KB: 1024, MB: 1024**2, GB: 1024**3 }[unit || 'B'] || 1;
+              const multiplier =
+                { B: 1, KB: 1024, MB: 1024 ** 2, GB: 1024 ** 3 }[unit || 'B'] ||
+                1;
               return num * multiplier;
             };
             aVal = parseSize(aVal);
@@ -135,7 +137,13 @@ export function DuplicateFiles() {
     return result;
   }, [data, settings.duplicateGroupSizeThreshold, sorting]);
 
-  const columns: ColumnDef<DuplicateEntry & { _isGroupEnd?: boolean; groupSize?: number; groupId?: number }>[] = [
+  const columns: ColumnDef<
+    DuplicateEntry & {
+      _isGroupEnd?: boolean;
+      groupSize?: number;
+      groupId?: number;
+    }
+  >[] = [
     {
       id: 'select',
       meta: {
@@ -244,16 +252,21 @@ export function DuplicateFiles() {
         if (row.original.hidden || !row.original._isGroupEnd) return null;
         const groupId = row.original.groupId;
         const allRows = table.getRowModel().rows;
-        const groupRows = allRows.filter(r => r.original.groupId === groupId && !r.original.isRef && !r.original.hidden);
-        const isAllSelected = groupRows.every(r => r.getIsSelected());
-        const isSomeSelected = groupRows.some(r => r.getIsSelected());
+        const groupRows = allRows.filter(
+          (r) =>
+            r.original.groupId === groupId &&
+            !r.original.isRef &&
+            !r.original.hidden,
+        );
+        const isAllSelected = groupRows.every((r) => r.getIsSelected());
+        const isSomeSelected = groupRows.some((r) => r.getIsSelected());
         return (
           <div className="flex justify-center items-center">
             <Checkbox
               checked={isAllSelected || (isSomeSelected && 'indeterminate')}
               onCheckedChange={(value) => {
                 const newSelection = { ...table.getState().rowSelection };
-                groupRows.forEach(r => {
+                groupRows.forEach((r) => {
                   if (value) {
                     newSelection[r.id] = true;
                   } else {
@@ -395,7 +408,11 @@ function ClickableCell(props: { row: Row<DuplicateEntry>; value: string }) {
 
 // 新增：处理分组逻辑
 export function processDataWithGroups(imagesData: DuplicateEntry[]) {
-  const result: (DuplicateEntry & { _isGroupEnd?: boolean; groupSize?: number; groupId?: number })[] = [];
+  const result: (DuplicateEntry & {
+    _isGroupEnd?: boolean;
+    groupSize?: number;
+    groupId?: number;
+  })[] = [];
   let currentGroup: typeof result = [];
   let groupId = 0;
 
@@ -404,9 +421,9 @@ export function processDataWithGroups(imagesData: DuplicateEntry[]) {
     if (curr.hidden) {
       // 结束当前组，计算groupSize
       if (currentGroup.length > 0) {
-        const refCount = currentGroup.filter(item => item.isRef).length;
+        const refCount = currentGroup.filter((item) => item.isRef).length;
         const groupSize = currentGroup.length - refCount;
-        currentGroup.forEach(item => {
+        currentGroup.forEach((item) => {
           item.groupSize = groupSize;
           item.groupId = groupId;
         });
@@ -424,9 +441,9 @@ export function processDataWithGroups(imagesData: DuplicateEntry[]) {
   }
   // 处理最后一组
   if (currentGroup.length > 0) {
-    const refCount = currentGroup.filter(item => item.isRef).length;
+    const refCount = currentGroup.filter((item) => item.isRef).length;
     const groupSize = currentGroup.length - refCount;
-    currentGroup.forEach(item => {
+    currentGroup.forEach((item) => {
       item.groupSize = groupSize;
       item.groupId = groupId;
     });

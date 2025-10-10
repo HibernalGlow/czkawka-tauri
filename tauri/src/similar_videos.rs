@@ -1,15 +1,15 @@
+use czkawka_core::common::traits::Search;
 use czkawka_core::{
 	common::{split_path_compare, tool_data::CommonData},
 	tools::similar_videos::{
-		SimilarVideos, SimilarVideosParameters, VideosEntry,
-		DEFAULT_CROP_DETECT,
+		DEFAULT_CROP_DETECT, SimilarVideos, SimilarVideosParameters,
+		VideosEntry,
 	},
 };
-use vid_dup_finder_lib::Cropdetect;
-use czkawka_core::common::traits::Search;
 use rayon::prelude::*;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter};
+use vid_dup_finder_lib::Cropdetect;
 
 use crate::{
 	scaner::{set_scaner_common_settings, spawn_scaner_thread},
@@ -35,27 +35,26 @@ pub fn scan_similar_videos(app: AppHandle, settins: Settings) {
 	spawn_scaner_thread(move || {
 		let (stop_flag, progress_tx) = get_stop_flag_and_progress_tx(&app);
 
-		let crop_detect = match settins
-			.similar_videos_crop_detect
-			.to_lowercase()
-			.as_str()
-		{
-			"letterbox" => Cropdetect::Letterbox,
-			"motion" => Cropdetect::Motion,
-			"none" => Cropdetect::None,
-			_ => DEFAULT_CROP_DETECT,
-		};
+		let crop_detect =
+			match settins.similar_videos_crop_detect.to_lowercase().as_str() {
+				"letterbox" => Cropdetect::Letterbox,
+				"motion" => Cropdetect::Motion,
+				"none" => Cropdetect::None,
+				_ => DEFAULT_CROP_DETECT,
+			};
 
-		let skip_forward_amount_u32 = if settins.similar_videos_skip_forward_amount < 0 {
-			0u32
-		} else {
-			settins.similar_videos_skip_forward_amount as u32
-		};
-		let vid_hash_duration_u32 = if settins.similar_videos_vid_hash_duration < 0 {
-			0u32
-		} else {
-			settins.similar_videos_vid_hash_duration as u32
-		};
+		let skip_forward_amount_u32 =
+			if settins.similar_videos_skip_forward_amount < 0 {
+				0u32
+			} else {
+				settins.similar_videos_skip_forward_amount as u32
+			};
+		let vid_hash_duration_u32 =
+			if settins.similar_videos_vid_hash_duration < 0 {
+				0u32
+			} else {
+				settins.similar_videos_vid_hash_duration as u32
+			};
 
 		let mut scaner = SimilarVideos::new(SimilarVideosParameters::new(
 			settins.similar_videos_sub_similarity,
@@ -71,8 +70,8 @@ pub fn scan_similar_videos(app: AppHandle, settins: Settings) {
 		);
 		set_scaner_common_settings(&mut scaner, settins);
 
-	// v10 API: use Search::search(stop_flag, progress_sender)
-	scaner.search(&stop_flag, Some(&progress_tx));
+		// v10 API: use Search::search(stop_flag, progress_sender)
+		scaner.search(&stop_flag, Some(&progress_tx));
 
 		let mut message = scaner.get_text_messages().create_messages_text();
 		let mut raw_list: Vec<_> = if scaner.get_use_reference() {

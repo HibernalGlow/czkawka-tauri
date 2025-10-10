@@ -303,7 +303,9 @@ export const zh: Record<TranslationKeys, string> = {
   Motion: '运动',
   None: '无',
   // 相似视频高级参数描述
-  'Skip forward desc': '取帧前先快进，跳过片头/OP/静止片段。设为 0 表示不跳过。',
+  'Skip forward desc':
+    '取帧前先快进，跳过片头/OP/静止片段。设为 0 表示不跳过。',
   'Hash duration desc': '参与相似度分析的时长（秒）。越长越准，也越耗时。',
-  'Crop detect desc': '预处理方式：信箱黑边去除边框；运动关注运动区域；无则保留全帧。',
+  'Crop detect desc':
+    '预处理方式：信箱黑边去除边框；运动关注运动区域；无则保留全帧。',
 };

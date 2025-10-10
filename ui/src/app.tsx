@@ -23,7 +23,7 @@ export default function App() {
       </TooltipProvider>
       <Toaster />
       <SidebarImagePreview />
-  <SidebarVideoPreview />
+      <SidebarVideoPreview />
       <FloatingFilterPanel />
     </div>
   );

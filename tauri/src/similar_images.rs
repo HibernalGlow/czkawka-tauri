@@ -1,16 +1,15 @@
+use czkawka_core::common::traits::Search;
+use czkawka_core::tools::similar_images::core::get_string_from_similarity;
 use czkawka_core::{
 	common::tool_data::CommonData,
 	tools::similar_images::{
 		ImagesEntry, SimilarImages, SimilarImagesParameters,
 	},
 };
-use czkawka_core::tools::similar_images::core::get_string_from_similarity;
-use czkawka_core::common::traits::Search;
 use image_hasher::{FilterType, HashAlg};
 use rayon::prelude::*;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager};
-
 
 use crate::{
 	image,
@@ -20,8 +19,8 @@ use crate::{
 };
 
 mod similar_folders {
-	use std::collections::HashMap;
 	use super::CustomImagesEntry;
+	use std::collections::HashMap;
 
 	#[derive(serde::Serialize, Clone, Debug)]
 	pub struct FolderStat {
@@ -38,7 +37,8 @@ mod similar_folders {
 		for (ref_item, group) in raw_list {
 			// 统计参考图片
 			if let Some(entry) = ref_item {
-				if let Some(folder) = std::path::Path::new(&entry.path).parent() {
+				if let Some(folder) = std::path::Path::new(&entry.path).parent()
+				{
 					let folder_str = folder.to_string_lossy().to_string();
 					if !is_in_reference_path(&folder_str) {
 						*folder_count.entry(folder_str).or_insert(0) += 1;
@@ -47,7 +47,8 @@ mod similar_folders {
 			}
 			// 统计组内图片
 			for entry in group {
-				if let Some(folder) = std::path::Path::new(&entry.path).parent() {
+				if let Some(folder) = std::path::Path::new(&entry.path).parent()
+				{
 					let folder_str = folder.to_string_lossy().to_string();
 					if !is_in_reference_path(&folder_str) {
 						*folder_count.entry(folder_str).or_insert(0) += 1;
@@ -90,7 +91,9 @@ pub fn scan_similar_images(app: AppHandle, settins: Settings) {
 			if let Ok(cache_dir) = app.path().app_cache_dir() {
 				let thumbnail_dir = cache_dir.join("thumbnails");
 				let thumbnail_size = 256; // 固定尺寸，未来可配置
-				if let Err(e) = image::init_thumbnail_manager(thumbnail_dir, thumbnail_size) {
+				if let Err(e) =
+					image::init_thumbnail_manager(thumbnail_dir, thumbnail_size)
+				{
 					eprintln!("Failed to initialize thumbnail manager: {}", e);
 				}
 			}
@@ -130,8 +133,8 @@ pub fn scan_similar_images(app: AppHandle, settins: Settings) {
 		);
 		set_scaner_common_settings(&mut scaner, settins);
 
-	// v10 API: use Search::search(stop_flag, progress_sender)
-	scaner.search(&stop_flag, Some(&progress_tx));
+		// v10 API: use Search::search(stop_flag, progress_sender)
+		scaner.search(&stop_flag, Some(&progress_tx));
 
 		let mut message = scaner.get_text_messages().create_messages_text();
 		let mut raw_list: Vec<_> = if scaner.get_use_reference() {
@@ -172,7 +175,8 @@ pub fn scan_similar_images(app: AppHandle, settins: Settings) {
 			})
 			.collect::<Vec<_>>();
 
-		let folders = similar_folders::collect_folders(&list, &is_in_reference_path, 2);
+		let folders =
+			similar_folders::collect_folders(&list, &is_in_reference_path, 2);
 		// dbg!("similar_images list", &list);
 		// dbg!("similar_images folders", &folders);
 		app.emit(

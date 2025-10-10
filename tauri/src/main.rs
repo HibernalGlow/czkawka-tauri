@@ -25,17 +25,18 @@ mod utils;
 
 use std::sync::Mutex;
 
-use czkawka_core::common::{
-	get_number_of_threads, set_number_of_threads,
-};
 use czkawka_core::common::config_cache_path::set_config_cache_path;
-use tauri::{AppHandle, Emitter, Manager, State};
-use std::{fs::File, io::{Seek, SeekFrom}};
-use std::thread;
-use std::net::{TcpListener, TcpStream};
-use std::io::{Write};
-use std::sync::OnceLock;
+use czkawka_core::common::{get_number_of_threads, set_number_of_threads};
 use mime_guess::from_path;
+use std::io::Write;
+use std::net::{TcpListener, TcpStream};
+use std::sync::OnceLock;
+use std::thread;
+use std::{
+	fs::File,
+	io::{Seek, SeekFrom},
+};
+use tauri::{AppHandle, Emitter, Manager, State};
 
 use crate::{
 	image::{ImageInfo, init_thumbnail_manager},
@@ -53,7 +54,9 @@ fn start_video_http_server() -> u16 {
 	let port = listener.local_addr().unwrap().port();
 	thread::spawn(move || {
 		for stream in listener.incoming() {
-			if let Ok(stream) = stream { handle_video_conn(stream); }
+			if let Ok(stream) = stream {
+				handle_video_conn(stream);
+			}
 		}
 	});
 	port
@@ -69,37 +72,96 @@ fn handle_video_conn(mut stream: TcpStream) {
 	let mut buf = Vec::new();
 	let _ = stream.set_read_timeout(Some(std::time::Duration::from_secs(5)));
 	let mut header_buf = [0u8; 4096];
-	let Ok(n) = stream.read(&mut header_buf) else { return; };
+	let Ok(n) = stream.read(&mut header_buf) else {
+		return;
+	};
 	let req = String::from_utf8_lossy(&header_buf[..n]);
 	// 只解析首行与 Range/path
 	let mut lines = req.split("\r\n");
 	let first = lines.next().unwrap_or("");
 	let mut path = "";
-	if let Some(p) = first.split_whitespace().nth(1) { path = p; }
-	if !path.starts_with("/video") { return; }
+	if let Some(p) = first.split_whitespace().nth(1) {
+		path = p;
+	}
+	if !path.starts_with("/video") {
+		return;
+	}
 	let mut file_param = "";
-	if let Some(idx) = path.find("?path=") { file_param = &path[idx+6..]; }
-	let decoded = percent_encoding::percent_decode_str(file_param).decode_utf8_lossy();
+	if let Some(idx) = path.find("?path=") {
+		file_param = &path[idx + 6..];
+	}
+	let decoded =
+		percent_encoding::percent_decode_str(file_param).decode_utf8_lossy();
 	let full_path = decoded.to_string();
-	let mut range: Option<(u64,u64)> = None;
-	for l in lines.clone() { if l.starts_with("Range:") { if let Some(r) = l.split(':').nth(1) { let r = r.trim(); if let Some(rs) = r.strip_prefix("bytes=") { let mut parts = rs.split('-'); let s = parts.next().unwrap_or("").parse().unwrap_or(0); let e = parts.next().unwrap_or("").parse().unwrap_or(0); if e>0 { range=Some((s,e)); } } } } }
-	let Ok(mut file) = File::open(&full_path) else { let _ = stream.write_all(b"HTTP/1.1 404 Not Found\r\nContent-Length:0\r\n\r\n"); return; };
-	let Ok(meta) = file.metadata() else { let _ = stream.write_all(b"HTTP/1.1 404 Not Found\r\nContent-Length:0\r\n\r\n"); return; };
+	let mut range: Option<(u64, u64)> = None;
+	for l in lines.clone() {
+		if l.starts_with("Range:") {
+			if let Some(r) = l.split(':').nth(1) {
+				let r = r.trim();
+				if let Some(rs) = r.strip_prefix("bytes=") {
+					let mut parts = rs.split('-');
+					let s = parts.next().unwrap_or("").parse().unwrap_or(0);
+					let e = parts.next().unwrap_or("").parse().unwrap_or(0);
+					if e > 0 {
+						range = Some((s, e));
+					}
+				}
+			}
+		}
+	}
+	let Ok(mut file) = File::open(&full_path) else {
+		let _ = stream
+			.write_all(b"HTTP/1.1 404 Not Found\r\nContent-Length:0\r\n\r\n");
+		return;
+	};
+	let Ok(meta) = file.metadata() else {
+		let _ = stream
+			.write_all(b"HTTP/1.1 404 Not Found\r\nContent-Length:0\r\n\r\n");
+		return;
+	};
 	let total = meta.len();
-	let (start,end,status) = match range { Some((s,e)) if e> s && e< total => (s,e,206), _ => (0,total-1,200)};
-	let to_read = end-start+1;
-	if file.seek(SeekFrom::Start(start)).is_err() { let _ = stream.write_all(b"HTTP/1.1 416 Range Not Satisfiable\r\nContent-Length:0\r\n\r\n"); return; }
-	buf.resize(to_read as usize,0); if file.read_exact(&mut buf).is_err() { let _ = stream.write_all(b"HTTP/1.1 500 Internal Server Error\r\nContent-Length:0\r\n\r\n"); return; }
+	let (start, end, status) = match range {
+		Some((s, e)) if e > s && e < total => (s, e, 206),
+		_ => (0, total - 1, 200),
+	};
+	let to_read = end - start + 1;
+	if file.seek(SeekFrom::Start(start)).is_err() {
+		let _ = stream.write_all(
+			b"HTTP/1.1 416 Range Not Satisfiable\r\nContent-Length:0\r\n\r\n",
+		);
+		return;
+	}
+	buf.resize(to_read as usize, 0);
+	if file.read_exact(&mut buf).is_err() {
+		let _ = stream.write_all(
+			b"HTTP/1.1 500 Internal Server Error\r\nContent-Length:0\r\n\r\n",
+		);
+		return;
+	}
 	let mime = from_path(&full_path).first_or_octet_stream();
-	let mut headers = format!("HTTP/1.1 {} {}\r\nContent-Type: {}\r\nAccept-Ranges: bytes\r\nContent-Length: {}\r\n", status, if status==206 {"Partial Content"} else {"OK"}, mime, buf.len());
-	if status==206 { headers.push_str(&format!("Content-Range: bytes {}-{}/{}\r\n", start,end,total)); }
+	let mut headers = format!(
+		"HTTP/1.1 {} {}\r\nContent-Type: {}\r\nAccept-Ranges: bytes\r\nContent-Length: {}\r\n",
+		status,
+		if status == 206 {
+			"Partial Content"
+		} else {
+			"OK"
+		},
+		mime,
+		buf.len()
+	);
+	if status == 206 {
+		headers.push_str(&format!(
+			"Content-Range: bytes {}-{}/{}\r\n",
+			start, end, total
+		));
+	}
 	headers.push_str("Connection: close\r\n\r\n");
 	let _ = stream.write_all(headers.as_bytes());
 	let _ = stream.write_all(&buf);
 }
 
 fn main() {
-
 	tauri::Builder::default()
 		.setup(move |app| {
 			// 初始化 czkawka_core 的配置/缓存目录，避免首次访问时 panic
@@ -111,15 +173,16 @@ fn main() {
 			if let Ok(resource_dir) = app.path().resource_dir() {
 				utils::set_ffmpeg_path(resource_dir);
 			}
-			
+
 			// 初始化缩略图管理器
 			if let Ok(cache_dir) = app.path().app_cache_dir() {
 				let thumbnail_cache_dir = cache_dir.join("thumbnails");
-				if let Err(e) = init_thumbnail_manager(thumbnail_cache_dir, 256) {
+				if let Err(e) = init_thumbnail_manager(thumbnail_cache_dir, 256)
+				{
 					eprintln!("Failed to initialize thumbnail manager: {}", e);
 				}
 			}
-			
+
 			app.manage(Mutex::new(AppState::default()));
 			Ok(())
 		})
@@ -335,7 +398,11 @@ fn open_system_path(path: String) -> Result<(), String> {
 		cmd.args(["/C", "start", "", &path]);
 		// 防止在含有 & 的路径被解释
 		// (start 会自动处理引号, 这里简单加引号)
-		if path.contains(' ') || path.contains('&') || path.contains('(') || path.contains(')') {
+		if path.contains(' ')
+			|| path.contains('&')
+			|| path.contains('(')
+			|| path.contains(')')
+		{
 			cmd.args([&format!("\"{}\"", path)]);
 		}
 		cmd.spawn().map_err(|e| e.to_string())?;
@@ -375,7 +442,7 @@ fn copy_file_to_clipboard(path: String) -> Result<(), String> {
 			.args(["-Command", &command])
 			.output()
 			.map_err(|e| format!("Failed to execute command: {}", e))?;
-		
+
 		if output.status.success() {
 			println!("Command executed successfully");
 			Ok(())
@@ -389,7 +456,10 @@ fn copy_file_to_clipboard(path: String) -> Result<(), String> {
 	{
 		// macOS 使用osascript复制文件到剪贴板
 		std::process::Command::new("osascript")
-			.args(["-e", &format!("set the clipboard to (POSIX file \"{}\")", path)])
+			.args([
+				"-e",
+				&format!("set the clipboard to (POSIX file \"{}\")", path),
+			])
 			.spawn()
 			.map_err(|e| format!("Failed to copy file to clipboard: {}", e))?;
 		Ok(())
@@ -405,7 +475,9 @@ fn copy_file_to_clipboard(path: String) -> Result<(), String> {
 		match result {
 			Ok(mut child) => {
 				if let Some(stdin) = child.stdin.as_mut() {
-					stdin.write_all(format!("file://{}", path).as_bytes()).map_err(|e| e.to_string())?;
+					stdin
+						.write_all(format!("file://{}", path).as_bytes())
+						.map_err(|e| e.to_string())?;
 				}
 				child.wait().map_err(|e| e.to_string())?;
 				Ok(())
@@ -415,12 +487,18 @@ fn copy_file_to_clipboard(path: String) -> Result<(), String> {
 				std::process::Command::new("wl-copy")
 					.arg(format!("file://{}", path))
 					.spawn()
-					.map_err(|e| format!("Failed to copy file to clipboard: {}", e))?;
+					.map_err(|e| {
+						format!("Failed to copy file to clipboard: {}", e)
+					})?;
 				Ok(())
 			}
 		}
 	}
-	#[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
+	#[cfg(not(any(
+		target_os = "windows",
+		target_os = "macos",
+		target_os = "linux"
+	)))]
 	{
 		Err("Unsupported platform".into())
 	}

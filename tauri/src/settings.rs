@@ -1,6 +1,8 @@
-use czkawka_core::common::get_all_available_threads;
 use czkawka_core::common::config_cache_path::get_config_cache_path;
-use czkawka_core::common::items::{DEFAULT_EXCLUDED_DIRECTORIES, DEFAULT_EXCLUDED_ITEMS};
+use czkawka_core::common::get_all_available_threads;
+use czkawka_core::common::items::{
+	DEFAULT_EXCLUDED_DIRECTORIES, DEFAULT_EXCLUDED_ITEMS,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize)]

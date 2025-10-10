@@ -1,8 +1,8 @@
+use czkawka_core::common::traits::Search;
 use czkawka_core::{
 	common::{split_path_compare, tool_data::CommonData},
 	tools::temporary::{Temporary, TemporaryFileEntry},
 };
-use czkawka_core::common::traits::Search;
 use rayon::prelude::*;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter};
@@ -24,12 +24,12 @@ pub fn scan_temporary_files(app: AppHandle, settings: Settings) {
 	spawn_scaner_thread(move || {
 		let (stop_flag, progress_tx) = get_stop_flag_and_progress_tx(&app);
 
-	let mut scaner = Temporary::new();
+		let mut scaner = Temporary::new();
 
 		set_scaner_common_settings(&mut scaner, settings);
 
-	// v10 API: use Search::search(stop_flag, progress_sender)
-	scaner.search(&stop_flag, Some(&progress_tx));
+		// v10 API: use Search::search(stop_flag, progress_sender)
+		scaner.search(&stop_flag, Some(&progress_tx));
 
 		let mut list = scaner.get_temporary_files().clone();
 		let mut message = scaner.get_text_messages().create_messages_text();

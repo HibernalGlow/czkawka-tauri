@@ -10,11 +10,10 @@ interface ClickableVideoPreviewProps {
 export function ClickableVideoPreview(props: ClickableVideoPreviewProps) {
   const { children, path, className, disableDefaultStyles = false } = props;
   const handleClick = () => {
-    invoke('open_system_path', { path })
-      .catch((e) => {
-        // eslint-disable-next-line no-console
-        console.error('Failed to open video', path, e);
-      });
+    invoke('open_system_path', { path }).catch((e) => {
+      // eslint-disable-next-line no-console
+      console.error('Failed to open video', path, e);
+    });
   };
 
   const defaultClassName = disableDefaultStyles

@@ -1,3 +1,4 @@
+import { invoke } from '@tauri-apps/api/core';
 import { useAtom } from 'jotai';
 import { Pin, PinOff, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -5,7 +6,6 @@ import { sidebarVideoPreviewAtom } from '~/atom/primitive';
 import { Button } from '~/components/shadcn/button';
 import { useT } from '~/hooks';
 import { cn } from '~/utils/cn';
-import { invoke } from '@tauri-apps/api/core';
 
 export function SidebarVideoPreview() {
   const [sidebarState, setSidebarState] = useAtom(sidebarVideoPreviewAtom);
@@ -89,13 +89,15 @@ export function SidebarVideoPreview() {
         let newX = position.x;
         let newY = position.y;
 
-        if (resizeDirection.includes('e')) newWidth = Math.max(320, resizeStartSize.width + deltaX);
+        if (resizeDirection.includes('e'))
+          newWidth = Math.max(320, resizeStartSize.width + deltaX);
         if (resizeDirection.includes('w')) {
           const widthChange = Math.min(resizeStartSize.width - 320, deltaX);
           newWidth = Math.max(320, resizeStartSize.width - deltaX);
           newX = resizeStartPos.x + widthChange;
         }
-        if (resizeDirection.includes('s')) newHeight = Math.max(180, resizeStartSize.height + deltaY);
+        if (resizeDirection.includes('s'))
+          newHeight = Math.max(180, resizeStartSize.height + deltaY);
         if (resizeDirection.includes('n')) {
           const heightChange = Math.min(resizeStartSize.height - 180, deltaY);
           newHeight = Math.max(180, resizeStartSize.height - deltaY);
@@ -112,7 +114,17 @@ export function SidebarVideoPreview() {
         }));
       }
     },
-    [isDragging, isResizing, position, dragOffset, size, resizeDirection, resizeStartPos, resizeStartSize, setSidebarState],
+    [
+      isDragging,
+      isResizing,
+      position,
+      dragOffset,
+      size,
+      resizeDirection,
+      resizeStartPos,
+      resizeStartSize,
+      setSidebarState,
+    ],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -144,8 +156,18 @@ export function SidebarVideoPreview() {
 
   const previewStyle =
     mode === 'fixed'
-      ? { right: 20, top: 80, width: `${size.width}px`, height: `${size.height}px` }
-      : { left: position?.x ?? 0, top: position?.y ?? 0, width: `${size.width}px`, height: `${size.height}px` };
+      ? {
+          right: 20,
+          top: 80,
+          width: `${size.width}px`,
+          height: `${size.height}px`,
+        }
+      : {
+          left: position?.x ?? 0,
+          top: position?.y ?? 0,
+          width: `${size.width}px`,
+          height: `${size.height}px`,
+        };
 
   // 现状：convertFileSrc -> asset.localhost 无法访问磁盘视频 (ERR_CONNECTION_REFUSED)
   // 临时策略：直接尝试 file:// 访问；如果失败，提示需要启用自定义协议（后端实现后再切换）。
@@ -154,11 +176,15 @@ export function SidebarVideoPreview() {
   const [httpPort, setHttpPort] = useState<number | null>(null);
   useEffect(() => {
     if (isOpen && httpPort == null) {
-      invoke<number>('get_video_server_port').then(setHttpPort).catch(() => {});
+      invoke<number>('get_video_server_port')
+        .then(setHttpPort)
+        .catch(() => {});
     }
   }, [isOpen, httpPort]);
 
-  const src = httpPort ? `http://127.0.0.1:${httpPort}/video?path=${encodeURIComponent(videoPath)}` : undefined;
+  const src = httpPort
+    ? `http://127.0.0.1:${httpPort}/video?path=${encodeURIComponent(videoPath)}`
+    : undefined;
 
   return (
     <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 9999 }}>
@@ -172,14 +198,38 @@ export function SidebarVideoPreview() {
       >
         {mode === 'floating' && (
           <>
-            <div className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-10" onMouseDown={(e) => startResize(e, 'nw')} />
-            <div className="absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-10" onMouseDown={(e) => startResize(e, 'ne')} />
-            <div className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-10" onMouseDown={(e) => startResize(e, 'sw')} />
-            <div className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-10" onMouseDown={(e) => startResize(e, 'se')} />
-            <div className="absolute top-0 left-4 right-4 h-2 cursor-n-resize z-10" onMouseDown={(e) => startResize(e, 'n')} />
-            <div className="absolute bottom-0 left-4 right-4 h-2 cursor-s-resize z-10" onMouseDown={(e) => startResize(e, 's')} />
-            <div className="absolute left-0 top-4 bottom-4 w-2 cursor-w-resize z-10" onMouseDown={(e) => startResize(e, 'w')} />
-            <div className="absolute right-0 top-4 bottom-4 w-2 cursor-e-resize z-10" onMouseDown={(e) => startResize(e, 'e')} />
+            <div
+              className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-10"
+              onMouseDown={(e) => startResize(e, 'nw')}
+            />
+            <div
+              className="absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-10"
+              onMouseDown={(e) => startResize(e, 'ne')}
+            />
+            <div
+              className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-10"
+              onMouseDown={(e) => startResize(e, 'sw')}
+            />
+            <div
+              className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-10"
+              onMouseDown={(e) => startResize(e, 'se')}
+            />
+            <div
+              className="absolute top-0 left-4 right-4 h-2 cursor-n-resize z-10"
+              onMouseDown={(e) => startResize(e, 'n')}
+            />
+            <div
+              className="absolute bottom-0 left-4 right-4 h-2 cursor-s-resize z-10"
+              onMouseDown={(e) => startResize(e, 's')}
+            />
+            <div
+              className="absolute left-0 top-4 bottom-4 w-2 cursor-w-resize z-10"
+              onMouseDown={(e) => startResize(e, 'w')}
+            />
+            <div
+              className="absolute right-0 top-4 bottom-4 w-2 cursor-e-resize z-10"
+              onMouseDown={(e) => startResize(e, 'e')}
+            />
           </>
         )}
 
@@ -201,7 +251,11 @@ export function SidebarVideoPreview() {
                 size="sm"
                 onClick={toggleMode}
                 className="h-6 w-6 p-0"
-                title={mode === 'fixed' ? t('Switch to floating mode') : t('Switch to fixed mode')}
+                title={
+                  mode === 'fixed'
+                    ? t('Switch to floating mode')
+                    : t('Switch to fixed mode')
+                }
               >
                 {mode === 'fixed' ? (
                   <PinOff className="h-4 w-4" />
@@ -209,7 +263,12 @@ export function SidebarVideoPreview() {
                   <Pin className="h-4 w-4" />
                 )}
               </Button>
-              <Button variant="ghost" size="sm" onClick={closeSidebar} className="h-6 w-6 p-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={closeSidebar}
+                className="h-6 w-6 p-0"
+              >
                 <X className="h-4 w-4" />
               </Button>
             </div>
@@ -234,7 +293,9 @@ export function SidebarVideoPreview() {
                   }}
                 />
               ) : (
-                <div className="text-xs text-muted-foreground">Loading video server...</div>
+                <div className="text-xs text-muted-foreground">
+                  Loading video server...
+                </div>
               )}
             </div>
           </div>

@@ -18,7 +18,7 @@
     "core:event:allow-listen",
     "core:event:allow-unlisten",
     "opener:allow-reveal-item-in-dir",
-  "opener:allow-open-path",
+    "opener:allow-open-path",
     "core:window:allow-start-dragging",
     "core:window:allow-internal-toggle-maximize",
     "clipboard-manager:allow-read-text",
