@@ -14,7 +14,7 @@ import {
 } from '~/components/data-table';
 import { DynamicThumbnailCell } from '~/components/dynamic-thumbnail-cell';
 import { Checkbox } from '~/components/shadcn/checkbox';
-import { ContextMenuItem } from '~/components/shadcn/context-menu';
+import { DuplicateFilesRightClickMenu } from '~/components/right-click-menu';
 import { useT } from '~/hooks';
 import type { DuplicateEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
@@ -324,25 +324,7 @@ export function DuplicateFiles() {
       sorting={sorting}
       onSortingChange={setSorting}
       onRowContextMenu={(row, table) => (
-        <ContextMenuItem
-          onClick={() => {
-            const groupId = row.original.groupId;
-            const allRows = table.getRowModel().rows;
-            const groupRows = allRows.filter(
-              (r) =>
-                r.original.groupId === groupId &&
-                !r.original.isRef &&
-                !r.original.hidden
-            );
-            const newSelection = { ...table.getState().rowSelection };
-            groupRows.forEach((r) => {
-              newSelection[r.id] = true;
-            });
-            table.setRowSelection(newSelection);
-          }}
-        >
-          选择该组
-        </ContextMenuItem>
+        <DuplicateFilesRightClickMenu row={row} table={table} />
       )}
     />
   );
