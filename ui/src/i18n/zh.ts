@@ -64,8 +64,8 @@ export const zh: Record<TranslationKeys, string> = {
   'Bad Extensions': '不正确扩展名',
 
   Size: '大小',
-  'Group Size': '组重复图片数',
-  'Group Select': '组选择',
+  'Group Size': '数',
+  'Group Select': '组选',
   'File name': '名称',
   Path: '路径',
   'Modified date': '修改日期',

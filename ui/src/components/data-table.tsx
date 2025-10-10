@@ -9,6 +9,7 @@ import {
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { revealItemInDir } from '@tauri-apps/plugin-opener';
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import { FolderOpen } from 'lucide-react';
 import { useRef } from 'react';
 import { useT } from '~/hooks';
@@ -35,6 +36,7 @@ interface DataTableProps<T> {
   rowSelection: RowSelectionState;
   onRowSelectionChange: (v: RowSelectionState) => void;
   rowHeight?: number; // 动态行高度
+  enableSorting?: boolean;
 }
 
 export type RowSelection = RowSelectionState;
@@ -51,6 +53,7 @@ export function DataTable<T extends BaseEntry>(props: DataTableProps<T>) {
     rowSelection,
     onRowSelectionChange,
     rowHeight = 40, // 默认行高度
+    enableSorting = false,
   } = props;
 
   const table = useReactTable({
@@ -74,6 +77,7 @@ export function DataTable<T extends BaseEntry>(props: DataTableProps<T>) {
       rowSelection,
     },
     columnResizeMode: 'onChange',
+    enableSorting,
   });
 
   const isGrid = layout === 'grid';
@@ -122,6 +126,20 @@ export function DataTable<T extends BaseEntry>(props: DataTableProps<T>) {
                           header.column.columnDef.header,
                           header.getContext(),
                         )}
+                    {header.column.getCanSort() && (
+                      <button
+                        className="ml-2 h-4 w-4"
+                        onClick={header.column.getToggleSortingHandler()}
+                      >
+                        {header.column.getIsSorted() === 'asc' ? (
+                          <ArrowUp className="h-4 w-4" />
+                        ) : header.column.getIsSorted() === 'desc' ? (
+                          <ArrowDown className="h-4 w-4" />
+                        ) : (
+                          <ArrowUpDown className="h-4 w-4" />
+                        )}
+                      </button>
+                    )}
                     {isResizeable && (
                       <div
                         className="w-1 h-full border-border border-r hover:bg-primary cursor-col-resize absolute right-0"

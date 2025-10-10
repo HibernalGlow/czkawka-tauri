@@ -106,37 +106,6 @@ export function DuplicateFiles() {
         return <TableRowSelectionCell row={row} />;
       },
     },
-    {
-      id: 'groupSelect',
-      header: t('Group Select'),
-      size: 100,
-      minSize: 50,
-      cell: ({ row, table }) => {
-        if (row.original.hidden || !row.original._isGroupEnd) return null;
-        const groupId = row.original.groupId;
-        const allRows = table.getRowModel().rows;
-        const groupRows = allRows.filter(r => r.original.groupId === groupId && !r.original.isRef && !r.original.hidden);
-        const isAllSelected = groupRows.every(r => r.getIsSelected());
-        const isSomeSelected = groupRows.some(r => r.getIsSelected());
-        return (
-          <Checkbox
-            checked={isAllSelected || (isSomeSelected && 'indeterminate')}
-            onCheckedChange={(value) => {
-              const newSelection = { ...table.getState().rowSelection };
-              groupRows.forEach(r => {
-                if (value) {
-                  newSelection[r.id] = true;
-                } else {
-                  delete newSelection[r.id];
-                }
-              });
-              table.setRowSelection(newSelection);
-            }}
-            aria-label="Select group"
-          />
-        );
-      },
-    },
     ...(settings.similarImagesEnableThumbnails
       ? [
           {
@@ -183,8 +152,8 @@ export function DuplicateFiles() {
     {
       accessorKey: 'groupSize',
       header: t('Group Size'),
-      size: 100,
-      minSize: 50,
+      size: 60,
+      minSize: 40,
       cell: ({ row }) => {
         if (row.original.hidden) return null;
         const isGroupEnd = (row.original as any)._isGroupEnd;
@@ -215,6 +184,37 @@ export function DuplicateFiles() {
           >
             <FileName row={row} />
           </div>
+        );
+      },
+    },
+    {
+      id: 'groupSelect',
+      header: t('Group Select'),
+      size: 60,
+      minSize: 40,
+      cell: ({ row, table }) => {
+        if (row.original.hidden || !row.original._isGroupEnd) return null;
+        const groupId = row.original.groupId;
+        const allRows = table.getRowModel().rows;
+        const groupRows = allRows.filter(r => r.original.groupId === groupId && !r.original.isRef && !r.original.hidden);
+        const isAllSelected = groupRows.every(r => r.getIsSelected());
+        const isSomeSelected = groupRows.some(r => r.getIsSelected());
+        return (
+          <Checkbox
+            checked={isAllSelected || (isSomeSelected && 'indeterminate')}
+            onCheckedChange={(value) => {
+              const newSelection = { ...table.getState().rowSelection };
+              groupRows.forEach(r => {
+                if (value) {
+                  newSelection[r.id] = true;
+                } else {
+                  delete newSelection[r.id];
+                }
+              });
+              table.setRowSelection(newSelection);
+            }}
+            aria-label="Select group"
+          />
         );
       },
     },
@@ -269,6 +269,7 @@ export function DuplicateFiles() {
       rowSelection={rowSelection}
       onRowSelectionChange={setRowSelection}
       rowHeight={dynamicRowHeight}
+      enableSorting={true}
     />
   );
 }
