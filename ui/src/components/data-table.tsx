@@ -17,6 +17,7 @@ import { useT } from '~/hooks';
 import type { BaseEntry } from '~/types';
 import { cn } from '~/utils/cn';
 import { Checkbox } from './shadcn/checkbox';
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from './shadcn/context-menu';
 import {
   Table,
   TableBody,
@@ -40,6 +41,7 @@ interface DataTableProps<T> {
   enableSorting?: boolean;
   sorting?: SortingState;
   onSortingChange?: (sorting: SortingState) => void;
+  onRowContextMenu?: (row: Row<T>, table: TTable<T>) => React.ReactNode;
 }
 
 export type RowSelection = RowSelectionState;
@@ -59,6 +61,7 @@ export function DataTable<T extends BaseEntry>(props: DataTableProps<T>) {
     enableSorting = false,
     sorting,
     onSortingChange,
+    onRowContextMenu,
   } = props;
 
   const table = useReactTable({
@@ -170,6 +173,7 @@ export function DataTable<T extends BaseEntry>(props: DataTableProps<T>) {
           emptyTip={emptyTip}
           layout={layout}
           rowHeight={rowHeight}
+          onRowContextMenu={onRowContextMenu}
         />
       </Table>
     </div>
@@ -181,10 +185,11 @@ interface TableBodyProps<T> {
   emptyTip?: React.ReactNode;
   layout?: 'grid' | 'resizeable';
   rowHeight?: number; // 动态行高度
+  onRowContextMenu?: (row: Row<T>, table: TTable<T>) => React.ReactNode;
 }
 
 function DataTableBody<T>(props: TableBodyProps<T>) {
-  const { table, emptyTip, layout, rowHeight = 40 } = props;
+  const { table, emptyTip, layout, rowHeight = 40, onRowContextMenu } = props;
   const { rows = [] } = table.getRowModel();
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -215,7 +220,7 @@ function DataTableBody<T>(props: TableBodyProps<T>) {
         {rows.length ? (
           rowVirtualizer.getVirtualItems().map((virtualRow) => {
             const row = rows[virtualRow.index];
-            return (
+            const tableRow = (
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
@@ -261,6 +266,21 @@ function DataTableBody<T>(props: TableBodyProps<T>) {
                 })}
               </TableRow>
             );
+
+            if (onRowContextMenu) {
+              return (
+                <ContextMenu key={row.id}>
+                  <ContextMenuTrigger asChild>
+                    {tableRow}
+                  </ContextMenuTrigger>
+                  <ContextMenuContent>
+                    {onRowContextMenu(row, table)}
+                  </ContextMenuContent>
+                </ContextMenu>
+              );
+            }
+
+            return tableRow;
           })
         ) : (
           <TableRow className="h-full">
