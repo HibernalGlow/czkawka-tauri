@@ -28,6 +28,18 @@ export function DuplicateFilesRightClickMenu({ row, table }: RightClickMenuProps
     navigator.clipboard.writeText(row.original.path);
   };
 
+  const handleCopyFileToClipboard = async () => {
+    try {
+      console.log('Copying file to clipboard:', row.original.path);
+      await (window as any).__TAURI__.invoke('copy_file_to_clipboard', { path: row.original.path });
+      console.log('File copied to clipboard successfully');
+    } catch (error) {
+      console.error('Failed to copy file to clipboard:', error);
+      // 回退到复制路径
+      await navigator.clipboard.writeText(row.original.path);
+    }
+  };
+
   const handleCopyFileName = () => {
     navigator.clipboard.writeText(row.original.fileName);
   };
@@ -41,8 +53,8 @@ export function DuplicateFilesRightClickMenu({ row, table }: RightClickMenuProps
       <ContextMenuItem onClick={handleCopyPath}>
         复制文件路径
       </ContextMenuItem>
-      <ContextMenuItem onClick={handleCopyFileName}>
-        复制文件名
+      <ContextMenuItem onClick={handleCopyFileToClipboard}>
+        复制文件到剪贴板
       </ContextMenuItem>
     </>
   );

@@ -151,6 +151,7 @@ fn main() {
 			save_result,
 			rename_ext,
 			open_system_path,
+			copy_file_to_clipboard,
 		])
 		.plugin(tauri_plugin_opener::init())
 		.plugin(tauri_plugin_dialog::init())
@@ -358,4 +359,66 @@ fn open_system_path(path: String) -> Result<(), String> {
 	}
 	#[allow(unreachable_code)]
 	Err("Unsupported platform".into())
+}
+
+#[tauri::command]
+fn copy_file_to_clipboard(path: String) -> Result<(), String> {
+	#[cfg(target_os = "windows")]
+	{
+		// 使用PowerShell复制文件到剪贴板
+		let command = format!("Set-Clipboard -Path \"{}\"", path.replace("\"", "\"\""));
+		println!("Executing PowerShell command: {}", command);
+		let output = std::process::Command::new("powershell")
+			.args(["-Command", &command])
+			.output()
+			.map_err(|e| format!("Failed to execute command: {}", e))?;
+		
+		if output.status.success() {
+			println!("Command executed successfully");
+			Ok(())
+		} else {
+			let stderr = String::from_utf8_lossy(&output.stderr);
+			println!("Command failed with stderr: {}", stderr);
+			Err(format!("Command failed: {}", stderr))
+		}
+	}
+	#[cfg(target_os = "macos")]
+	{
+		// macOS 使用osascript复制文件到剪贴板
+		std::process::Command::new("osascript")
+			.args(["-e", &format!("set the clipboard to (POSIX file \"{}\")", path)])
+			.spawn()
+			.map_err(|e| format!("Failed to copy file to clipboard: {}", e))?;
+		Ok(())
+	}
+	#[cfg(target_os = "linux")]
+	{
+		// Linux 尝试使用xclip，如果失败则使用wl-copy
+		let result = std::process::Command::new("xclip")
+			.args(["-selection", "clipboard", "-t", "text/uri-list"])
+			.stdin(std::process::Stdio::piped())
+			.spawn();
+
+		match result {
+			Ok(mut child) => {
+				if let Some(stdin) = child.stdin.as_mut() {
+					stdin.write_all(format!("file://{}", path).as_bytes()).map_err(|e| e.to_string())?;
+				}
+				child.wait().map_err(|e| e.to_string())?;
+				Ok(())
+			}
+			Err(_) => {
+				// 尝试wl-copy (Wayland)
+				std::process::Command::new("wl-copy")
+					.arg(format!("file://{}", path))
+					.spawn()
+					.map_err(|e| format!("Failed to copy file to clipboard: {}", e))?;
+				Ok(())
+			}
+		}
+	}
+	#[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
+	{
+		Err("Unsupported platform".into())
+	}
 }
