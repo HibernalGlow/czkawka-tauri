@@ -9,11 +9,6 @@ tasks:
     cmds:
       - task --list
 
-  install-dev-tools:
-    desc: Install development tools
-    cmds:
-      - cargo install --path ./tauri --dev cargo-edit
-      - echo "Development tools installed"
   toolchain:
     desc: Check versions of required tools
     cmds:
@@ -26,6 +21,7 @@ tasks:
       - npm -v
       - pnpm -v
       - pnpm tauri -V
+
   fmt:
     desc: Format code
     cmds:
@@ -48,7 +44,7 @@ tasks:
       - node --run typecheck:ui
       - node --run typecheck:other
 
-  prepare-release:
+  prepare:
     desc: Prepare a release with the given tag
     cmds:
       - pnpm tsx ./scripts/set-pkg-version.ts {{.CLI_ARGS}}

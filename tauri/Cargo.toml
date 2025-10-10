@@ -43,8 +43,5 @@ vid_dup_finder_lib = "0.4.0"
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
-[dev-dependencies]
-cargo-edit = "0.13.7"
-
 [features]
 ffmpeg = []
