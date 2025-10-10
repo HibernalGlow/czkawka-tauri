@@ -65,6 +65,8 @@ export const en = {
   'Bad Extensions': 'Bad Extensions',
 
   Size: 'Size',
+  'Group Size': 'Group Size',
+  'Group Select': 'Group Select',
   'File name': 'File name',
   Path: 'Path',
   'Modified date': 'Modified date',

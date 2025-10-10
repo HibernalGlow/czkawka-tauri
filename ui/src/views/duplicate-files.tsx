@@ -13,6 +13,7 @@ import {
   TableRowSelectionHeader,
 } from '~/components/data-table';
 import { DynamicThumbnailCell } from '~/components/dynamic-thumbnail-cell';
+import { Checkbox } from '~/components/shadcn/checkbox';
 import { useT } from '~/hooks';
 import type { DuplicateEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
@@ -86,7 +87,7 @@ export function DuplicateFiles() {
     return processDataWithGroups(filtered);
   }, [data, settings.duplicateGroupSizeThreshold]);
 
-  const columns: ColumnDef<DuplicateEntry & { _isGroupEnd?: boolean }>[] = [
+  const columns: ColumnDef<DuplicateEntry & { _isGroupEnd?: boolean; groupSize?: number; groupId?: number }>[] = [
     {
       id: 'select',
       meta: {
@@ -103,6 +104,37 @@ export function DuplicateFiles() {
           return null;
         }
         return <TableRowSelectionCell row={row} />;
+      },
+    },
+    {
+      id: 'groupSelect',
+      header: t('Group Select'),
+      size: 100,
+      minSize: 50,
+      cell: ({ row, table }) => {
+        if (row.original.hidden || !row.original._isGroupEnd) return null;
+        const groupId = row.original.groupId;
+        const allRows = table.getRowModel().rows;
+        const groupRows = allRows.filter(r => r.original.groupId === groupId && !r.original.isRef && !r.original.hidden);
+        const isAllSelected = groupRows.every(r => r.getIsSelected());
+        const isSomeSelected = groupRows.some(r => r.getIsSelected());
+        return (
+          <Checkbox
+            checked={isAllSelected || (isSomeSelected && 'indeterminate')}
+            onCheckedChange={(value) => {
+              const newSelection = { ...table.getState().rowSelection };
+              groupRows.forEach(r => {
+                if (value) {
+                  newSelection[r.id] = true;
+                } else {
+                  delete newSelection[r.id];
+                }
+              });
+              table.setRowSelection(newSelection);
+            }}
+            aria-label="Select group"
+          />
+        );
       },
     },
     ...(settings.similarImagesEnableThumbnails
@@ -144,6 +176,25 @@ export function DuplicateFiles() {
             }
           >
             <ClickableCell row={row} value={row.original.size} />
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'groupSize',
+      header: t('Group Size'),
+      size: 100,
+      minSize: 50,
+      cell: ({ row }) => {
+        if (row.original.hidden) return null;
+        const isGroupEnd = (row.original as any)._isGroupEnd;
+        return (
+          <div
+            style={
+              isGroupEnd ? { borderBottom: '2px solid #e5e7eb' } : undefined
+            }
+          >
+            {row.original.groupSize}
           </div>
         );
       },
@@ -287,16 +338,42 @@ function ClickableCell(props: { row: Row<DuplicateEntry>; value: string }) {
 
 // 新增：处理分组逻辑
 export function processDataWithGroups(imagesData: DuplicateEntry[]) {
-  const result: (DuplicateEntry & { _isGroupEnd?: boolean })[] = [];
+  const result: (DuplicateEntry & { _isGroupEnd?: boolean; groupSize?: number; groupId?: number })[] = [];
+  let currentGroup: typeof result = [];
+  let groupId = 0;
+
   for (let i = 0; i < imagesData.length; i++) {
     const curr = imagesData[i];
-    if (curr.hidden) continue; // 跳过 hidden 行
-    // 判断下一行是否为 hidden
+    if (curr.hidden) {
+      // 结束当前组，计算groupSize
+      if (currentGroup.length > 0) {
+        const refCount = currentGroup.filter(item => item.isRef).length;
+        const groupSize = currentGroup.length - refCount;
+        currentGroup.forEach(item => {
+          item.groupSize = groupSize;
+          item.groupId = groupId;
+        });
+        result.push(...currentGroup);
+        currentGroup = [];
+      }
+      groupId++;
+      continue;
+    }
     const next = imagesData[i + 1];
-    result.push({
+    currentGroup.push({
       ...curr,
-      _isGroupEnd: !!next?.hidden, // 新增分组结束标记
+      _isGroupEnd: !!next?.hidden,
     });
+  }
+  // 处理最后一组
+  if (currentGroup.length > 0) {
+    const refCount = currentGroup.filter(item => item.isRef).length;
+    const groupSize = currentGroup.length - refCount;
+    currentGroup.forEach(item => {
+      item.groupSize = groupSize;
+      item.groupId = groupId;
+    });
+    result.push(...currentGroup);
   }
   return result;
 }
