@@ -2,6 +2,7 @@ import {
   type ColumnDef,
   type Row,
   type RowSelectionState,
+  type SortingState,
   type Table as TTable,
   flexRender,
   getCoreRowModel,
@@ -37,6 +38,8 @@ interface DataTableProps<T> {
   onRowSelectionChange: (v: RowSelectionState) => void;
   rowHeight?: number; // 动态行高度
   enableSorting?: boolean;
+  sorting?: SortingState;
+  onSortingChange?: (sorting: SortingState) => void;
 }
 
 export type RowSelection = RowSelectionState;
@@ -54,6 +57,8 @@ export function DataTable<T extends BaseEntry>(props: DataTableProps<T>) {
     onRowSelectionChange,
     rowHeight = 40, // 默认行高度
     enableSorting = false,
+    sorting,
+    onSortingChange,
   } = props;
 
   const table = useReactTable({
@@ -75,9 +80,16 @@ export function DataTable<T extends BaseEntry>(props: DataTableProps<T>) {
     },
     state: {
       rowSelection,
+      ...(sorting !== undefined && { sorting }),
     },
     columnResizeMode: 'onChange',
     enableSorting,
+    ...(onSortingChange && { 
+      onSortingChange: (updater) => {
+        const newSorting = typeof updater === 'function' ? updater(sorting || []) : updater;
+        onSortingChange(newSorting);
+      }
+    }),
   });
 
   const isGrid = layout === 'grid';

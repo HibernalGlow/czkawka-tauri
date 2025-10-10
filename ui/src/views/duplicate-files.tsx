@@ -1,4 +1,4 @@
-import type { ColumnDef, Row } from '@tanstack/react-table';
+import type { ColumnDef, Row, SortingState } from '@tanstack/react-table';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -26,6 +26,7 @@ export function DuplicateFiles() {
   const [rowSelection, setRowSelection] = useAtom(
     duplicateFilesRowSelectionAtom,
   );
+  const [sorting, setSorting] = useState<SortingState>([]);
   const settings = useAtomValue(settingsAtom);
   const t = useT();
 
@@ -84,8 +85,54 @@ export function DuplicateFiles() {
       const visibleCount = group.filter((e) => !e.hidden).length;
       if (visibleCount >= threshold) filtered.push(...group);
     }
-    return processDataWithGroups(filtered);
-  }, [data, settings.duplicateGroupSizeThreshold]);
+    let result = processDataWithGroups(filtered);
+
+    // 应用排序
+    if (sorting.length > 0) {
+      result = [...result].sort((a, b) => {
+        for (const sort of sorting) {
+          let aVal: any = a[sort.id as keyof typeof a];
+          let bVal: any = b[sort.id as keyof typeof b];
+
+          // 特殊处理某些字段
+          if (sort.id === 'size') {
+            // 解析文件大小字符串，如 "1.2 MB" -> 1.2 * 1024 * 1024
+            const parseSize = (str: string) => {
+              const match = str.match(/^([\d.]+)\s*(B|KB|MB|GB)?$/i);
+              if (!match) return 0;
+              const num = parseFloat(match[1]);
+              const unit = match[2]?.toUpperCase();
+              const multiplier = { B: 1, KB: 1024, MB: 1024**2, GB: 1024**3 }[unit || 'B'] || 1;
+              return num * multiplier;
+            };
+            aVal = parseSize(aVal);
+            bVal = parseSize(bVal);
+          } else if (sort.id === 'modifiedDate') {
+            // 解析日期字符串
+            aVal = new Date(aVal).getTime();
+            bVal = new Date(bVal).getTime();
+          } else if (sort.id === 'groupSize') {
+            aVal = Number(aVal) || 0;
+            bVal = Number(bVal) || 0;
+          }
+
+          let cmp = 0;
+          if (typeof aVal === 'string' && typeof bVal === 'string') {
+            cmp = aVal.localeCompare(bVal);
+          } else if (typeof aVal === 'number' && typeof bVal === 'number') {
+            cmp = aVal - bVal;
+          }
+
+          if (cmp !== 0) {
+            return sort.desc ? -cmp : cmp;
+          }
+        }
+        return 0;
+      });
+    }
+
+    return result;
+  }, [data, settings.duplicateGroupSizeThreshold, sorting]);
 
   const columns: ColumnDef<DuplicateEntry & { _isGroupEnd?: boolean; groupSize?: number; groupId?: number }>[] = [
     {
@@ -200,21 +247,24 @@ export function DuplicateFiles() {
         const isAllSelected = groupRows.every(r => r.getIsSelected());
         const isSomeSelected = groupRows.some(r => r.getIsSelected());
         return (
-          <Checkbox
-            checked={isAllSelected || (isSomeSelected && 'indeterminate')}
-            onCheckedChange={(value) => {
-              const newSelection = { ...table.getState().rowSelection };
-              groupRows.forEach(r => {
-                if (value) {
-                  newSelection[r.id] = true;
-                } else {
-                  delete newSelection[r.id];
-                }
-              });
-              table.setRowSelection(newSelection);
-            }}
-            aria-label="Select group"
-          />
+          <div className="flex justify-center items-center">
+            <Checkbox
+              checked={isAllSelected || (isSomeSelected && 'indeterminate')}
+              onCheckedChange={(value) => {
+                const newSelection = { ...table.getState().rowSelection };
+                groupRows.forEach(r => {
+                  if (value) {
+                    newSelection[r.id] = true;
+                  } else {
+                    delete newSelection[r.id];
+                  }
+                });
+                table.setRowSelection(newSelection);
+              }}
+              aria-label="Select group"
+              className="translate-y-[2px]"
+            />
+          </div>
         );
       },
     },
@@ -270,6 +320,8 @@ export function DuplicateFiles() {
       onRowSelectionChange={setRowSelection}
       rowHeight={dynamicRowHeight}
       enableSorting={true}
+      sorting={sorting}
+      onSortingChange={setSorting}
     />
   );
 }
