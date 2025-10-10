@@ -94,6 +94,10 @@ export const ipc = {
   renameExt(options: RenameExtOptions) {
     return invoke('rename_ext', { options });
   },
+
+  copyFileToClipboard(path: string): Promise<void> {
+    return invoke('copy_file_to_clipboard', { path });
+  },
 };
 
 export function mockIPCForDev() {

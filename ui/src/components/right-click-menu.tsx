@@ -1,6 +1,7 @@
 import type { Row, Table as TTable } from '@tanstack/react-table';
 import { ContextMenuItem, ContextMenuSeparator } from './shadcn/context-menu';
 import type { DuplicateEntry } from '~/types';
+import { ipc } from '~/ipc';
 
 interface RightClickMenuProps<T> {
   row: Row<T>;
@@ -31,7 +32,7 @@ export function DuplicateFilesRightClickMenu({ row, table }: RightClickMenuProps
   const handleCopyFileToClipboard = async () => {
     try {
       console.log('Copying file to clipboard:', row.original.path);
-      await (window as any).__TAURI__.invoke('copy_file_to_clipboard', { path: row.original.path });
+      await ipc.copyFileToClipboard(row.original.path);
       console.log('File copied to clipboard successfully');
     } catch (error) {
       console.error('Failed to copy file to clipboard:', error);

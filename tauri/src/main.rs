@@ -365,8 +365,11 @@ fn open_system_path(path: String) -> Result<(), String> {
 fn copy_file_to_clipboard(path: String) -> Result<(), String> {
 	#[cfg(target_os = "windows")]
 	{
-		// 使用PowerShell复制文件到剪贴板
-		let command = format!("Set-Clipboard -Path \"{}\"", path.replace("\"", "\"\""));
+		// 使用PowerShell和.NET Clipboard类复制文件到剪贴板
+		let command = format!(
+			r#"Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Clipboard]::SetFileDropList(@("{}"))"#,
+			path.replace("\"", "\"\"")
+		);
 		println!("Executing PowerShell command: {}", command);
 		let output = std::process::Command::new("powershell")
 			.args(["-Command", &command])
