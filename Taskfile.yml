@@ -83,9 +83,9 @@ tasks:
 
   # Aliases
   pr:
-    desc: Alias for prepare-release
+    desc: Alias for prepare
     cmds:
-      - task: prepare-release
+      - task: prepare
         vars:
           CLI_ARGS: '{{.CLI_ARGS}}'
 
