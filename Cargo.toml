@@ -17,5 +17,3 @@ incremental = true           # 增量编译
 [profile.dev.package."*"]
 opt-level = 3 # 对所有依赖进行完全优化
 
-[build]
-rustflags = ["-C", "target-cpu=native"] # 针对当前CPU优化
