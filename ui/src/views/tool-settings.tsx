@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/shadcn/dialog';
-import { Form, FormItem } from '~/components/simple-form';
+import { Form, FormItem } from '~/components/form';
 import {
   BigFilesSearchMode,
   DuplicatesAvailableHashType,

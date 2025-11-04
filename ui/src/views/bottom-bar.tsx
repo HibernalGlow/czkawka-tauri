@@ -63,6 +63,7 @@ import { ToolSettings } from './tool-settings';
 const DisplayType = {
   Dirs: 'dirs',
   Logs: 'logs',
+  ToolSettings: 'toolSettings',
 } as const;
 
 interface TableData {
@@ -118,7 +119,11 @@ type PropsWithRowSelection<T> = T & {
 //   );
 // }
 
-export function BottomBar() {
+interface BottomBarProps {
+  headerRef?: React.RefObject<HTMLDivElement>;
+}
+
+export function BottomBar({ headerRef }: BottomBarProps) {
   const [displayType, setDisplayType] = useState<string>(DisplayType.Dirs);
   const minimizeBottomBar = useBoolean();
   const t = useT();
@@ -152,8 +157,8 @@ export function BottomBar() {
   }, [currentToolData, currentTool]);
 
   return (
-    <div className="flex flex-col px-2 py-1 gap-1 border-t">
-      <div className="flex justify-between items-center">
+    <div className="flex flex-col h-full px-2 py-1 gap-1 border-t">
+      <div ref={headerRef} className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <Operations />
           {/* 相似文件夹批量操作入口已移除，相关功能已集成到主表格切换 */}
@@ -165,6 +170,9 @@ export function BottomBar() {
             <TabsList>
               <TabsTrigger value={DisplayType.Dirs}>
                 <Folder />
+              </TabsTrigger>
+              <TabsTrigger value={DisplayType.ToolSettings}>
+                <Settings2 />
               </TabsTrigger>
               <TabsTrigger value={DisplayType.Logs}>
                 <ScrollText />
@@ -226,6 +234,18 @@ export function BottomBar() {
                   <IncludedDirsTable />
                 </ResizablePanel>
               </ResizablePanelGroup>
+            ) : displayType === DisplayType.ToolSettings ? (
+              <div className="h-full flex flex-col border rounded-md overflow-hidden">
+                <div className="bg-muted/30 p-2 border-b">
+                  <h3 className="text-sm font-medium flex items-center gap-1">
+                    <Settings2 className="h-4 w-4" />
+                    <span>{t('Tool settings')}</span>
+                  </h3>
+                </div>
+                <div className="flex-1 overflow-auto p-2 hide-scrollbar">
+                  <ToolSettings inPanel={true} />
+                </div>
+              </div>
             ) : (
               <Logs />
             )}
