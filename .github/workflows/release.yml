@@ -124,7 +124,7 @@ jobs:
       - name: verify executable
         shell: powershell
         run: |
-          $exePath = ".\tauri\target\release\CzkawkaTauri.exe"
+          $exePath = ".\target\release\CzkawkaTauri.exe"
           
           if (Test-Path $exePath) {
             Write-Host "Executable found at $exePath"
@@ -141,4 +141,4 @@ jobs:
           prerelease: false
           generate_release_notes: true
           files: |
-            ./tauri/target/release/CzkawkaTauri.exe
+            ./target/release/CzkawkaTauri.exe
