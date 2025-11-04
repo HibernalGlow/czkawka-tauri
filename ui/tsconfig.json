@@ -1,7 +1,8 @@
 {
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "target": "es2022",
+    "lib": ["es2022", "dom", "dom.iterable", "esnext", "esnext.symbol"],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
@@ -9,7 +10,8 @@
     "baseUrl": ".",
     "paths": {
       "~/*": ["src/*"]
-    }
+    },
+    "skipLibCheck": true
   },
   "include": ["src"],
   "exclude": ["node_modules"]
