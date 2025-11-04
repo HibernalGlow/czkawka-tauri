@@ -17,13 +17,20 @@ import { ToolTabs } from '~/views/tool-tabs';
 
 export default function App() {
   const PANEL_SIZE = 30;
+  const STORAGE_KEY = 'app-bottom-panel-size';
   const [bottomPanelMinSize, setBottomPanelMinSize] = useState(8);
+  const [defaultBottomSize, setDefaultBottomSize] = useState<number>(() => {
+    const v = Number(localStorage.getItem(STORAGE_KEY));
+    if (Number.isFinite(v) && v > 0) return Math.min(50, Math.max(6, v));
+    return PANEL_SIZE;
+  });
   const headerRef = useRef<HTMLDivElement>(null);
   const bottomPanelRef = useRef<ImperativePanelHandle>(null);
 
   const handleResetPanelSize = () => {
     if (bottomPanelRef.current) {
       bottomPanelRef.current.resize(PANEL_SIZE);
+      localStorage.setItem(STORAGE_KEY, String(PANEL_SIZE));
     }
   };
 
@@ -53,7 +60,15 @@ export default function App() {
   return (
     <div className="h-screen w-screen flex flex-col relative">
       <TooltipProvider delayDuration={100} skipDelayDuration={90}>
-        <ResizablePanelGroup direction="vertical" autoSaveId="app-layout">
+        <ResizablePanelGroup
+          direction="vertical"
+          autoSaveId="app-layout"
+          onLayout={(sizes) => {
+            const bottom = sizes[sizes.length - 1] ?? PANEL_SIZE;
+            localStorage.setItem(STORAGE_KEY, String(bottom));
+            setDefaultBottomSize(bottom);
+          }}
+        >
           <ResizablePanel>
             <div className="flex h-full">
               <ToolTabs />
@@ -66,7 +81,7 @@ export default function App() {
           <ResizableHandle withHandle onDoubleClick={handleResetPanelSize} />
           <ResizablePanel
             ref={bottomPanelRef}
-            defaultSize={PANEL_SIZE}
+            defaultSize={defaultBottomSize}
             minSize={bottomPanelMinSize}
             maxSize={50}
           >
