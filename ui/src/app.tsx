@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ImperativePanelHandle } from 'react-resizable-panels';
 import { Toaster } from '~/components/shadcn/sonner';
 import { TooltipProvider } from '~/components/shadcn/tooltip';
@@ -16,8 +16,8 @@ import { SidebarVideoPreview } from '~/views/sidebar-video-preview';
 import { ToolTabs } from '~/views/tool-tabs';
 
 export default function App() {
-  const PANEL_SIZE = 35;
-  const [bottomPanelMinSize, setBottomPanelMinSize] = useState(PANEL_SIZE);
+  const PANEL_SIZE = 30;
+  const [bottomPanelMinSize, setBottomPanelMinSize] = useState(8);
   const headerRef = useRef<HTMLDivElement>(null);
   const bottomPanelRef = useRef<ImperativePanelHandle>(null);
 
@@ -27,9 +27,28 @@ export default function App() {
     }
   };
 
-  // 根据头部高度动态限制底部面板最小高度
-  // 注意：在本项目中，我们保持无副作用 hook 简洁性，计算交由 BottomBar 的 headerRef 实时更新
-  // 若后续需要更精细的最小高度，可在此处添加 ResizeObserver
+  // 根据底栏头部高度动态限制底部面板最小高度，确保始终可容纳工具条
+  useEffect(() => {
+    const calc = () => {
+      if (!headerRef.current) return;
+      const headerHeight = headerRef.current.offsetHeight;
+      const paddingY = 0.25 * 16 * 2; // py-1 上下各 0.25rem
+      const total = headerHeight + paddingY;
+      const screen = window.innerHeight || document.documentElement.clientHeight;
+      const pct = Math.min(20, Math.max(6, (total / screen) * 100));
+      setBottomPanelMinSize(pct);
+    };
+
+    const ro = new ResizeObserver(calc);
+    if (headerRef.current) ro.observe(headerRef.current);
+    ro.observe(document.body);
+    window.addEventListener('resize', calc);
+    calc();
+    return () => {
+      window.removeEventListener('resize', calc);
+      ro.disconnect();
+    };
+  }, []);
 
   return (
     <div className="h-screen w-screen flex flex-col relative">

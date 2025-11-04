@@ -157,7 +157,7 @@ export function BottomBar({ headerRef }: BottomBarProps) {
   }, [currentToolData, currentTool]);
 
   return (
-    <div className="flex flex-col px-2 py-1 gap-1 border-t">
+    <div className="flex flex-col h-full px-2 py-1 gap-1 border-t">
       <div ref={headerRef} className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <Operations />
