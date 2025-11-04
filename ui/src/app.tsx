@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ImperativePanelHandle } from 'react-resizable-panels';
-import { Toaster } from '~/components/shadcn/sonner';
-import { TooltipProvider } from '~/components/shadcn/tooltip';
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from '~/components/shadcn/resizable';
+import { Toaster } from '~/components/shadcn/sonner';
+import { TooltipProvider } from '~/components/shadcn/tooltip';
 import { AppBody } from '~/views/app-body';
 import { AppHeader } from '~/views/app-header';
 import { BottomBar } from '~/views/bottom-bar';
@@ -41,7 +41,8 @@ export default function App() {
       const headerHeight = headerRef.current.offsetHeight;
       const paddingY = 0.25 * 16 * 2; // py-1 上下各 0.25rem
       const total = headerHeight + paddingY;
-      const screen = window.innerHeight || document.documentElement.clientHeight;
+      const screen =
+        window.innerHeight || document.documentElement.clientHeight;
       const pct = Math.min(20, Math.max(6, (total / screen) * 100));
       setBottomPanelMinSize(pct);
     };

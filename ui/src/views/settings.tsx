@@ -17,6 +17,7 @@ import {
   TooltipButton,
   toastError,
 } from '~/components';
+import { Form, FormItem } from '~/components/form';
 import {
   Dialog,
   DialogContent,
@@ -26,7 +27,6 @@ import {
   DialogTrigger,
 } from '~/components/shadcn/dialog';
 import { Input } from '~/components/shadcn/input';
-import { Form, FormItem } from '~/components/form';
 import { MAXIMUM_FILE_SIZE } from '~/consts';
 import { useBoolean, useT } from '~/hooks';
 import { eventPreventDefault } from '~/utils/event';

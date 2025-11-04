@@ -1,8 +1,8 @@
 import { type ChildProcess, spawn } from 'node:child_process';
 import fs from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import readline from 'node:readline';
-import fs from 'node:fs';
 import kill from 'tree-kill';
 
 type CmdName = 'tailwindcss' | 'ui' | 'tauri';

@@ -6,6 +6,7 @@ import { settingsAtom } from '~/atom/settings';
 import { Button, OperationButton } from '~/components';
 import { InputNumber } from '~/components';
 import { CheckboxWithLabel, Select, Slider, Switch } from '~/components';
+import { Form, FormItem } from '~/components/form';
 import {
   Dialog,
   DialogContent,
@@ -14,7 +15,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/shadcn/dialog';
-import { Form, FormItem } from '~/components/form';
 import {
   BigFilesSearchMode,
   DuplicatesAvailableHashType,
