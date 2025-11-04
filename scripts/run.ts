@@ -1,4 +1,5 @@
 import { type ChildProcess, spawn } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
 import readline from 'node:readline';
 import kill from 'tree-kill';
@@ -58,6 +59,17 @@ export function run(names: CmdName[]) {
   };
 
   for (const cmd of cmds) {
+    if (cmd.name === 'tauri') {
+      // Copy dll for dev mode
+      const dllSrc = path.join(cwd, 'assets', 'dll', 'dav1d.dll');
+      const dllDest = path.join(cwd, 'target', 'debug', 'dav1d.dll');
+      try {
+        fs.copyFileSync(dllSrc, dllDest);
+        console.log('Copied dav1d.dll to target/debug/');
+      } catch (err) {
+        console.error('Failed to copy dav1d.dll:', err);
+      }
+    }
     const cp = spawn(cmd.runner, cmd.args, { cwd: cmd.cwd });
 
     cp.stdout.on('data', (data) => {
