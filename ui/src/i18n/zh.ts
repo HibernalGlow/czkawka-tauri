@@ -327,5 +327,6 @@ export const zh: Record<TranslationKeys, string> = {
   'Import theme failed': '导入主题失败',
   'Color preview': '颜色预览',
   Tip: '提示',
-  'Theme settings are auto-saved': '主题设置会自动保存，下次打开应用时会自动应用。',
+  'Theme settings are auto-saved':
+    '主题设置会自动保存，下次打开应用时会自动应用。',
 };

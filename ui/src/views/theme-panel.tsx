@@ -1,7 +1,11 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { Check, Moon, Palette, Sun, TvMinimal, Trash2 } from 'lucide-react';
+import { Check, Moon, Palette, Sun, Trash2, TvMinimal } from 'lucide-react';
 import { useState } from 'react';
-import { customThemesAtom, selectedThemeAtom, themeAtom } from '~/atom/primitive';
+import {
+  customThemesAtom,
+  selectedThemeAtom,
+  themeAtom,
+} from '~/atom/primitive';
 import {
   addCustomThemeAtom,
   removeCustomThemeAtom,
@@ -20,9 +24,9 @@ import { Theme } from '~/consts';
 import { useT } from '~/hooks';
 import type { CustomThemeConfig } from '~/types';
 import {
+  PRESET_THEMES,
   fetchThemeFromURL,
   parseTweakcnTheme,
-  PRESET_THEMES,
 } from '~/utils/themeManager';
 
 export function ThemePanel() {
@@ -81,7 +85,11 @@ export function ThemePanel() {
 
   const handleSaveCustomTheme = () => {
     if (!selectedTheme) return;
-    const name = (customThemeName || selectedTheme.name || 'Custom Theme').trim();
+    const name = (
+      customThemeName ||
+      selectedTheme.name ||
+      'Custom Theme'
+    ).trim();
     const themeConfig: CustomThemeConfig = {
       name,
       description: 'Custom theme',
@@ -220,7 +228,9 @@ export function ThemePanel() {
         {/* 自定义主题 */}
         {customThemes.length > 0 && (
           <div className="space-y-3">
-            <Label className="text-sm font-semibold">{t('Custom themes')}</Label>
+            <Label className="text-sm font-semibold">
+              {t('Custom themes')}
+            </Label>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               {customThemes.map((customTheme) => (
                 <div
@@ -278,7 +288,9 @@ export function ThemePanel() {
 
         {/* 保存当前主题 */}
         <div className="space-y-3">
-          <Label className="text-sm font-semibold">{t('Save current theme')}</Label>
+          <Label className="text-sm font-semibold">
+            {t('Save current theme')}
+          </Label>
           <div className="flex gap-2">
             <Input
               placeholder={t('Custom theme name')}
@@ -293,7 +305,9 @@ export function ThemePanel() {
 
         {/* 从 URL 导入主题 */}
         <div className="space-y-3">
-          <Label className="text-sm font-semibold">{t('Import from URL')}</Label>
+          <Label className="text-sm font-semibold">
+            {t('Import from URL')}
+          </Label>
           <div className="flex gap-2">
             <Input
               placeholder="https://tweakcn.com/r/themes/perpetuity.json"
@@ -312,7 +326,9 @@ export function ThemePanel() {
 
         {/* 从 JSON 导入主题 */}
         <div className="space-y-3">
-          <Label className="text-sm font-semibold">{t('Import from JSON')}</Label>
+          <Label className="text-sm font-semibold">
+            {t('Import from JSON')}
+          </Label>
           <div className="flex flex-col gap-2">
             <Textarea
               className="min-h-[120px] resize-y font-mono text-xs"
@@ -351,8 +367,7 @@ export function ThemePanel() {
         {/* 提示信息 */}
         <div className="border-primary/20 bg-primary/5 rounded-lg border p-4">
           <p className="text-sm">
-            <strong>💡 {t('Tip')}:</strong>{' '}
-            {t('Theme settings are auto-saved')}
+            <strong>💡 {t('Tip')}:</strong> {t('Theme settings are auto-saved')}
           </p>
         </div>
       </div>

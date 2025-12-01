@@ -29,7 +29,12 @@ export interface CustomThemeConfig {
 export function parseTweakcnTheme(json: string): CustomThemeConfig | null {
   try {
     const parsed = JSON.parse(json) as TweakcnTheme;
-    if (!parsed || !parsed.cssVars || !parsed.cssVars.light || !parsed.cssVars.dark) {
+    if (
+      !parsed ||
+      !parsed.cssVars ||
+      !parsed.cssVars.light ||
+      !parsed.cssVars.dark
+    ) {
       console.error('JSON 格式不正确，缺少 cssVars.light / cssVars.dark');
       return null;
     }
@@ -52,7 +57,9 @@ export function parseTweakcnTheme(json: string): CustomThemeConfig | null {
 /**
  * 从 URL 获取主题
  */
-export async function fetchThemeFromURL(url: string): Promise<CustomThemeConfig | null> {
+export async function fetchThemeFromURL(
+  url: string,
+): Promise<CustomThemeConfig | null> {
   try {
     const response = await fetch(url);
     if (!response.ok) {

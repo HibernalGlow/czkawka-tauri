@@ -81,11 +81,19 @@ export function SettingsButton() {
               {t('Theme settings')}
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="general" className="flex-1 flex flex-col overflow-hidden">
-            <PresetSelect onPreventDialogCloseChange={isPreventDialogClose.set} />
+          <TabsContent
+            value="general"
+            className="flex-1 flex flex-col overflow-hidden"
+          >
+            <PresetSelect
+              onPreventDialogCloseChange={isPreventDialogClose.set}
+            />
             <SettingsContent />
           </TabsContent>
-          <TabsContent value="theme" className="flex-1 h-[480px] overflow-hidden">
+          <TabsContent
+            value="theme"
+            className="flex-1 h-[480px] overflow-hidden"
+          >
             <ThemePanel />
           </TabsContent>
         </Tabs>

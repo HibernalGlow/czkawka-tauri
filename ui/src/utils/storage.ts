@@ -43,7 +43,12 @@ export const storage = {
       const stored = localStorage.getItem(RUNTIME_THEME_KEY);
       if (!stored) return null;
       const parsed = JSON.parse(stored) as RuntimeThemePayload;
-      if (!parsed || !parsed.themes || !parsed.themes.light || !parsed.themes.dark) {
+      if (
+        !parsed ||
+        !parsed.themes ||
+        !parsed.themes.light ||
+        !parsed.themes.dark
+      ) {
         return null;
       }
       return parsed;

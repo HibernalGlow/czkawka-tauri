@@ -335,7 +335,8 @@ export const en = {
   'Import theme failed': 'Import theme failed',
   'Color preview': 'Color Preview',
   Tip: 'Tip',
-  'Theme settings are auto-saved': 'Theme settings are auto-saved and will be applied next time you open the app.',
+  'Theme settings are auto-saved':
+    'Theme settings are auto-saved and will be applied next time you open the app.',
 };
 
 export type TranslationKeys = keyof typeof en;
