@@ -9,6 +9,23 @@ export interface ThemeCfg {
   className: string;
 }
 
+export interface ThemeColors {
+  light: Record<string, string>;
+  dark: Record<string, string>;
+}
+
+export interface CustomThemeConfig {
+  name: string;
+  description: string;
+  colors: ThemeColors;
+}
+
+export interface RuntimeThemePayload {
+  mode: 'light' | 'dark' | 'system';
+  themeName?: string;
+  themes: ThemeColors;
+}
+
 export interface Preset {
   name: string;
   active: boolean;

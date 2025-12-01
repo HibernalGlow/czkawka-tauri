@@ -2,9 +2,11 @@ import { isTauri } from '@tauri-apps/api/core';
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { atom } from 'jotai';
 import { Theme } from '~/consts';
+import type { CustomThemeConfig } from '~/types';
 import { storage } from '~/utils/storage';
 import { isSystemDark } from '~/utils/theme';
-import { themeAtom } from './primitive';
+import { applyThemeColors, PRESET_THEMES } from '~/utils/themeManager';
+import { customThemesAtom, selectedThemeAtom, themeAtom } from './primitive';
 
 function setTheme(theme: string) {
   if (!isTauri()) {
@@ -29,15 +31,52 @@ function applyTheme(theme: string) {
   return finalTheme;
 }
 
+/**
+ * 应用主题颜色配置
+ */
+function applyThemeWithColors(mode: string, themeConfig: CustomThemeConfig | null) {
+  const finalMode = applyTheme(mode);
+  
+  if (themeConfig) {
+    const isDark = finalMode === Theme.Dark;
+    const colors = isDark ? themeConfig.colors.dark : themeConfig.colors.light;
+    applyThemeColors(colors);
+    
+    // 保存运行时主题配置
+    storage.setRuntimeTheme({
+      mode: mode as 'light' | 'dark' | 'system',
+      themeName: themeConfig.name,
+      themes: themeConfig.colors,
+    });
+  }
+  
+  return finalMode;
+}
+
 export const initThemeAtom = atom(null, (_, set) => {
   const theme = storage.getTheme();
-  const className = applyTheme(theme);
+  const themeName = storage.getThemeName();
+  const customThemes = storage.getCustomThemes();
+  
+  // 查找主题配置
+  let themeConfig = PRESET_THEMES.find((t) => t.name === themeName) || null;
+  if (!themeConfig) {
+    themeConfig = customThemes.find((t) => t.name === themeName) || null;
+  }
+  if (!themeConfig) {
+    themeConfig = PRESET_THEMES[0]; // 默认主题
+  }
+  
+  const className = applyThemeWithColors(theme, themeConfig);
   set(themeAtom, { display: theme, className });
+  set(selectedThemeAtom, themeConfig);
+  set(customThemesAtom, customThemes);
   setTheme(theme);
 });
 
 export const toggleThemeAtom = atom(null, (get, set) => {
   const display = get(themeAtom).display;
+  const selectedTheme = get(selectedThemeAtom);
   const displayList: string[] = [Theme.Light, Theme.Dark, Theme.System];
   let idx = displayList.indexOf(display);
   if (idx < 0) {
@@ -48,7 +87,7 @@ export const toggleThemeAtom = atom(null, (get, set) => {
     idx = 0;
   }
   const newDisplay = displayList[idx];
-  const newClassName = applyTheme(newDisplay);
+  const newClassName = applyThemeWithColors(newDisplay, selectedTheme);
   set(themeAtom, { display: newDisplay, className: newClassName });
   storage.setTheme(newDisplay);
   setTheme(newDisplay);
@@ -56,11 +95,66 @@ export const toggleThemeAtom = atom(null, (get, set) => {
 
 export const applyMatchMediaAtom = atom(null, (get, set, matches: boolean) => {
   const display = get(themeAtom).display;
+  const selectedTheme = get(selectedThemeAtom);
   if (display !== Theme.System) {
     return;
   }
   const theme = matches ? Theme.Dark : Theme.Light;
-  const newClassName = applyTheme(theme);
+  const newClassName = applyThemeWithColors(theme, selectedTheme);
   set(themeAtom, { display, className: newClassName });
   setTheme(display);
+});
+
+/**
+ * 设置主题模式
+ */
+export const setThemeModeAtom = atom(null, (get, set, mode: string) => {
+  const selectedTheme = get(selectedThemeAtom);
+  const newClassName = applyThemeWithColors(mode, selectedTheme);
+  set(themeAtom, { display: mode, className: newClassName });
+  storage.setTheme(mode);
+  setTheme(mode);
+});
+
+/**
+ * 选择主题配色
+ */
+export const selectThemeAtom = atom(null, (get, set, themeConfig: CustomThemeConfig) => {
+  const mode = get(themeAtom).display;
+  const newClassName = applyThemeWithColors(mode, themeConfig);
+  set(themeAtom, { display: mode, className: newClassName });
+  set(selectedThemeAtom, themeConfig);
+  storage.setThemeName(themeConfig.name);
+});
+
+/**
+ * 添加自定义主题
+ */
+export const addCustomThemeAtom = atom(null, (get, set, themeConfig: CustomThemeConfig) => {
+  const customThemes = get(customThemesAtom);
+  const index = customThemes.findIndex((t) => t.name === themeConfig.name);
+  
+  let newCustomThemes: CustomThemeConfig[];
+  if (index >= 0) {
+    newCustomThemes = [
+      ...customThemes.slice(0, index),
+      themeConfig,
+      ...customThemes.slice(index + 1),
+    ];
+  } else {
+    newCustomThemes = [...customThemes, themeConfig];
+  }
+  
+  set(customThemesAtom, newCustomThemes);
+  storage.setCustomThemes(newCustomThemes);
+});
+
+/**
+ * 删除自定义主题
+ */
+export const removeCustomThemeAtom = atom(null, (get, set, themeName: string) => {
+  const customThemes = get(customThemesAtom);
+  const newCustomThemes = customThemes.filter((t) => t.name !== themeName);
+  set(customThemesAtom, newCustomThemes);
+  storage.setCustomThemes(newCustomThemes);
 });

@@ -308,4 +308,24 @@ export const zh: Record<TranslationKeys, string> = {
   'Hash duration desc': '参与相似度分析的时长（秒）。越长越准，也越耗时。',
   'Crop detect desc':
     '预处理方式：信箱黑边去除边框；运动关注运动区域；无则保留全帧。',
+
+  // 主题设置
+  'Theme settings': '主题设置',
+  'Customize appearance and colors': '自定义应用的外观和颜色',
+  'Theme mode': '主题模式',
+  Light: '浅色',
+  Dark: '深色',
+  System: '跟随系统',
+  'Color scheme': '配色方案',
+  'Custom themes': '自定义主题',
+  'Save current theme': '保存当前主题',
+  'Custom theme name': '自定义主题名称',
+  'Import from URL': '从 URL 导入主题',
+  Import: '导入',
+  'Import from JSON': '从 JSON 导入主题',
+  'Import JSON': '导入 JSON',
+  'Import theme failed': '导入主题失败',
+  'Color preview': '颜色预览',
+  Tip: '提示',
+  'Theme settings are auto-saved': '主题设置会自动保存，下次打开应用时会自动应用。',
 };

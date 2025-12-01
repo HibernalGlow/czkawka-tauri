@@ -316,6 +316,26 @@ export const en = {
     'How long (in seconds) to analyze for similarity. Longer duration increases accuracy but uses more time.',
   'Crop detect desc':
     'Preprocess frames: Letterbox removes black bars, Motion focuses on moving area, None keeps the whole frame.',
+
+  // Theme settings
+  'Theme settings': 'Theme Settings',
+  'Customize appearance and colors': 'Customize appearance and colors',
+  'Theme mode': 'Theme Mode',
+  Light: 'Light',
+  Dark: 'Dark',
+  System: 'System',
+  'Color scheme': 'Color Scheme',
+  'Custom themes': 'Custom Themes',
+  'Save current theme': 'Save Current Theme',
+  'Custom theme name': 'Custom theme name',
+  'Import from URL': 'Import from URL',
+  Import: 'Import',
+  'Import from JSON': 'Import from JSON',
+  'Import JSON': 'Import JSON',
+  'Import theme failed': 'Import theme failed',
+  'Color preview': 'Color Preview',
+  Tip: 'Tip',
+  'Theme settings are auto-saved': 'Theme settings are auto-saved and will be applied next time you open the app.',
 };
 
 export type TranslationKeys = keyof typeof en;

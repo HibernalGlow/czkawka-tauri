@@ -10,6 +10,7 @@ import {
 import type {
   BadFileEntry,
   BrokenEntry,
+  CustomThemeConfig,
   DuplicateEntry,
   FileEntry,
   FolderEntry,
@@ -29,6 +30,12 @@ export const themeAtom = atom<ThemeCfg>({
   display: '',
   className: '',
 });
+
+// 选中的主题配置
+export const selectedThemeAtom = atom<CustomThemeConfig | null>(null);
+
+// 自定义主题列表
+export const customThemesAtom = atom<CustomThemeConfig[]>([]);
 
 export const presetsAtom = atomWithStorage<Preset[]>(
   'setting-presets',

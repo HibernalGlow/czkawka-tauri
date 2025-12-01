@@ -1,7 +1,7 @@
 import { open } from '@tauri-apps/plugin-dialog';
 import { openPath } from '@tauri-apps/plugin-opener';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { CircleHelp, Folder, Settings } from 'lucide-react';
+import { CircleHelp, Folder, Palette, Settings } from 'lucide-react';
 import { useEffect } from 'react';
 import { initCurrentPresetAtom } from '~/atom/preset';
 import { platformSettingsAtom } from '~/atom/primitive';
@@ -27,10 +27,17 @@ import {
   DialogTrigger,
 } from '~/components/shadcn/dialog';
 import { Input } from '~/components/shadcn/input';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '~/components/shadcn/tabs';
 import { MAXIMUM_FILE_SIZE } from '~/consts';
 import { useBoolean, useT } from '~/hooks';
 import { eventPreventDefault } from '~/utils/event';
 import { PresetSelect } from './preset-select';
+import { ThemePanel } from './theme-panel';
 
 export function SettingsButton() {
   const dialogOpen = useBoolean();
@@ -63,10 +70,25 @@ export function SettingsButton() {
           <DialogTitle>{t('Settings')}</DialogTitle>
           <DialogDescription>{t('Application settings')}</DialogDescription>
         </DialogHeader>
-        <div className="h-[550px] flex flex-col">
-          <PresetSelect onPreventDialogCloseChange={isPreventDialogClose.set} />
-          <SettingsContent />
-        </div>
+        <Tabs defaultValue="general" className="h-[550px] flex flex-col">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="general" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              {t('General settings')}
+            </TabsTrigger>
+            <TabsTrigger value="theme" className="flex items-center gap-2">
+              <Palette className="h-4 w-4" />
+              {t('Theme settings')}
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="general" className="flex-1 flex flex-col overflow-hidden">
+            <PresetSelect onPreventDialogCloseChange={isPreventDialogClose.set} />
+            <SettingsContent />
+          </TabsContent>
+          <TabsContent value="theme" className="flex-1 h-[480px] overflow-hidden">
+            <ThemePanel />
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
