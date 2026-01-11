@@ -1,10 +1,12 @@
 import { useAtom, useAtomValue } from 'jotai';
-import {
-  invalidSymlinksAtom,
-  invalidSymlinksRowSelectionAtom,
-} from '~/atom/primitive';
+
+import { useMemo } from 'react';
 import { settingsAtom } from '~/atom/settings';
-import { currentToolFilterAtom } from '~/atom/tools';
+import {
+  currentToolDataAtom,
+  currentToolFilterAtom,
+  currentToolRowSelectionAtom,
+} from '~/atom/tools';
 import {
   DataTable,
   FilterStateUpdater,
@@ -16,10 +18,8 @@ import { formatPathDisplay } from '~/utils/path-utils';
 import { filterItems } from '~/utils/table-helper';
 
 export function InvalidSymlinks() {
-  const data = useAtomValue(invalidSymlinksAtom);
-  const [rowSelection, setRowSelection] = useAtom(
-    invalidSymlinksRowSelectionAtom,
-  );
+  const data = useAtomValue(currentToolDataAtom) as SymlinksFileEntry[];
+  const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);
   const t = useT();

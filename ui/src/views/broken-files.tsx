@@ -1,7 +1,11 @@
 import { useAtom, useAtomValue } from 'jotai';
-import { brokenFilesAtom, brokenFilesRowSelectionAtom } from '~/atom/primitive';
+import { useMemo } from 'react';
 import { settingsAtom } from '~/atom/settings';
-import { currentToolFilterAtom } from '~/atom/tools';
+import {
+  currentToolDataAtom,
+  currentToolFilterAtom,
+  currentToolRowSelectionAtom,
+} from '~/atom/tools';
 import {
   DataTable,
   FilterStateUpdater,
@@ -14,8 +18,8 @@ import { formatPathDisplay } from '~/utils/path-utils';
 import { filterItems } from '~/utils/table-helper';
 
 export function BrokenFiles() {
-  const data = useAtomValue(brokenFilesAtom);
-  const [rowSelection, setRowSelection] = useAtom(brokenFilesRowSelectionAtom);
+  const data = useAtomValue(currentToolDataAtom) as BrokenEntry[];
+  const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);
   const t = useT();

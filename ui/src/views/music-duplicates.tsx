@@ -1,11 +1,13 @@
 import type { ColumnDef } from '@tanstack/react-table';
+
 import { useAtom, useAtomValue } from 'jotai';
-import {
-  musicDuplicatesAtom,
-  musicDuplicatesRowSelectionAtom,
-} from '~/atom/primitive';
+import { useMemo } from 'react';
 import { settingsAtom } from '~/atom/settings';
-import { currentToolFilterAtom } from '~/atom/tools';
+import {
+  currentToolDataAtom,
+  currentToolFilterAtom,
+  currentToolRowSelectionAtom,
+} from '~/atom/tools';
 import {
   DataTable,
   FilterStateUpdater,
@@ -18,10 +20,8 @@ import type { MusicEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
 
 export function MusicDuplicates() {
-  const data = useAtomValue(musicDuplicatesAtom);
-  const [rowSelection, setRowSelection] = useAtom(
-    musicDuplicatesRowSelectionAtom,
-  );
+  const data = useAtomValue(currentToolDataAtom) as MusicEntry[];
+  const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);
   const t = useT();

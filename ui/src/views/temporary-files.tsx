@@ -1,10 +1,11 @@
 import { useAtom, useAtomValue } from 'jotai';
-import {
-  temporaryFilesAtom,
-  temporaryFilesRowSelectionAtom,
-} from '~/atom/primitive';
+import { useMemo } from 'react';
 import { settingsAtom } from '~/atom/settings';
-import { currentToolFilterAtom } from '~/atom/tools';
+import {
+  currentToolDataAtom,
+  currentToolFilterAtom,
+  currentToolRowSelectionAtom,
+} from '~/atom/tools';
 import {
   DataTable,
   FilterStateUpdater,
@@ -17,10 +18,8 @@ import { formatPathDisplay } from '~/utils/path-utils';
 import { filterItems } from '~/utils/table-helper';
 
 export function TemporaryFiles() {
-  const data = useAtomValue(temporaryFilesAtom);
-  const [rowSelection, setRowSelection] = useAtom(
-    temporaryFilesRowSelectionAtom,
-  );
+  const data = useAtomValue(currentToolDataAtom) as TemporaryFileEntry[];
+  const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);
   const t = useT();

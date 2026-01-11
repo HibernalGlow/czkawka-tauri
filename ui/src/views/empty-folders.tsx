@@ -1,10 +1,11 @@
 import { useAtom, useAtomValue } from 'jotai';
-import {
-  emptyFoldersAtom,
-  emptyFoldersRowSelectionAtom,
-} from '~/atom/primitive';
+import { useMemo } from 'react';
 import { settingsAtom } from '~/atom/settings';
-import { currentToolFilterAtom } from '~/atom/tools';
+import {
+  currentToolDataAtom,
+  currentToolFilterAtom,
+  currentToolRowSelectionAtom,
+} from '~/atom/tools';
 import {
   DataTable,
   FilterStateUpdater,
@@ -17,8 +18,8 @@ import { formatPathDisplay } from '~/utils/path-utils';
 import { filterItems } from '~/utils/table-helper';
 
 export function EmptyFolders() {
-  const data = useAtomValue(emptyFoldersAtom);
-  const [rowSelection, setRowSelection] = useAtom(emptyFoldersRowSelectionAtom);
+  const data = useAtomValue(currentToolDataAtom) as FolderEntry[];
+  const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);
   const t = useT();

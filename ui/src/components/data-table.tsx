@@ -54,6 +54,14 @@ interface DataTableProps<T> {
 }
 
 export type RowSelection = RowSelectionState;
+export type FilterStateUpdater = string | ((prev: string) => string);
+export type RowSelectionUpdater =
+  | RowSelectionState
+  | ((prev: RowSelectionState) => RowSelectionState);
+export type SortingStateUpdater =
+  | SortingState
+  | ((prev: SortingState) => SortingState);
+
 
 export function DataTable<T extends BaseEntry>(props: DataTableProps<T>) {
   'use no memo';

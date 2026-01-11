@@ -1,29 +1,15 @@
+import type { RowSelectionState, SortingState } from '@tanstack/react-table';
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import type { RowSelection } from '~/components/data-table';
-import {
-  Tools,
-  getDefaultPlatformSettings,
-  getDefaultPreset,
-  getDefaultProgress,
-} from '~/consts';
+import { Tools, getDefaultPlatformSettings, getDefaultPreset, getDefaultProgress } from '~/consts';
 import type {
-  BadFileEntry,
-  BrokenEntry,
+  BaseEntry,
   CustomThemeConfig,
-  DuplicateEntry,
-  FileEntry,
-  FolderEntry,
-  ImagesEntry,
-  MusicEntry,
   PlatformSettings,
   Preset,
   Progress,
-  SymlinksFileEntry,
-  TemporaryFileEntry,
   ThemeCfg,
   ToolsValues,
-  VideosEntry,
 } from '~/types';
 
 export const themeAtom = atom<ThemeCfg>({
@@ -55,109 +41,59 @@ export const currentToolAtom = atomWithStorage<ToolsValues>(
   { getOnInit: true },
 );
 
-export const includedDirsRowSelectionAtom = atom<RowSelection>({});
-
-export const excludedDirsRowSelectionAtom = atom<RowSelection>({});
+export const includedDirsRowSelectionAtom = atom<RowSelectionState>({});
+export const excludedDirsRowSelectionAtom = atom<RowSelectionState>({});
 
 export const logsAtom = atom<string>('');
 
 export const progressAtom = atom<Progress>(getDefaultProgress());
 
-export const duplicateFilesAtom = atom<DuplicateEntry[]>([]);
+// ====== Unified State (Upstream-aligned) ======
 
-export const duplicateFilesRowSelectionAtom = atom<RowSelection>({});
-
-export const emptyFoldersAtom = atom<FolderEntry[]>([]);
-
-export const emptyFoldersRowSelectionAtom = atom<RowSelection>({});
-
-export const bigFilesAtom = atom<FileEntry[]>([]);
-
-export const bigFilesRowSelectionAtom = atom<RowSelection>({});
-
-export const emptyFilesAtom = atom<FileEntry[]>([]);
-
-export const emptyFilesRowSelectionAtom = atom<RowSelection>({});
-
-export const temporaryFilesAtom = atom<TemporaryFileEntry[]>([]);
-
-export const temporaryFilesRowSelectionAtom = atom<RowSelection>({});
-
-export const similarImagesAtom = atom<ImagesEntry[]>([]);
-
-export const similarImagesRowSelectionAtom = atom<RowSelection>({});
-
-export const similarVideosAtom = atom<VideosEntry[]>([]);
-
-export const similarVideosRowSelectionAtom = atom<RowSelection>({});
-
-export const musicDuplicatesAtom = atom<MusicEntry[]>([]);
-
-export const musicDuplicatesRowSelectionAtom = atom<RowSelection>({});
-
-export const invalidSymlinksAtom = atom<SymlinksFileEntry[]>([]);
-
-export const invalidSymlinksRowSelectionAtom = atom<RowSelection>({});
-
-export const brokenFilesAtom = atom<BrokenEntry[]>([]);
-
-export const brokenFilesRowSelectionAtom = atom<RowSelection>({});
-
-export const badExtensionsAtom = atom<BadFileEntry[]>([]);
-
-export const badExtensionsRowSelectionAtom = atom<RowSelection>({});
-
-export const scanResultAtom = atom<any>(null);
-
-// 侧边栏图片预览状态
-export const sidebarImagePreviewAtom = atom<{
-  isOpen: boolean;
-  imagePath: string | null;
-  mode: 'floating' | 'fixed';
-  position: { x: number; y: number } | null;
-  size: { width: number; height: number };
-}>({
-  isOpen: false,
-  imagePath: null,
-  mode: 'fixed',
-  position: null,
-  size: { width: 320, height: 480 },
+export const toolDataAtom = atom<
+  Record<ToolsValues, BaseEntry[] | BaseEntry[][]>
+>({
+  [Tools.DuplicateFiles]: [],
+  [Tools.EmptyFolders]: [],
+  [Tools.BigFiles]: [],
+  [Tools.EmptyFiles]: [],
+  [Tools.TemporaryFiles]: [],
+  [Tools.SimilarImages]: [],
+  [Tools.SimilarVideos]: [],
+  [Tools.MusicDuplicates]: [],
+  [Tools.InvalidSymlinks]: [],
+  [Tools.BrokenFiles]: [],
+  [Tools.BadExtensions]: [],
 });
 
-// 侧边栏视频预览状态
-export const sidebarVideoPreviewAtom = atom<{
-  isOpen: boolean;
-  videoPath: string | null;
-  mode: 'floating' | 'fixed';
-  position: { x: number; y: number } | null;
-  size: { width: number; height: number };
-}>({
-  isOpen: false,
-  videoPath: null,
-  mode: 'fixed',
-  position: null,
-  size: { width: 480, height: 320 },
+export const rowSelectionAtom = atom<Record<ToolsValues, RowSelectionState>>({
+  [Tools.DuplicateFiles]: {},
+  [Tools.EmptyFolders]: {},
+  [Tools.BigFiles]: {},
+  [Tools.EmptyFiles]: {},
+  [Tools.TemporaryFiles]: {},
+  [Tools.SimilarImages]: {},
+  [Tools.SimilarVideos]: {},
+  [Tools.MusicDuplicates]: {},
+  [Tools.InvalidSymlinks]: {},
+  [Tools.BrokenFiles]: {},
+  [Tools.BadExtensions]: {},
 });
 
-// 工具栏折叠状态
-export const toolTabsCollapsedAtom = atomWithStorage(
-  'tool-tabs-collapsed',
-  false,
-);
-
-// 筛选面板状态
-export const filterPanelAtom = atom<{
-  isOpen: boolean;
-  mode: 'floating' | 'fixed';
-  position: { x: number; y: number } | null;
-  size: { width: number; height: number };
-}>({
-  isOpen: false,
-  mode: 'fixed',
-  position: null,
-  size: { width: 400, height: 500 },
+export const sortingAtom = atom<Record<ToolsValues, SortingState>>({
+  [Tools.DuplicateFiles]: [],
+  [Tools.EmptyFolders]: [],
+  [Tools.BigFiles]: [],
+  [Tools.EmptyFiles]: [],
+  [Tools.TemporaryFiles]: [],
+  [Tools.SimilarImages]: [],
+  [Tools.SimilarVideos]: [],
+  [Tools.MusicDuplicates]: [],
+  [Tools.InvalidSymlinks]: [],
+  [Tools.BrokenFiles]: [],
+  [Tools.BadExtensions]: [],
 });
-// 每种工具的筛选字符串
+
 export const filterAtom = atom<Record<ToolsValues, string>>({
   [Tools.DuplicateFiles]: '',
   [Tools.EmptyFolders]: '',
@@ -172,5 +108,19 @@ export const filterAtom = atom<Record<ToolsValues, string>>({
   [Tools.BadExtensions]: '',
 });
 
-// 顶部搜索栏的输入状态
 export const searchInputValueAtom = atom('');
+
+export const scanResultAtom = atom<any>(null);
+
+// 工具栏折叠状态
+export const toolTabsCollapsedAtom = atomWithStorage(
+  'tool-tabs-collapsed',
+  false,
+);
+
+// Re-export local feature atoms for backward compatibility
+export {
+  sidebarImagePreviewAtom,
+  sidebarVideoPreviewAtom,
+  filterPanelAtom,
+} from './local-features';

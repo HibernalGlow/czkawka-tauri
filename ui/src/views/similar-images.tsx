@@ -2,12 +2,13 @@ import type { ColumnDef, Row } from '@tanstack/react-table';
 import { useAtom, useAtomValue } from 'jotai';
 import { FolderTree, List } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import {
-  similarImagesAtom,
-  similarImagesRowSelectionAtom,
-} from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
-import { similarImagesFoldersAtom } from '~/atom/tools';
+import {
+  currentToolDataAtom,
+  currentToolFilterAtom,
+  currentToolRowSelectionAtom,
+  similarImagesFoldersAtom,
+} from '~/atom/tools';
 import { Button } from '~/components';
 import {
   DataTable,
@@ -30,16 +31,14 @@ import { ClickableImagePreview } from './clickable-image-preview';
 
 export function SimilarImages() {
   const [viewMode, setViewMode] = useState<'images' | 'folders'>('images');
-  const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80); // 追踪缩略图列宽
-  const imagesData = useAtomValue(similarImagesAtom);
+  const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80);
+  const imagesData = useAtomValue(currentToolDataAtom) as BaseImagesEntry[];
   const foldersData = useAtomValue(similarImagesFoldersAtom);
   const settings = useAtomValue(settingsAtom);
-
-  const [rowSelection, setRowSelection] = useAtom(
-    similarImagesRowSelectionAtom,
-  );
+  const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const t = useT();
+
 
   // 根据阈值过滤文件夹数据
   const filteredFoldersData = useMemo(() => {
@@ -362,7 +361,7 @@ export function SimilarImages() {
 function FileName(props: { row: Row<ImagesEntry> }) {
   const { row } = props;
   const { hidden, path, fileName } = row.original;
-  const imagesData = useAtomValue(similarImagesAtom);
+  const imagesData = useAtomValue(currentToolDataAtom) as BaseImagesEntry[];
   const settings = useAtomValue(settingsAtom);
 
   if (hidden) {
@@ -407,7 +406,7 @@ function FileName(props: { row: Row<ImagesEntry> }) {
 function ClickablePath(props: { row: Row<ImagesEntry> }) {
   const { row } = props;
   const { path } = row.original;
-  const imagesData = useAtomValue(similarImagesAtom);
+  const imagesData = useAtomValue(currentToolDataAtom) as BaseImagesEntry[];
   const settings = useAtomValue(settingsAtom);
 
   // 根据设置格式化路径显示
@@ -451,7 +450,7 @@ function ClickablePath(props: { row: Row<ImagesEntry> }) {
 function ClickableCell(props: { row: Row<ImagesEntry>; value: string }) {
   const { row, value } = props;
   const { path } = row.original;
-  const imagesData = useAtomValue(similarImagesAtom);
+  const imagesData = useAtomValue(currentToolDataAtom) as BaseImagesEntry[];
   const settings = useAtomValue(settingsAtom);
 
   // 如果是文件夹行，支持点击预览第一张图片

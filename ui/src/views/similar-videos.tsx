@@ -1,11 +1,13 @@
 import type { ColumnDef } from '@tanstack/react-table';
+
 import { useAtom, useAtomValue } from 'jotai';
-import {
-  similarVideosAtom,
-  similarVideosRowSelectionAtom,
-} from '~/atom/primitive';
+import { useMemo } from 'react';
 import { settingsAtom } from '~/atom/settings';
-import { currentToolFilterAtom } from '~/atom/tools';
+import {
+  currentToolDataAtom,
+  currentToolFilterAtom,
+  currentToolRowSelectionAtom,
+} from '~/atom/tools';
 import {
   DataTable,
   FilterStateUpdater,
@@ -19,10 +21,8 @@ import { formatPathDisplay } from '~/utils/path-utils';
 import { ClickableVideoPreview } from './clickable-video-preview';
 
 export function SimilarVideos() {
-  const data = useAtomValue(similarVideosAtom);
-  const [rowSelection, setRowSelection] = useAtom(
-    similarVideosRowSelectionAtom,
-  );
+  const data = useAtomValue(currentToolDataAtom) as VideosEntry[];
+  const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);
   const t = useT();

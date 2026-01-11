@@ -1,11 +1,12 @@
 import type { ColumnDef, Row, SortingState } from '@tanstack/react-table';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useMemo, useState } from 'react';
-import {
-  duplicateFilesAtom,
-  duplicateFilesRowSelectionAtom,
-} from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
+import {
+  currentToolDataAtom,
+  currentToolFilterAtom,
+  currentToolRowSelectionAtom,
+} from '~/atom/tools';
 import {
   DataTable,
   FilterStateUpdater,
@@ -16,7 +17,6 @@ import {
 import { DynamicThumbnailCell } from '~/components/dynamic-thumbnail-cell';
 import { DuplicateFilesRightClickMenu } from '~/components/right-click-menu';
 import { Checkbox } from '~/components/shadcn/checkbox';
-import { currentToolFilterAtom } from '~/atom/tools';
 import { useT } from '~/hooks';
 import type { DuplicateEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
@@ -25,15 +25,14 @@ import { ThumbnailPreloader } from '~/utils/thumbnail-preloader';
 import { ClickableImagePreview } from './clickable-image-preview';
 
 export function DuplicateFiles() {
-  const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80); // 追踪缩略图列宽
-  const data = useAtomValue(duplicateFilesAtom);
-  const [rowSelection, setRowSelection] = useAtom(
-    duplicateFilesRowSelectionAtom,
-  );
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80);
+  const data = useAtomValue(currentToolDataAtom) as DuplicateEntry[];
+  const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
+  const [sorting, setSorting] = useState<SortingState>([]);
   const settings = useAtomValue(settingsAtom);
   const t = useT();
+
 
   // 根据缩略图列宽动态计算行高
   const dynamicRowHeight = useMemo(() => {

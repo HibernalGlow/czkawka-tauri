@@ -1,32 +1,8 @@
 import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
-import {
-  badExtensionsAtom,
-  badExtensionsRowSelectionAtom,
-  bigFilesAtom,
-  bigFilesRowSelectionAtom,
-  brokenFilesAtom,
-  brokenFilesRowSelectionAtom,
-  currentToolAtom,
-  duplicateFilesAtom,
-  duplicateFilesRowSelectionAtom,
-  emptyFilesAtom,
-  emptyFilesRowSelectionAtom,
-  emptyFoldersAtom,
-  emptyFoldersRowSelectionAtom,
-  invalidSymlinksAtom,
-  invalidSymlinksRowSelectionAtom,
-  musicDuplicatesAtom,
-  musicDuplicatesRowSelectionAtom,
-  similarImagesAtom,
-  similarImagesRowSelectionAtom,
-  similarVideosAtom,
-  similarVideosRowSelectionAtom,
-  temporaryFilesAtom,
-  temporaryFilesRowSelectionAtom,
-} from '~/atom/primitive';
+import { currentToolAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
-import { Tools } from '~/consts';
+import { currentToolDataAtom, currentToolRowSelectionAtom } from '~/atom/tools';
 import type { BaseEntry } from '~/types';
 
 export interface SelectionStats {
@@ -36,69 +12,14 @@ export interface SelectionStats {
   deleteMode: 'trash' | 'permanent';
 }
 
-// 工具到数据和选中项的映射
-const toolDataMap = {
-  [Tools.DuplicateFiles]: {
-    dataAtom: duplicateFilesAtom,
-    selectionAtom: duplicateFilesRowSelectionAtom,
-  },
-  [Tools.EmptyFolders]: {
-    dataAtom: emptyFoldersAtom,
-    selectionAtom: emptyFoldersRowSelectionAtom,
-  },
-  [Tools.BigFiles]: {
-    dataAtom: bigFilesAtom,
-    selectionAtom: bigFilesRowSelectionAtom,
-  },
-  [Tools.EmptyFiles]: {
-    dataAtom: emptyFilesAtom,
-    selectionAtom: emptyFilesRowSelectionAtom,
-  },
-  [Tools.TemporaryFiles]: {
-    dataAtom: temporaryFilesAtom,
-    selectionAtom: temporaryFilesRowSelectionAtom,
-  },
-  [Tools.SimilarImages]: {
-    dataAtom: similarImagesAtom,
-    selectionAtom: similarImagesRowSelectionAtom,
-  },
-  [Tools.SimilarVideos]: {
-    dataAtom: similarVideosAtom,
-    selectionAtom: similarVideosRowSelectionAtom,
-  },
-  [Tools.MusicDuplicates]: {
-    dataAtom: musicDuplicatesAtom,
-    selectionAtom: musicDuplicatesRowSelectionAtom,
-  },
-  [Tools.InvalidSymlinks]: {
-    dataAtom: invalidSymlinksAtom,
-    selectionAtom: invalidSymlinksRowSelectionAtom,
-  },
-  [Tools.BrokenFiles]: {
-    dataAtom: brokenFilesAtom,
-    selectionAtom: brokenFilesRowSelectionAtom,
-  },
-  [Tools.BadExtensions]: {
-    dataAtom: badExtensionsAtom,
-    selectionAtom: badExtensionsRowSelectionAtom,
-  },
-} as const;
-
 /**
  * 获取当前工具的文件选中统计信息
  */
 export function useTableSelectionStats(): SelectionStats | null {
   const currentTool = useAtomValue(currentToolAtom);
   const settings = useAtomValue(settingsAtom);
-
-  // 获取当前工具对应的数据和选中项
-  const toolConfig = toolDataMap[currentTool];
-  const data = useAtomValue(
-    toolConfig?.dataAtom || duplicateFilesAtom,
-  ) as BaseEntry[];
-  const rowSelection = useAtomValue(
-    toolConfig?.selectionAtom || duplicateFilesRowSelectionAtom,
-  );
+  const data = useAtomValue(currentToolDataAtom) as BaseEntry[];
+  const rowSelection = useAtomValue(currentToolRowSelectionAtom);
 
   const stats = useMemo(() => {
     if (!data?.length || !Object.keys(rowSelection).length) {
@@ -153,7 +74,7 @@ export function useTableSelectionStats(): SelectionStats | null {
           })
           .filter(Boolean),
       ),
-    ); // 移除数量限制
+    );
 
     return {
       count: selectedItems.length,

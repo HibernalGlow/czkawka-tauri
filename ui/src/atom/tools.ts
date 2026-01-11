@@ -1,92 +1,33 @@
-import { type PrimitiveAtom, atom } from 'jotai';
-import type { RowSelection } from '~/components/data-table';
-import { Tools } from '~/consts';
-import type { FolderStat, ToolsValues } from '~/types';
+import type { RowSelectionState, SortingState } from '@tanstack/react-table';
+import { atom } from 'jotai';
+import type { FilterStateUpdater, RowSelectionUpdater, SortingStateUpdater } from '~/components/data-table';
+import type { BaseEntry, FolderStat } from '~/types';
 import {
-  badExtensionsAtom,
-  badExtensionsRowSelectionAtom,
-  bigFilesAtom,
-  bigFilesRowSelectionAtom,
-  brokenFilesAtom,
-  brokenFilesRowSelectionAtom,
   currentToolAtom,
-  duplicateFilesAtom,
-  duplicateFilesRowSelectionAtom,
-  emptyFilesAtom,
-  emptyFilesRowSelectionAtom,
-  emptyFoldersAtom,
-  emptyFoldersRowSelectionAtom,
   filterAtom,
-  invalidSymlinksAtom,
-  invalidSymlinksRowSelectionAtom,
-  musicDuplicatesAtom,
-  musicDuplicatesRowSelectionAtom,
   progressAtom,
+  rowSelectionAtom,
   searchInputValueAtom,
-  similarImagesAtom,
-  similarImagesRowSelectionAtom,
-  similarVideosAtom,
-  similarVideosRowSelectionAtom,
-  temporaryFilesAtom,
-  temporaryFilesRowSelectionAtom,
+  sortingAtom,
+  toolDataAtom,
 } from './primitive';
 
 // 相似图片文件夹统计数据
 export const similarImagesFoldersAtom = atom<FolderStat[]>([]);
 
-const dataAtomMap: Record<ToolsValues, PrimitiveAtom<any[]>> = {
-  [Tools.DuplicateFiles]: duplicateFilesAtom,
-  [Tools.EmptyFolders]: emptyFoldersAtom,
-  [Tools.BigFiles]: bigFilesAtom,
-  [Tools.EmptyFiles]: emptyFilesAtom,
-  [Tools.TemporaryFiles]: temporaryFilesAtom,
-  [Tools.SimilarImages]: similarImagesAtom,
-  [Tools.SimilarVideos]: similarVideosAtom,
-  [Tools.MusicDuplicates]: musicDuplicatesAtom,
-  [Tools.InvalidSymlinks]: invalidSymlinksAtom,
-  [Tools.BrokenFiles]: brokenFilesAtom,
-  [Tools.BadExtensions]: badExtensionsAtom,
-};
-
-const rowSelectionAtomMap: Record<ToolsValues, PrimitiveAtom<RowSelection>> = {
-  [Tools.DuplicateFiles]: duplicateFilesRowSelectionAtom,
-  [Tools.EmptyFolders]: emptyFoldersRowSelectionAtom,
-  [Tools.BigFiles]: bigFilesRowSelectionAtom,
-  [Tools.EmptyFiles]: emptyFilesRowSelectionAtom,
-  [Tools.TemporaryFiles]: temporaryFilesRowSelectionAtom,
-  [Tools.SimilarImages]: similarImagesRowSelectionAtom,
-  [Tools.SimilarVideos]: similarVideosRowSelectionAtom,
-  [Tools.MusicDuplicates]: musicDuplicatesRowSelectionAtom,
-  [Tools.InvalidSymlinks]: invalidSymlinksRowSelectionAtom,
-  [Tools.BrokenFiles]: brokenFilesRowSelectionAtom,
-  [Tools.BadExtensions]: badExtensionsRowSelectionAtom,
-};
-
 export const currentToolDataAtom = atom(
   (get) => {
     const currentTool = get(currentToolAtom);
-    const targetAtom = dataAtomMap[currentTool];
-    return get(targetAtom);
+    const toolData = get(toolDataAtom);
+    return toolData[currentTool];
   },
-  (get, set, v: any[]) => {
+  (get, set, data: any[] | any[][]) => {
     const currentTool = get(currentToolAtom);
-    const targetAtom = dataAtomMap[currentTool];
-    set(targetAtom, v);
-  },
-);
-
-type Updater = RowSelection | ((v: RowSelection) => RowSelection);
-
-export const currentToolRowSelectionAtom = atom(
-  (get) => {
-    const currentTool = get(currentToolAtom);
-    const targetAtom = rowSelectionAtomMap[currentTool];
-    return get(targetAtom);
-  },
-  (get, set, updater: Updater) => {
-    const currentTool = get(currentToolAtom);
-    const targetAtom = rowSelectionAtomMap[currentTool];
-    set(targetAtom, updater);
+    const toolData = get(toolDataAtom);
+    set(toolDataAtom, {
+      ...toolData,
+      [currentTool]: data,
+    });
   },
 );
 
@@ -96,16 +37,38 @@ export const toolInProgressDataAtom = atom(
     if (!progress.tool) {
       return null;
     }
-    const targetAtom = dataAtomMap[progress.tool];
-    return get(targetAtom);
+    const toolData = get(toolDataAtom);
+    return toolData[progress.tool];
   },
-  (get, set, v: any[]) => {
+  (get, set, data: any[] | any[][]) => {
     const progress = get(progressAtom);
     if (!progress.tool) {
       return;
     }
-    const targetAtom = dataAtomMap[progress.tool];
-    set(targetAtom, v);
+    const toolData = get(toolDataAtom);
+    set(toolDataAtom, {
+      ...toolData,
+      [progress.tool]: data,
+    });
+  },
+);
+
+export const currentToolRowSelectionAtom = atom(
+  (get) => {
+    const currentTool = get(currentToolAtom);
+    const rowSelection = get(rowSelectionAtom);
+    return rowSelection[currentTool];
+  },
+  (get, set, updater: RowSelectionUpdater) => {
+    const currentTool = get(currentToolAtom);
+    const rowSelection = get(rowSelectionAtom);
+    set(rowSelectionAtom, {
+      ...rowSelection,
+      [currentTool]:
+        typeof updater === 'function'
+          ? updater(rowSelection[currentTool])
+          : updater,
+    });
   },
 );
 
@@ -115,16 +78,51 @@ export const toolInProgressRowSelectionAtom = atom(
     if (!progress.tool) {
       return null;
     }
-    const targetAtom = rowSelectionAtomMap[progress.tool];
-    return get(targetAtom);
+    const rowSelection = get(rowSelectionAtom);
+    return rowSelection[progress.tool];
   },
-  (get, set, updater: Updater) => {
+  (get, set, updater: RowSelectionUpdater) => {
     const progress = get(progressAtom);
     if (!progress.tool) {
       return;
     }
-    const targetAtom = rowSelectionAtomMap[progress.tool];
-    set(targetAtom, updater);
+    const rowSelection = get(rowSelectionAtom);
+    set(rowSelectionAtom, {
+      ...rowSelection,
+      [progress.tool]:
+        typeof updater === 'function'
+          ? updater(rowSelection[progress.tool])
+          : updater,
+    });
+  },
+);
+
+export const clearToolInProgressRowSelectionAtom = atom(null, (get, set) => {
+  const progress = get(progressAtom);
+  if (!progress.tool) {
+    return;
+  }
+  const rowSelection = get(rowSelectionAtom);
+  set(rowSelectionAtom, {
+    ...rowSelection,
+    [progress.tool]: {},
+  });
+});
+
+export const currentToolSortingAtom = atom(
+  (get) => {
+    const currentTool = get(currentToolAtom);
+    const sorting = get(sortingAtom);
+    return sorting[currentTool];
+  },
+  (get, set, updater: SortingStateUpdater) => {
+    const currentTool = get(currentToolAtom);
+    const sorting = get(sortingAtom);
+    set(sortingAtom, {
+      ...sorting,
+      [currentTool]:
+        typeof updater === 'function' ? updater(sorting[currentTool]) : updater,
+    });
   },
 );
 
@@ -134,14 +132,13 @@ export const currentToolFilterAtom = atom(
     const filter = get(filterAtom);
     return filter[currentTool];
   },
-  (get, set, updater: string | ((v: string) => string)) => {
+  (get, set, updater: FilterStateUpdater) => {
     const currentTool = get(currentToolAtom);
     const filter = get(filterAtom);
-    const newValue =
-      typeof updater === 'function' ? updater(filter[currentTool]) : updater;
     set(filterAtom, {
       ...filter,
-      [currentTool]: newValue,
+      [currentTool]:
+        typeof updater === 'function' ? updater(filter[currentTool]) : updater,
     });
   },
 );

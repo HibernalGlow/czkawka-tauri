@@ -1,7 +1,11 @@
 import { useAtom, useAtomValue } from 'jotai';
-import { emptyFilesAtom, emptyFilesRowSelectionAtom } from '~/atom/primitive';
+import { useMemo } from 'react';
 import { settingsAtom } from '~/atom/settings';
-import { currentToolFilterAtom } from '~/atom/tools';
+import {
+  currentToolDataAtom,
+  currentToolFilterAtom,
+  currentToolRowSelectionAtom,
+} from '~/atom/tools';
 import {
   DataTable,
   FilterStateUpdater,
@@ -14,8 +18,8 @@ import { formatPathDisplay } from '~/utils/path-utils';
 import { filterItems } from '~/utils/table-helper';
 
 export function EmptyFiles() {
-  const data = useAtomValue(emptyFilesAtom);
-  const [rowSelection, setRowSelection] = useAtom(emptyFilesRowSelectionAtom);
+  const data = useAtomValue(currentToolDataAtom) as FileEntry[];
+  const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);
   const t = useT();
