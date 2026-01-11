@@ -1,4 +1,4 @@
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   Copy,
   FileQuestion,
@@ -20,6 +20,7 @@ import {
   progressAtom,
   toolTabsCollapsedAtom,
 } from '~/atom/primitive';
+import { restoreFilterAtom } from '~/atom/tools';
 import { Button, ScrollArea, TooltipButton } from '~/components';
 import { Tools } from '~/consts';
 import type { ToolsValues } from '~/types';
@@ -52,11 +53,14 @@ export function ToolTabs() {
   const progress = useAtomValue(progressAtom);
   const { t } = useTranslation();
 
+  const restoreFilter = useSetAtom(restoreFilterAtom);
+
   const handleClick = (name: string) => {
     if (!isValidTool(name)) {
       return;
     }
     setCurrentTool(name);
+    restoreFilter();
   };
 
   const toggleCollapse = () => {

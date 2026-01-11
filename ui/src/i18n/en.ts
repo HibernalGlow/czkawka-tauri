@@ -337,6 +337,7 @@ export const en = {
   Tip: 'Tip',
   'Theme settings are auto-saved':
     'Theme settings are auto-saved and will be applied next time you open the app.',
+  search: 'Search',
 };
 
 export type TranslationKeys = keyof typeof en;

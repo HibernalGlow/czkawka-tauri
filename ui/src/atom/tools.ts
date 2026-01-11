@@ -16,11 +16,13 @@ import {
   emptyFilesRowSelectionAtom,
   emptyFoldersAtom,
   emptyFoldersRowSelectionAtom,
+  filterAtom,
   invalidSymlinksAtom,
   invalidSymlinksRowSelectionAtom,
   musicDuplicatesAtom,
   musicDuplicatesRowSelectionAtom,
   progressAtom,
+  searchInputValueAtom,
   similarImagesAtom,
   similarImagesRowSelectionAtom,
   similarVideosAtom,
@@ -125,3 +127,26 @@ export const toolInProgressRowSelectionAtom = atom(
     set(targetAtom, updater);
   },
 );
+
+export const currentToolFilterAtom = atom(
+  (get) => {
+    const currentTool = get(currentToolAtom);
+    const filter = get(filterAtom);
+    return filter[currentTool];
+  },
+  (get, set, updater: string | ((v: string) => string)) => {
+    const currentTool = get(currentToolAtom);
+    const filter = get(filterAtom);
+    const newValue =
+      typeof updater === 'function' ? updater(filter[currentTool]) : updater;
+    set(filterAtom, {
+      ...filter,
+      [currentTool]: newValue,
+    });
+  },
+);
+
+export const restoreFilterAtom = atom(null, (get, set) => {
+  const filter = get(currentToolFilterAtom);
+  set(searchInputValueAtom, filter);
+});

@@ -4,18 +4,34 @@ import {
   invalidSymlinksRowSelectionAtom,
 } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
-import { DataTable, createColumns } from '~/components/data-table';
+import { currentToolFilterAtom } from '~/atom/tools';
+import {
+  DataTable,
+  FilterStateUpdater,
+  createColumns,
+} from '~/components/data-table';
 import { useT } from '~/hooks';
 import type { SymlinksFileEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
+import { filterItems } from '~/utils/table-helper';
 
 export function InvalidSymlinks() {
   const data = useAtomValue(invalidSymlinksAtom);
   const [rowSelection, setRowSelection] = useAtom(
     invalidSymlinksRowSelectionAtom,
   );
+  const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);
   const t = useT();
+
+  const filteredData = useMemo(() => {
+    return filterItems(data, filter, [
+      'symlinkName',
+      'path',
+      'destinationPath',
+      'typeOfError',
+    ]);
+  }, [data, filter]);
 
   const columns = createColumns<SymlinksFileEntry>([
     {
@@ -67,10 +83,16 @@ export function InvalidSymlinks() {
   return (
     <DataTable
       className="flex-1 rounded-none border-none grow"
-      data={data}
+      data={filteredData}
       columns={columns}
       rowSelection={rowSelection}
       onRowSelectionChange={setRowSelection}
+      globalFilter={filter}
+      onGlobalFilterChange={(updater: FilterStateUpdater) => {
+        const newValue =
+          typeof updater === 'function' ? updater(filter) : updater;
+        setFilter(newValue);
+      }}
     />
   );
 }

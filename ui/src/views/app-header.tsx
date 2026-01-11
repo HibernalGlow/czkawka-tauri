@@ -1,8 +1,11 @@
-import { openUrl } from '@tauri-apps/plugin-opener';
+import { useAtom, useSetAtom } from 'jotai';
 import { Languages } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Select, TooltipButton } from '~/components';
+import { useDebouncedCallback } from 'use-debounce';
+import { searchInputValueAtom } from '~/atom/primitive';
+import { currentToolFilterAtom } from '~/atom/tools';
+import { SearchInput, Select, TooltipButton } from '~/components';
 import { GitHub } from '~/components/icons';
 import { SelectIconTrigger } from '~/components/one-select';
 import { useT, useTableSelectionStats } from '~/hooks';
@@ -14,6 +17,15 @@ import { ThemeToggle } from './theme-toggle';
 // 新增 selectionStats props，便于顶栏显示统计信息
 export function AppHeader() {
   const selectionStats = useTableSelectionStats();
+  const setFilter = useSetAtom(currentToolFilterAtom);
+  const [inputValue, setInputValue] = useAtom(searchInputValueAtom);
+  const debouncedSetFilter = useDebouncedCallback(setFilter, 300);
+  const t = useT();
+
+  const handleInputChange = (v: string) => {
+    setInputValue(v);
+    debouncedSetFilter(v.trim());
+  };
 
   return (
     <div
@@ -27,10 +39,22 @@ export function AppHeader() {
           src="/icon.ico"
           alt="czkawka icon"
         />
-        <span className="font-serif">{PKG_NAME}</span>
-        <span className="font-extralight text-xs pl-1 pb-[3px]">
-          {PKG_VERSION}
-        </span>
+        <div className="flex items-center gap-1">
+          <span className="font-serif">{PKG_NAME}</span>
+          <span className="font-extralight text-[10px] pb-[1px] opacity-60">
+            v{PKG_VERSION}
+          </span>
+        </div>
+      </div>
+
+      {/* 中间搜索框 */}
+      <div className="flex-1 max-w-sm px-4">
+        <SearchInput
+          placeholder={`${t('search')}...`}
+          value={inputValue}
+          onChange={handleInputChange}
+          className="h-8"
+        />
       </div>
       {/* 右侧统计信息和操作按钮 */}
       <div className="flex items-center gap-4">

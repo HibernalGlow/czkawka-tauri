@@ -157,3 +157,20 @@ export const filterPanelAtom = atom<{
   position: null,
   size: { width: 400, height: 500 },
 });
+// 每种工具的筛选字符串
+export const filterAtom = atom<Record<ToolsValues, string>>({
+  [Tools.DuplicateFiles]: '',
+  [Tools.EmptyFolders]: '',
+  [Tools.BigFiles]: '',
+  [Tools.EmptyFiles]: '',
+  [Tools.TemporaryFiles]: '',
+  [Tools.SimilarImages]: '',
+  [Tools.SimilarVideos]: '',
+  [Tools.MusicDuplicates]: '',
+  [Tools.InvalidSymlinks]: '',
+  [Tools.BrokenFiles]: '',
+  [Tools.BadExtensions]: '',
+});
+
+// 顶部搜索栏的输入状态
+export const searchInputValueAtom = atom('');

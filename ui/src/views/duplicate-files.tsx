@@ -8,6 +8,7 @@ import {
 import { settingsAtom } from '~/atom/settings';
 import {
   DataTable,
+  FilterStateUpdater,
   TableActions,
   TableRowSelectionCell,
   TableRowSelectionHeader,
@@ -15,9 +16,11 @@ import {
 import { DynamicThumbnailCell } from '~/components/dynamic-thumbnail-cell';
 import { DuplicateFilesRightClickMenu } from '~/components/right-click-menu';
 import { Checkbox } from '~/components/shadcn/checkbox';
+import { currentToolFilterAtom } from '~/atom/tools';
 import { useT } from '~/hooks';
 import type { DuplicateEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
+import { filterItems } from '~/utils/table-helper';
 import { ThumbnailPreloader } from '~/utils/thumbnail-preloader';
 import { ClickableImagePreview } from './clickable-image-preview';
 
@@ -28,6 +31,7 @@ export function DuplicateFiles() {
     duplicateFilesRowSelectionAtom,
   );
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);
   const t = useT();
 
@@ -64,11 +68,40 @@ export function DuplicateFiles() {
 
   // 处理分组分隔和隐藏行
   const processedData = useMemo(() => {
+    // 1. 筛选逻辑
+    let filteredRawData = data;
+    if (filter) {
+      const lowercaseFilter = filter.toLowerCase();
+      filteredRawData = data.filter((item) => {
+        if (item.hidden) return true; // 保留分隔符，稍后处理
+        return (
+          item.fileName?.toLowerCase().includes(lowercaseFilter) ||
+          item.path?.toLowerCase().includes(lowercaseFilter)
+        );
+      });
+
+      // 清理掉空的组（即只有分隔符的组）
+      const cleaned: typeof filteredRawData = [];
+      let tempGroup: typeof filteredRawData = [];
+      for (const item of filteredRawData) {
+        if (item.hidden) {
+          if (tempGroup.length > 0) {
+            cleaned.push(...tempGroup, item);
+          }
+          tempGroup = [];
+        } else {
+          tempGroup.push(item);
+        }
+      }
+      if (tempGroup.length > 0) cleaned.push(...tempGroup);
+      filteredRawData = cleaned;
+    }
+
     const threshold = settings.duplicateGroupSizeThreshold || 1;
-    if (threshold <= 1) return processDataWithGroups(data);
+    if (threshold <= 1) return processDataWithGroups(filteredRawData);
     const filtered: typeof data = [];
     let group: typeof data = [];
-    for (const item of data) {
+    for (const item of filteredRawData) {
       if (item.hidden) {
         // hidden row marks end of current group
         if (group.length) {
@@ -87,6 +120,7 @@ export function DuplicateFiles() {
       if (visibleCount >= threshold) filtered.push(...group);
     }
     let result = processDataWithGroups(filtered);
+    // ... 排序逻辑保持不变
 
     // 应用排序
     if (sorting.length > 0) {
@@ -336,6 +370,12 @@ export function DuplicateFiles() {
       enableSorting={true}
       sorting={sorting}
       onSortingChange={setSorting}
+      globalFilter={filter}
+      onGlobalFilterChange={(updater: FilterStateUpdater) => {
+        const newValue =
+          typeof updater === 'function' ? updater(filter) : updater;
+        setFilter(newValue);
+      }}
       onRowContextMenu={(row, table) => (
         <DuplicateFilesRightClickMenu row={row} table={table} />
       )}

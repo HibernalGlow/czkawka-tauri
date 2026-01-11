@@ -6,6 +6,7 @@ import {
   type Table as TTable,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -47,6 +48,9 @@ interface DataTableProps<T> {
   sorting?: SortingState;
   onSortingChange?: (sorting: SortingState) => void;
   onRowContextMenu?: (row: Row<T>, table: TTable<T>) => React.ReactNode;
+  globalFilter?: string;
+  onGlobalFilterChange?: (filter: string) => void;
+  manualFiltering?: boolean;
 }
 
 export type RowSelection = RowSelectionState;
@@ -67,6 +71,9 @@ export function DataTable<T extends BaseEntry>(props: DataTableProps<T>) {
     sorting,
     onSortingChange,
     onRowContextMenu,
+    globalFilter,
+    onGlobalFilterChange,
+    manualFiltering,
   } = props;
 
   const table = useReactTable({
@@ -89,6 +96,7 @@ export function DataTable<T extends BaseEntry>(props: DataTableProps<T>) {
     state: {
       rowSelection,
       ...(sorting !== undefined && { sorting }),
+      ...(globalFilter !== undefined && { globalFilter }),
     },
     columnResizeMode: 'onChange',
     enableSorting,
@@ -99,6 +107,10 @@ export function DataTable<T extends BaseEntry>(props: DataTableProps<T>) {
         onSortingChange(newSorting);
       },
     }),
+    getFilteredRowModel: getFilteredRowModel(),
+    onGlobalFilterChange,
+    manualFiltering,
+    globalFilterFn: 'includesStringSensitive',
   });
 
   const isGrid = layout === 'grid';

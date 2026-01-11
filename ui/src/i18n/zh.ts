@@ -329,4 +329,5 @@ export const zh: Record<TranslationKeys, string> = {
   Tip: '提示',
   'Theme settings are auto-saved':
     '主题设置会自动保存，下次打开应用时会自动应用。',
+  search: '搜索',
 };

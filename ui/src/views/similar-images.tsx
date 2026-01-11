@@ -11,6 +11,7 @@ import { similarImagesFoldersAtom } from '~/atom/tools';
 import { Button } from '~/components';
 import {
   DataTable,
+  FilterStateUpdater,
   TableActions,
   TableRowSelectionCell,
   TableRowSelectionHeader,
@@ -37,6 +38,7 @@ export function SimilarImages() {
   const [rowSelection, setRowSelection] = useAtom(
     similarImagesRowSelectionAtom,
   );
+  const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const t = useT();
 
   // 根据阈值过滤文件夹数据
@@ -109,21 +111,60 @@ export function SimilarImages() {
 
   // 1. 处理表格数据，生成分组分隔标记
   const processedData = useMemo(() => {
-    // 只处理 images 模式，folders 模式原样返回
-    if (viewMode !== 'images') return data;
+    // 筛选逻辑
+    let filteredImagesData = imagesData;
+    if (filter) {
+      const lowercaseFilter = filter.toLowerCase();
+      filteredImagesData = imagesData.filter((item) => {
+        if (item.hidden) return true;
+        return (
+          item.fileName?.toLowerCase().includes(lowercaseFilter) ||
+          item.path?.toLowerCase().includes(lowercaseFilter)
+        );
+      });
+
+      // 清理掉空的组（即只有分隔符的组）
+      const cleaned: typeof filteredImagesData = [];
+      let tempGroup: typeof filteredImagesData = [];
+      for (const item of filteredImagesData) {
+        if (item.hidden) {
+          if (tempGroup.length > 0) {
+            cleaned.push(...tempGroup, item);
+          }
+          tempGroup = [];
+        } else {
+          tempGroup.push(item);
+        }
+      }
+      if (tempGroup.length > 0) cleaned.push(...tempGroup);
+      filteredImagesData = cleaned;
+    }
+
+    // 根据视图模式选择数据源并进行最后处理
+    if (viewMode === 'folders') {
+      // 文件夹模式也应用筛选
+      if (!filter) return transformedFoldersData;
+      const lowercaseFilter = filter.toLowerCase();
+      return transformedFoldersData.filter(
+        (item) =>
+          item.fileName.toLowerCase().includes(lowercaseFilter) ||
+          item.path.toLowerCase().includes(lowercaseFilter),
+      );
+    }
+
     const result: ImagesEntry[] = [];
-    for (let i = 0; i < imagesData.length; i++) {
-      const curr = imagesData[i];
+    for (let i = 0; i < filteredImagesData.length; i++) {
+      const curr = filteredImagesData[i];
       if (curr.hidden) continue; // 跳过 hidden 行
       // 判断下一行是否为 hidden
-      const next = imagesData[i + 1];
+      const next = filteredImagesData[i + 1];
       result.push({
         ...curr,
         _isGroupEnd: !!next?.hidden, // 新增分组结束标记
       });
     }
     return result;
-  }, [imagesData, viewMode, data]);
+  }, [imagesData, viewMode, transformedFoldersData, filter]);
 
   const columns: ColumnDef<ImagesEntry>[] = [
     {
@@ -307,6 +348,12 @@ export function SimilarImages() {
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
         rowHeight={dynamicRowHeight}
+        globalFilter={filter}
+        onGlobalFilterChange={(updater: FilterStateUpdater) => {
+          const newValue =
+            typeof updater === 'function' ? updater(filter) : updater;
+          setFilter(newValue);
+        }}
       />
     </div>
   );

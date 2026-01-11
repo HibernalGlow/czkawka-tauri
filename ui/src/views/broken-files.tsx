@@ -1,20 +1,28 @@
 import { useAtom, useAtomValue } from 'jotai';
 import { brokenFilesAtom, brokenFilesRowSelectionAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
+import { currentToolFilterAtom } from '~/atom/tools';
 import {
   DataTable,
+  FilterStateUpdater,
   createActionsColumn,
   createColumns,
 } from '~/components/data-table';
 import { useT } from '~/hooks';
 import type { BrokenEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
+import { filterItems } from '~/utils/table-helper';
 
 export function BrokenFiles() {
   const data = useAtomValue(brokenFilesAtom);
   const [rowSelection, setRowSelection] = useAtom(brokenFilesRowSelectionAtom);
+  const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);
   const t = useT();
+
+  const filteredData = useMemo(() => {
+    return filterItems(data, filter, ['fileName', 'path', 'errorString']);
+  }, [data, filter]);
 
   const columns = createColumns<BrokenEntry>([
     {
@@ -60,10 +68,16 @@ export function BrokenFiles() {
   return (
     <DataTable
       className="flex-1 rounded-none border-none grow"
-      data={data}
+      data={filteredData}
       columns={columns}
       rowSelection={rowSelection}
       onRowSelectionChange={setRowSelection}
+      globalFilter={filter}
+      onGlobalFilterChange={(updater: FilterStateUpdater) => {
+        const newValue =
+          typeof updater === 'function' ? updater(filter) : updater;
+        setFilter(newValue);
+      }}
     />
   );
 }

@@ -5,8 +5,10 @@ import {
   similarVideosRowSelectionAtom,
 } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
+import { currentToolFilterAtom } from '~/atom/tools';
 import {
   DataTable,
+  FilterStateUpdater,
   TableActions,
   TableRowSelectionCell,
   TableRowSelectionHeader,
@@ -21,8 +23,38 @@ export function SimilarVideos() {
   const [rowSelection, setRowSelection] = useAtom(
     similarVideosRowSelectionAtom,
   );
+  const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);
   const t = useT();
+
+  const filteredData = useMemo(() => {
+    if (!filter) return data;
+
+    const lowercaseFilter = filter.toLowerCase();
+    const filtered = data.filter((item) => {
+      if (item.hidden) return true;
+      return (
+        item.fileName?.toLowerCase().includes(lowercaseFilter) ||
+        item.path?.toLowerCase().includes(lowercaseFilter)
+      );
+    });
+
+    // 清理空的组
+    const cleaned: typeof filtered = [];
+    let tempGroup: typeof filtered = [];
+    for (const item of filtered) {
+      if (item.hidden) {
+        if (tempGroup.length > 0) {
+          cleaned.push(...tempGroup, item);
+        }
+        tempGroup = [];
+      } else {
+        tempGroup.push(item);
+      }
+    }
+    if (tempGroup.length > 0) cleaned.push(...tempGroup);
+    return cleaned;
+  }, [data, filter]);
 
   const columns: ColumnDef<VideosEntry>[] = [
     {
@@ -109,10 +141,16 @@ export function SimilarVideos() {
   return (
     <DataTable
       className="flex-1 rounded-none border-none grow"
-      data={data}
+      data={filteredData}
       columns={columns}
       rowSelection={rowSelection}
       onRowSelectionChange={setRowSelection}
+      globalFilter={filter}
+      onGlobalFilterChange={(updater: FilterStateUpdater) => {
+        const newValue =
+          typeof updater === 'function' ? updater(filter) : updater;
+        setFilter(newValue);
+      }}
     />
   );
 }
