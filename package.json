@@ -10,6 +10,9 @@
   },
   "homepage": "https://github.com/shixinhuang99/czkawka-tauri",
   "description": "A Tauri frontend of Czkawka on macOS and Windows",
+  "workspaces": [
+    "ui"
+  ],
   "scripts": {
     "fmt": "biome check --linter-enabled=false --write",
     "check": "biome check",
@@ -17,10 +20,10 @@
     "typecheck:other": "tsc -p ./tsconfig.json --noEmit",
     "run:tauri": "tsx ./scripts/run-tauri.ts",
     "run:browser": "tsx ./scripts/run-browser.ts",
-    "build:ui": "pnpm run --filter ./ui build",
-    "build:tauri": "pnpm tauri build -t universal-apple-darwin",
-    "build:tauri:ffmpeg": "pnpm tauri build -t universal-apple-darwin -c ./tauri/tauri.ffmpeg.conf.json -f ffmpeg",
-    "build:tauri:win": "pnpm build:ui && pnpm tauri build -c ./tauri/tauri.windows.conf.json"
+    "build:ui": "yarn workspace ui build",
+    "build:tauri": "yarn tauri build -t universal-apple-darwin",
+    "build:tauri:ffmpeg": "yarn tauri build -t universal-apple-darwin -c ./tauri/tauri.ffmpeg.conf.json -f ffmpeg",
+    "build:tauri:win": "yarn build:ui && yarn tauri build -c ./tauri/tauri.windows.conf.json"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

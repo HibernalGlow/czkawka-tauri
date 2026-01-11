@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 vars:
   GREETING: Hello, World!
@@ -19,8 +19,8 @@ tasks:
       - cargo clippy -V
       - node -v
       - npm -v
-      - pnpm -v
-      - pnpm tauri -V
+      - yarn -v
+      - yarn tauri -V
 
   fmt:
     desc: Format code
@@ -47,7 +47,7 @@ tasks:
   prepare:
     desc: Prepare a release with the given tag
     cmds:
-      - pnpm tsx ./scripts/set-pkg-version.ts {{.CLI_ARGS}}
+      - yarn tsx ./scripts/set-pkg-version.ts {{.CLI_ARGS}}
       - cargo set-version {{.CLI_ARGS}}
       - task: fmt
       - git commit -am "prepare release {{.CLI_ARGS}}"
@@ -64,22 +64,22 @@ tasks:
       - git tag -d {{.CLI_ARGS}}
       - git push origin --delete {{.CLI_ARGS}}
 
-  pnpm:
-    desc: Run pnpm commands on the ui package
+  yarn:
+    desc: Run yarn commands on the ui package
     cmds:
-      - pnpm {{.CLI_ARGS}} --filter ./ui
+      - yarn workspace ui {{.CLI_ARGS}}
 
   bundle-test-app:
     desc: Build and bundle test app
     cmds:
       - node --run build:ui
-      - pnpm tauri build -d --bundles app
+      - yarn tauri build -d --bundles app
 
   bundle-test-ffmpeg-app:
     desc: Build and bundle test ffmpeg app
     cmds:
       - node --run build:ui
-      - pnpm tauri build -d --bundles app -c ./tauri/tauri.ffmpeg.conf.json -f ffmpeg
+      - yarn tauri build -d --bundles app -c ./tauri/tauri.ffmpeg.conf.json -f ffmpeg
 
   # Aliases
   pr:
@@ -87,11 +87,11 @@ tasks:
     cmds:
       - task: prepare
         vars:
-          CLI_ARGS: '{{.CLI_ARGS}}'
+          CLI_ARGS: "{{.CLI_ARGS}}"
 
   pt:
     desc: Alias for push-tag
     cmds:
       - task: push-tag
         vars:
-          CLI_ARGS: '{{.CLI_ARGS}}'
+          CLI_ARGS: "{{.CLI_ARGS}}"
