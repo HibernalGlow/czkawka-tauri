@@ -19,8 +19,8 @@ tasks:
       - cargo clippy -V
       - node -v
       - npm -v
-      - yarn -v
-      - yarn tauri -V
+      - pnpm -v
+      - pnpm tauri -V
 
   fmt:
     desc: Format code
@@ -47,7 +47,7 @@ tasks:
   prepare:
     desc: Prepare a release with the given tag
     cmds:
-      - yarn tsx ./scripts/set-pkg-version.ts {{.CLI_ARGS}}
+      - pnpm tsx ./scripts/set-pkg-version.ts {{.CLI_ARGS}}
       - cargo set-version {{.CLI_ARGS}}
       - task: fmt
       - git commit -am "prepare release {{.CLI_ARGS}}"
@@ -64,22 +64,22 @@ tasks:
       - git tag -d {{.CLI_ARGS}}
       - git push origin --delete {{.CLI_ARGS}}
 
-  yarn:
-    desc: Run yarn commands on the ui package
+  pnpm:
+    desc: Run pnpm commands on the ui package
     cmds:
-      - yarn workspace ui {{.CLI_ARGS}}
+      - pnpm {{.CLI_ARGS}} --filter ./ui
 
   bundle-test-app:
     desc: Build and bundle test app
     cmds:
       - node --run build:ui
-      - yarn tauri build -d --bundles app
+      - pnpm tauri build -d --bundles app
 
   bundle-test-ffmpeg-app:
     desc: Build and bundle test ffmpeg app
     cmds:
       - node --run build:ui
-      - yarn tauri build -d --bundles app -c ./tauri/tauri.ffmpeg.conf.json -f ffmpeg
+      - pnpm tauri build -d --bundles app -c ./tauri/tauri.ffmpeg.conf.json -f ffmpeg
 
   # Aliases
   pr:
