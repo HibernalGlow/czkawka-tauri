@@ -184,7 +184,7 @@ function BackgroundButton() {
               className="h-full w-full object-cover"
               style={{ 
                 opacity: backgroundOpacity / 100,
-                filter: `blur(${backgroundBlur / 4}px)` // 预览图模糊度减小一点
+                filter: backgroundBlur > 0 ? `blur(${backgroundBlur / 4}px)` : 'none'
               }}
             />
           </div>

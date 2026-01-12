@@ -72,7 +72,8 @@ function applyBackgroundImage(image: string | null, opacity: number, blur: numbe
   if (image) {
     root.style.setProperty('--custom-bg-image', `url(${image})`);
     root.style.setProperty('--custom-bg-opacity', String(opacity / 100));
-    root.style.setProperty('--custom-bg-blur', `${blur}px`);
+    const blurValue = blur > 0 ? `blur(${blur}px)` : 'none';
+    root.style.setProperty('--custom-bg-blur', blurValue);
   } else {
     root.style.removeProperty('--custom-bg-image');
     root.style.removeProperty('--custom-bg-opacity');

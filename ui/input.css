@@ -113,14 +113,14 @@
 /* 当有自定义背景图片时，让主要容器背景变半透明 */
 [data-custom-bg="true"] [data-sidebar="sidebar"] {
   background: color-mix(in srgb, var(--sidebar-background, var(--background)) 75%, transparent) !important;
-  backdrop-filter: blur(var(--custom-bg-blur, 8px));
-  -webkit-backdrop-filter: blur(var(--custom-bg-blur, 8px));
+  backdrop-filter: var(--custom-bg-blur, blur(8px));
+  -webkit-backdrop-filter: var(--custom-bg-blur, blur(8px));
 }
 
 [data-custom-bg="true"] main {
   background: color-mix(in srgb, var(--background) 80%, transparent) !important;
-  backdrop-filter: blur(var(--custom-bg-blur, 8px));
-  -webkit-backdrop-filter: blur(var(--custom-bg-blur, 8px));
+  backdrop-filter: var(--custom-bg-blur, blur(8px));
+  -webkit-backdrop-filter: var(--custom-bg-blur, blur(8px));
 }
 
 /* 确保背景图片层在正确的位置 */

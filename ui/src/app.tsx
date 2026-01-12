@@ -84,7 +84,7 @@ export default function App() {
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             opacity: backgroundOpacity / 100,
-            filter: `blur(${backgroundBlur}px)`,
+            filter: backgroundBlur > 0 ? `blur(${backgroundBlur}px)` : 'none',
             transform: backgroundBlur > 0 ? 'scale(1.05)' : 'none',
           }}
         />
