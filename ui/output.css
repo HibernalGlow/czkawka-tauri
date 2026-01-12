@@ -817,10 +817,6 @@ body {
   left: 1rem;
 }
 
-.left-48 {
-  left: 12rem;
-}
-
 .left-\[50\%\] {
   left: 50%;
 }
@@ -839,10 +835,6 @@ body {
 
 .right-3 {
   right: 0.75rem;
-}
-
-.right-36 {
-  right: 9rem;
 }
 
 .right-4 {
@@ -883,10 +875,6 @@ body {
 
 .top-\[50\%\] {
   top: 50%;
-}
-
-.-z-10 {
-  z-index: -10;
 }
 
 .z-0 {
@@ -2726,7 +2714,13 @@ body {
 }
 
 [data-tauri-drag-region] {
+  app-region: drag;
   -webkit-app-region: drag;
+}
+
+.no-drag {
+  app-region: no-drag;
+  -webkit-app-region: no-drag;
 }
 
 /* 隐藏滚动条但保留滚动功能 */

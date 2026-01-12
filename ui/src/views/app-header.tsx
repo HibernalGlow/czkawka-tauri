@@ -41,13 +41,12 @@ export function AppHeader() {
 
   return (
     <div
-      className="relative w-full h-10 flex justify-between items-center px-2 py-0 border-b border-border/40 dark:border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 select-none"
+      className="w-full h-10 flex justify-between items-center px-2 py-0 border-b border-border/40 dark:border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 select-none relative"
+      data-tauri-drag-region
     >
-      {/* 拖拽区域：仅在中间空白部分响应 */}
-      <div className="absolute inset-y-0 left-48 right-36 -z-10" data-tauri-drag-region />
+      {/* 这里的子元素需要标记为 no-drag，否则由于 z-index 提升可能导致点击失效或拖拽失效 */}
 
-      {/* 左侧：统计信息 */}
-      <div className="flex-1 flex items-center min-w-0 pr-4 pointer-events-none">
+      <div className="flex-1 flex items-center min-w-0 pr-4 pointer-events-none no-drag">
         {selectionStats && (
           <div className="flex items-center gap-2 text-[10px] text-muted-foreground/80 bg-muted/40 rounded-full px-3 py-1 ml-2 pointer-events-auto">
             <span className="truncate">已选 {selectionStats.count}</span>
@@ -58,7 +57,7 @@ export function AppHeader() {
       </div>
 
       {/* 中间：核心控制区 (搜索, 背景, 明暗, 语言) */}
-      <div className="relative z-10 flex items-center gap-1 bg-muted/30 p-1 rounded-full border border-border/30">
+      <div className="relative z-10 flex items-center gap-1 bg-muted/30 p-1 rounded-full border border-border/30 no-drag">
         <div className={`flex items-center transition-all duration-300 ease-out overflow-hidden ${searchExpanded ? 'w-48 px-1' : 'w-8'}`}>
           {searchExpanded ? (
             <div className="relative w-full">
@@ -101,41 +100,31 @@ export function AppHeader() {
 
 function WindowControls() {
   const [isMaximized, setIsMaximized] = useState(false);
-  
-  const onMinimize = async () => {
-    const { getCurrentWindow } = await import('@tauri-apps/api/window');
-    await getCurrentWindow().minimize();
-  };
-
-  const onToggleMaximize = async () => {
-    const { getCurrentWindow } = await import('@tauri-apps/api/window');
-    const win = getCurrentWindow();
-    await win.toggleMaximize();
-    setIsMaximized(await win.isMaximized());
-  };
-
-  const onClose = async () => {
-    const { getCurrentWindow } = await import('@tauri-apps/api/window');
-    await getCurrentWindow().close();
-  };
+  const appWindow = getCurrentWindow();
 
   return (
-    <div className="flex items-center h-full -mr-2 relative z-50">
+    <div className="flex items-center h-full -mr-2 relative z-50 no-drag">
       <button
-        onClick={onMinimize}
-        className="w-11 h-10 flex items-center justify-center hover:bg-muted/80 transition-colors cursor-pointer pointer-events-auto"
+        onClick={() => appWindow.minimize()}
+        className="w-11 h-10 flex items-center justify-center hover:bg-muted/80 transition-colors pointer-events-auto"
+        title="Minimize"
       >
         <Minus className="h-4 w-4" />
       </button>
       <button
-        onClick={onToggleMaximize}
-        className="w-11 h-10 flex items-center justify-center hover:bg-muted/80 transition-colors cursor-pointer pointer-events-auto"
+        onClick={async () => {
+          await appWindow.toggleMaximize();
+          setIsMaximized(await appWindow.isMaximized());
+        }}
+        className="w-11 h-10 flex items-center justify-center hover:bg-muted/80 transition-colors pointer-events-auto"
+        title={isMaximized ? "Restore" : "Maximize"}
       >
         <Square className="h-3 w-3" />
       </button>
       <button
-        onClick={onClose}
-        className="w-11 h-10 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors cursor-pointer pointer-events-auto"
+        onClick={() => appWindow.close()}
+        className="w-11 h-10 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors pointer-events-auto"
+        title="Close"
       >
         <X className="h-4 w-4" />
       </button>
