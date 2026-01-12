@@ -335,4 +335,10 @@ export const zh: Record<TranslationKeys, string> = {
   search: '搜索',
   'Enable video thumbnails': '启用视频缩略图',
   'Open in system player': '在系统播放器中打开',
+  'Custom background': '自定义背景',
+  'Upload image': '上传图片',
+  Remove: '移除',
+  'Background opacity': '背景透明度',
+  'File too large': '文件过大',
+  'Maximum file size is 5MB': '最大文件大小为 5MB',
 };

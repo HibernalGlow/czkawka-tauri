@@ -343,6 +343,12 @@ export const en = {
   search: 'Search',
   'Enable video thumbnails': 'Enable video thumbnails',
   'Open in system player': 'Open in system player',
+  'Custom background': 'Custom Background',
+  'Upload image': 'Upload Image',
+  Remove: 'Remove',
+  'Background opacity': 'Background Opacity',
+  'File too large': 'File too large',
+  'Maximum file size is 5MB': 'Maximum file size is 5MB',
 };
 
 export type TranslationKeys = keyof typeof en;

@@ -6,7 +6,13 @@ import type { CustomThemeConfig } from '~/types';
 import { storage } from '~/utils/storage';
 import { isSystemDark } from '~/utils/theme';
 import { applyThemeColors, PRESET_THEMES } from '~/utils/themeManager';
-import { customThemesAtom, selectedThemeAtom, themeAtom } from './primitive';
+import {
+  backgroundImageAtom,
+  backgroundOpacityAtom,
+  customThemesAtom,
+  selectedThemeAtom,
+  themeAtom,
+} from './primitive';
 
 function setTheme(theme: string) {
   if (!isTauri()) {
@@ -56,6 +62,15 @@ function applyThemeWithColors(
   return finalMode;
 }
 
+/**
+ * 应用背景图片和透明度到 DOM
+ * 注意：实际的背景图片渲染现在由 React (app.tsx) 处理，
+ * 这个函数保留用于未来可能需要的 CSS 变量设置
+ */
+function applyBackgroundImage(_image: string | null, _opacity: number) {
+  // 背景图片现在由 React 组件直接渲染，无需设置 CSS 变量
+}
+
 export const initThemeAtom = atom(null, (_, set) => {
   const theme = storage.getTheme();
   const themeName = storage.getThemeName();
@@ -75,6 +90,13 @@ export const initThemeAtom = atom(null, (_, set) => {
   set(selectedThemeAtom, themeConfig);
   set(customThemesAtom, customThemes);
   setTheme(theme);
+
+  // 初始化背景图片和透明度
+  const bgImage = storage.getBackgroundImage();
+  const bgOpacity = storage.getBackgroundOpacity();
+  set(backgroundImageAtom, bgImage);
+  set(backgroundOpacityAtom, bgOpacity);
+  applyBackgroundImage(bgImage, bgOpacity);
 });
 
 export const toggleThemeAtom = atom(null, (get, set) => {
@@ -191,5 +213,31 @@ export const removeCustomThemeAtom = atom(
     const newCustomThemes = customThemes.filter((t) => t.name !== themeName);
     set(customThemesAtom, newCustomThemes);
     storage.setCustomThemes(newCustomThemes);
+  },
+);
+
+/**
+ * 设置背景图片
+ */
+export const setBackgroundImageAtom = atom(
+  null,
+  (get, set, image: string | null) => {
+    const opacity = get(backgroundOpacityAtom);
+    set(backgroundImageAtom, image);
+    storage.setBackgroundImage(image);
+    applyBackgroundImage(image, opacity);
+  },
+);
+
+/**
+ * 设置背景透明度
+ */
+export const setBackgroundOpacityAtom = atom(
+  null,
+  (get, set, opacity: number) => {
+    const image = get(backgroundImageAtom);
+    set(backgroundOpacityAtom, opacity);
+    storage.setBackgroundOpacity(opacity);
+    applyBackgroundImage(image, opacity);
   },
 );

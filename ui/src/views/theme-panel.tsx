@@ -1,7 +1,9 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { Check, Copy, Moon, Palette, Sun, Trash2, TvMinimal } from 'lucide-react';
-import { useState } from 'react';
+import { Check, Copy, ImageIcon, Moon, Palette, Sun, Trash2, TvMinimal } from 'lucide-react';
+import { useRef, useState } from 'react';
 import {
+  backgroundImageAtom,
+  backgroundOpacityAtom,
   customThemesAtom,
   selectedThemeAtom,
   themeAtom,
@@ -11,6 +13,8 @@ import {
   addCustomThemesAtom,
   removeCustomThemeAtom,
   selectThemeAtom,
+  setBackgroundImageAtom,
+  setBackgroundOpacityAtom,
   setThemeModeAtom,
 } from '~/atom/theme';
 import {
@@ -18,6 +22,7 @@ import {
   Input,
   Label,
   ScrollArea,
+  Slider,
   Textarea,
   toastError,
 } from '~/components';
@@ -36,11 +41,17 @@ export function ThemePanel() {
   const theme = useAtomValue(themeAtom);
   const selectedTheme = useAtomValue(selectedThemeAtom);
   const customThemes = useAtomValue(customThemesAtom);
+  const backgroundImage = useAtomValue(backgroundImageAtom);
+  const backgroundOpacity = useAtomValue(backgroundOpacityAtom);
   const setThemeMode = useSetAtom(setThemeModeAtom);
   const selectTheme = useSetAtom(selectThemeAtom);
   const addCustomTheme = useSetAtom(addCustomThemeAtom);
   const addCustomThemes = useSetAtom(addCustomThemesAtom);
   const removeCustomTheme = useSetAtom(removeCustomThemeAtom);
+  const setBackgroundImage = useSetAtom(setBackgroundImageAtom);
+  const setBackgroundOpacity = useSetAtom(setBackgroundOpacityAtom);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [themeUrl, setThemeUrl] = useState('');
   const [themeJson, setThemeJson] = useState('');
@@ -49,6 +60,31 @@ export function ThemePanel() {
 
   const placeholderText =
     'JSON Format (Single or Array):\n[{"name":"My Theme","cssVars":{...}}, ...]';
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 限制文件大小 (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toastError(t('File too large'), t('Maximum file size is 5MB'));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      setBackgroundImage(base64);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveBackgroundImage = () => {
+    setBackgroundImage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleImportFromUrl = async () => {
     if (!themeUrl.trim()) return;
@@ -417,6 +453,74 @@ export function ThemePanel() {
             </div>
             <div className="bg-muted text-muted-foreground rounded-lg border p-3">
               <p className="text-sm font-medium">Muted</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 自定义背景图片 */}
+        <div className="space-y-3">
+          <Label className="flex items-center gap-2 text-sm font-semibold">
+            <ImageIcon className="h-4 w-4" />
+            {t('Custom background')}
+          </Label>
+          
+          <div className="space-y-4">
+            {/* 图片上传 */}
+            <div className="flex items-center gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+                id="bg-image-upload"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {t('Upload image')}
+              </Button>
+              {backgroundImage && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive"
+                  onClick={handleRemoveBackgroundImage}
+                >
+                  <Trash2 className="mr-1 h-4 w-4" />
+                  {t('Remove')}
+                </Button>
+              )}
+            </div>
+
+            {/* 背景预览 */}
+            {backgroundImage && (
+              <div className="relative h-24 w-full overflow-hidden rounded-lg border">
+                <img
+                  src={backgroundImage}
+                  alt="Background preview"
+                  className="h-full w-full object-cover"
+                  style={{ opacity: backgroundOpacity / 100 }}
+                />
+              </div>
+            )}
+
+            {/* 透明度滑块 */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs">{t('Background opacity')}</Label>
+                <span className="text-muted-foreground text-xs">{backgroundOpacity}%</span>
+              </div>
+              <Slider
+                value={[backgroundOpacity]}
+                onValueChange={(values) => setBackgroundOpacity(values[0])}
+                min={0}
+                max={100}
+                step={5}
+                className="w-full"
+              />
             </div>
           </div>
         </div>

@@ -20,10 +20,12 @@ import { SidebarImagePreview } from '~/views/sidebar-image-preview';
 import { SidebarVideoPreview } from '~/views/sidebar-video-preview';
 
 import { useAtomValue } from 'jotai';
-import { sidebarWidthAtom } from '~/atom/primitive';
+import { backgroundImageAtom, backgroundOpacityAtom, sidebarWidthAtom } from '~/atom/primitive';
 
 export default function App() {
   const sidebarWidth = useAtomValue(sidebarWidthAtom);
+  const backgroundImage = useAtomValue(backgroundImageAtom);
+  const backgroundOpacity = useAtomValue(backgroundOpacityAtom);
   const PANEL_SIZE = 30;
   const STORAGE_KEY = 'app-bottom-panel-size';
   const [bottomPanelMinSize, setBottomPanelMinSize] = useState(8);
@@ -67,10 +69,29 @@ export default function App() {
   }, []);
 
   return (
-    <div className="h-screen w-screen flex flex-col relative overflow-hidden">
-      <SidebarProvider style={{ '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}>
-        <AppSidebar />
-        <SidebarInset className="flex flex-col overflow-hidden">
+    <div 
+      className="h-screen w-screen flex flex-col relative overflow-hidden"
+      data-custom-bg={backgroundImage ? "true" : undefined}
+    >
+      {/* 自定义背景图片层 */}
+      {backgroundImage && (
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: `url(${backgroundImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            opacity: backgroundOpacity / 100,
+          }}
+          aria-hidden="true"
+        />
+      )}
+      {/* 主内容容器 - 需要相对定位以便在背景之上 */}
+      <div className="relative flex flex-1 w-full h-full overflow-hidden z-[1]">
+        <SidebarProvider style={{ '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}>
+          <AppSidebar />
+          <SidebarInset className="flex flex-col overflow-hidden">
           <TooltipProvider delayDuration={100} skipDelayDuration={90}>
             <ResizablePanelGroup
               direction="vertical"
@@ -100,6 +121,7 @@ export default function App() {
           </TooltipProvider>
         </SidebarInset>
       </SidebarProvider>
+      </div>
       <Toaster />
       <SidebarImagePreview />
       <SidebarVideoPreview />
@@ -107,3 +129,4 @@ export default function App() {
     </div>
   );
 }
+

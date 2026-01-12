@@ -109,3 +109,54 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* 当有自定义背景图片时，让主要容器背景变半透明 */
+/* Light mode */
+[data-custom-bg="true"] [data-sidebar="sidebar"] {
+  background: rgba(250, 250, 250, 0.75) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+[data-custom-bg="true"] main {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Dark mode */
+.dark[data-custom-bg="true"] [data-sidebar="sidebar"],
+[data-custom-bg="true"].dark [data-sidebar="sidebar"],
+.dark [data-custom-bg="true"] [data-sidebar="sidebar"] {
+  background: rgba(20, 20, 30, 0.75) !important;
+}
+
+.dark[data-custom-bg="true"] main,
+[data-custom-bg="true"].dark main,
+.dark [data-custom-bg="true"] main {
+  background: rgba(25, 30, 40, 0.8) !important;
+}
+
+/* 确保背景图片层在正确的位置 */
+[data-custom-bg="true"] {
+  background: transparent !important;
+}
+
+/* 让 SidebarProvider wrapper 透明 */
+[data-custom-bg="true"] .group\/sidebar-wrapper {
+  background: transparent !important;
+}
+
+/* 底部面板 - Light mode */
+[data-custom-bg="true"] .bg-background {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* 底部面板 - Dark mode */
+.dark[data-custom-bg="true"] .bg-background,
+[data-custom-bg="true"].dark .bg-background,
+.dark [data-custom-bg="true"] .bg-background {
+  background: rgba(25, 30, 40, 0.85) !important;
+}

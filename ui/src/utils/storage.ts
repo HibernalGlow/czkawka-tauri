@@ -77,4 +77,29 @@ export const storage = {
   setCustomThemes(themes: CustomThemeConfig[]) {
     localStorage.setItem(CUSTOM_THEMES_KEY, JSON.stringify(themes));
   },
+
+  // 自定义背景图片 (base64)
+  getBackgroundImage(): string | null {
+    return localStorage.getItem('background-image');
+  },
+
+  setBackgroundImage(image: string | null) {
+    if (image) {
+      localStorage.setItem('background-image', image);
+    } else {
+      localStorage.removeItem('background-image');
+    }
+  },
+
+  // 背景透明度 (0-100)
+  getBackgroundOpacity(): number {
+    const val = localStorage.getItem('background-opacity');
+    if (val === null) return 100;
+    const num = parseInt(val, 10);
+    return isNaN(num) ? 100 : Math.max(0, Math.min(100, num));
+  },
+
+  setBackgroundOpacity(opacity: number) {
+    localStorage.setItem('background-opacity', String(opacity));
+  },
 };

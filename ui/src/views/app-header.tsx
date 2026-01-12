@@ -1,14 +1,23 @@
 import { openUrl } from '@tauri-apps/plugin-opener';
-import { useAtom, useSetAtom } from 'jotai';
-import { Languages } from 'lucide-react';
-import { useState } from 'react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { ImageIcon, Languages, Trash2 } from 'lucide-react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDebouncedCallback } from 'use-debounce';
-import { searchInputValueAtom } from '~/atom/primitive';
+import { backgroundImageAtom, backgroundOpacityAtom, searchInputValueAtom } from '~/atom/primitive';
+import { setBackgroundImageAtom, setBackgroundOpacityAtom } from '~/atom/theme';
 import { currentToolFilterAtom } from '~/atom/tools';
-import { SearchInput, Select, TooltipButton } from '~/components';
-import { GitHub } from '~/components/icons';
+import { SearchInput, Select, Slider, TooltipButton, toastError } from '~/components';
+import { GitHub } from '~/components/icons'
 import { SelectIconTrigger } from '~/components/one-select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from '~/components/shadcn/dropdown-menu';
+import { Button } from '~/components/shadcn/button';
 import { useT, useTableSelectionStats } from '~/hooks';
 import { storage } from '~/utils/storage';
 
@@ -69,6 +78,7 @@ export function AppHeader() {
           </div>
         )}
         <div className="flex items-center gap-1.5">
+          <BackgroundButton />
           <ChangeLanguageButton />
           <SettingsButton />
           <ThemeToggle />
@@ -86,6 +96,113 @@ function formatSize(size: number): string {
   if (size >= 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(2)} MB`;
   if (size >= 1024) return `${(size / 1024).toFixed(2)} KB`;
   return `${size} B`;
+}
+
+function BackgroundButton() {
+  const t = useT();
+  const backgroundImage = useAtomValue(backgroundImageAtom);
+  const backgroundOpacity = useAtomValue(backgroundOpacityAtom);
+  const setBackgroundImage = useSetAtom(setBackgroundImageAtom);
+  const setBackgroundOpacity = useSetAtom(setBackgroundOpacityAtom);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toastError(t('File too large'), t('Maximum file size is 5MB'));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      setBackgroundImage(base64);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemove = () => {
+    setBackgroundImage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          className={`inline-flex items-center justify-center h-8 w-8 rounded-md transition-colors hover:bg-accent hover:text-accent-foreground ${
+            backgroundImage ? 'text-primary' : 'text-muted-foreground'
+          }`}
+          title={t('Custom background')}
+        >
+          <ImageIcon className="h-4 w-4" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-64 p-3" align="end" onCloseAutoFocus={(e) => e.preventDefault()}>
+        <DropdownMenuLabel className="px-0 py-0 mb-2">{t('Custom background')}</DropdownMenuLabel>
+        
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          className="hidden"
+        />
+
+        <div className="flex gap-2 mb-3" onPointerDown={(e) => e.stopPropagation()}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {t('Upload image')}
+          </Button>
+          {backgroundImage && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-destructive hover:text-destructive"
+              onClick={handleRemove}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+
+        {backgroundImage && (
+          <div className="h-16 w-full overflow-hidden rounded border mb-3">
+            <img
+              src={backgroundImage}
+              alt="Background"
+              className="h-full w-full object-cover"
+              style={{ opacity: backgroundOpacity / 100 }}
+            />
+          </div>
+        )}
+
+        <DropdownMenuSeparator />
+
+        <div className="space-y-2 pt-2" onPointerDown={(e) => e.stopPropagation()}>
+          <div className="flex items-center justify-between text-xs">
+            <span>{t('Background opacity')}</span>
+            <span className="text-muted-foreground">{backgroundOpacity}%</span>
+          </div>
+          <Slider
+            value={[backgroundOpacity]}
+            onValueChange={(values) => setBackgroundOpacity(values[0])}
+            min={0}
+            max={100}
+            step={5}
+          />
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }
 
 function ViewGitHubButton() {
@@ -128,3 +245,5 @@ function ChangeLanguageButton() {
     />
   );
 }
+
+

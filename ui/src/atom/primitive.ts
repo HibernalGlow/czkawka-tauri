@@ -28,6 +28,12 @@ export const selectedThemeAtom = atom<CustomThemeConfig | null>(null);
 // 自定义主题列表
 export const customThemesAtom = atom<CustomThemeConfig[]>([]);
 
+// 自定义背景图片 (base64 or null)
+export const backgroundImageAtom = atom<string | null>(null);
+
+// 背景透明度 (0-100, 100 = 完全不透明)
+export const backgroundOpacityAtom = atom<number>(100);
+
 export const presetsAtom = atomWithStorage<Preset[]>(
   'setting-presets',
   [getDefaultPreset()],
