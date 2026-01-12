@@ -19,7 +19,11 @@ import { FloatingFilterPanel } from '~/views/floating-filter-panel';
 import { SidebarImagePreview } from '~/views/sidebar-image-preview';
 import { SidebarVideoPreview } from '~/views/sidebar-video-preview';
 
+import { useAtomValue } from 'jotai';
+import { sidebarWidthAtom } from '~/atom/primitive';
+
 export default function App() {
+  const sidebarWidth = useAtomValue(sidebarWidthAtom);
   const PANEL_SIZE = 30;
   const STORAGE_KEY = 'app-bottom-panel-size';
   const [bottomPanelMinSize, setBottomPanelMinSize] = useState(8);
@@ -64,7 +68,7 @@ export default function App() {
 
   return (
     <div className="h-screen w-screen flex flex-col relative overflow-hidden">
-      <SidebarProvider>
+      <SidebarProvider style={{ '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}>
         <AppSidebar />
         <SidebarInset className="flex flex-col overflow-hidden">
           <TooltipProvider delayDuration={100} skipDelayDuration={90}>

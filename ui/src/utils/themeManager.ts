@@ -87,9 +87,31 @@ export async function fetchThemeFromURL(
  */
 export function applyThemeColors(colors: Record<string, string>) {
   const root = document.documentElement;
+  const sidebarVars: Record<string, string> = {
+    'sidebar-background': 'background',
+    'sidebar-foreground': 'foreground',
+    'sidebar-primary': 'primary',
+    'sidebar-primary-foreground': 'primary-foreground',
+    'sidebar-accent': 'accent',
+    'sidebar-accent-foreground': 'accent-foreground',
+    'sidebar-border': 'border',
+    'sidebar-ring': 'ring',
+  };
+
   for (const [key, value] of Object.entries(colors)) {
     if (typeof value === 'string') {
       root.style.setProperty(`--${key}`, value);
+
+      // 如果是基础变量，同时设置对应的 sidebar 变量（除非 sidebar 变量已显式定义）
+      // 注意：sidebar 变量需要提取 HSL 值（去除 hsl() 包裹）
+      const hslMatch = value.match(/hsl\((.*)\)/);
+      const hslValue = hslMatch ? hslMatch[1] : value;
+
+      for (const [sKey, bKey] of Object.entries(sidebarVars)) {
+        if (key === bKey && !colors[sKey]) {
+          root.style.setProperty(`--${sKey}`, hslValue);
+        }
+      }
     }
   }
 }

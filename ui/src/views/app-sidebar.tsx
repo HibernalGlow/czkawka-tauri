@@ -16,6 +16,8 @@ import {
 import { useTranslation } from 'react-i18next';
 import { currentToolAtom, progressAtom } from '~/atom/primitive';
 import { restoreFilterAtom } from '~/atom/tools';
+import { useCallback, useRef } from 'react';
+import { sidebarWidthAtom } from '~/atom/primitive';
 import {
   Sidebar,
   SidebarContent,
@@ -27,6 +29,7 @@ import {
   SidebarTrigger,
   SidebarHeader,
   useSidebar,
+  SidebarRail,
 } from '~/components/shadcn/sidebar';
 import { Tools } from '~/consts';
 import type { ToolsValues } from '~/types';
@@ -55,10 +58,48 @@ const toolIcons: Record<string, React.ComponentType<{ className?: string }>> = {
 
 export function AppSidebar() {
   const [currentTool, setCurrentTool] = useAtom(currentToolAtom);
+  const [sidebarWidth, setSidebarWidth] = useAtom(sidebarWidthAtom);
   const progress = useAtomValue(progressAtom);
   const { t } = useTranslation();
   const restoreFilter = useSetAtom(restoreFilterAtom);
   const { state } = useSidebar();
+
+  const isResizing = useRef(false);
+  const hasMoved = useRef(false);
+
+  const startResizing = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    isResizing.current = true;
+    hasMoved.current = false;
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', stopResizing);
+    document.body.style.cursor = 'col-resize';
+  }, []);
+
+  const stopResizing = useCallback(() => {
+    isResizing.current = false;
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', stopResizing);
+    document.body.style.cursor = '';
+    // Use a small timeout to ensure the click event has fired before resetting
+    setTimeout(() => {
+      hasMoved.current = false;
+    }, 100);
+  }, []);
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!isResizing.current) return;
+    hasMoved.current = true;
+    const newWidth = Math.min(Math.max(160, e.clientX), 600);
+    setSidebarWidth(newWidth);
+  }, []);
+
+  const handleRailClick = (e: React.MouseEvent) => {
+    if (hasMoved.current) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
 
   const handleClick = (name: string) => {
     if (!isValidTool(name)) {
@@ -104,6 +145,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarRail onMouseDown={startResizing} onClickCapture={handleRailClick} />
     </Sidebar>
   );
 }

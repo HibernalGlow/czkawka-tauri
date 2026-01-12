@@ -117,6 +117,9 @@ export const searchInputValueAtom = atom('');
 
 export const scanResultAtom = atom<any>(null);
 
+// 工具栏宽度
+export const sidebarWidthAtom = atomWithStorage('sidebar-width', 260);
+
 // Re-export local feature atoms for backward compatibility
 export {
   filterPanelAtom,
