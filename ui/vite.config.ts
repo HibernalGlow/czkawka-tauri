@@ -1,6 +1,11 @@
 import path from 'node:path';
+import { readFileSync } from 'node:fs';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
+
+const pkg = JSON.parse(
+  readFileSync(new URL('./package.json', import.meta.url), 'utf-8'),
+);
 
 export default defineConfig({
   plugins: [
@@ -26,11 +31,9 @@ export default defineConfig({
     },
   },
   define: {
-    PKG_NAME: JSON.stringify(process.env.npm_package_productName || ''),
-    PKG_VERSION: JSON.stringify(process.env.npm_package_version || ''),
-    REPOSITORY_URL: JSON.stringify(
-      process.env.npm_package_repository_url || '',
-    ),
+    PKG_NAME: JSON.stringify(pkg.productName || ''),
+    PKG_VERSION: JSON.stringify(pkg.version || ''),
+    REPOSITORY_URL: JSON.stringify(pkg.repository?.url || ''),
     PLATFORM: JSON.stringify(process.platform),
   },
   build: {
