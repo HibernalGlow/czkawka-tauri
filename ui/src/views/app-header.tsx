@@ -54,7 +54,10 @@ export function AppHeader() {
 
       {/* 左侧区域：侧边栏切换与统计信息 */}
       <div className="flex items-center gap-2 no-drag min-w-0 flex-shrink-0">
-        <SidebarTrigger className="h-8 w-8 hover:bg-accent/80 transition-colors" />
+        <SidebarTrigger 
+          className="h-8 w-8 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors" 
+          title={t('Toggle Sidebar')} 
+        />
         <div className="flex items-center pointer-events-none hidden sm:flex">
           {selectionStats && (
             <div className="flex items-center gap-2 text-[10px] text-muted-foreground/80 bg-muted/20 border border-border/30 rounded-full px-3 py-0.5 pointer-events-auto">
@@ -85,7 +88,8 @@ export function AppHeader() {
           ) : (
             <button
               onClick={() => setSearchExpanded(true)}
-              className="flex items-center justify-center h-8 w-8 hover:text-primary transition-colors text-muted-foreground"
+              className="flex items-center justify-center h-8 w-8 rounded-md transition-colors hover:bg-accent hover:text-accent-foreground text-muted-foreground"
+              title={t('search')}
             >
               <Search className="h-4 w-4" />
             </button>
@@ -95,9 +99,9 @@ export function AppHeader() {
         <div className="w-[1px] h-4 bg-border/40 mx-0.5" />
         
         <BackgroundButton />
-        <ThemeToggle size="sm" />
+        <ThemeToggle size="sm" className="text-muted-foreground" />
         <ChangeLanguageButton />
-        <SettingsButton size="sm" />
+        <SettingsButton size="sm" className="text-muted-foreground" />
       </div>
 
       {/* 右侧：窗口控制 */}
@@ -193,9 +197,7 @@ function BackgroundButton() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className={`inline-flex items-center justify-center h-8 w-8 rounded-md transition-colors hover:bg-accent hover:text-accent-foreground ${
-            backgroundImage ? 'text-primary' : 'text-muted-foreground'
-          }`}
+          className="inline-flex items-center justify-center h-8 w-8 rounded-md transition-colors hover:bg-accent hover:text-accent-foreground text-muted-foreground"
           title={t('Custom background')}
         >
           <ImageIcon className="h-4 w-4" />

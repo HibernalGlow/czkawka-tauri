@@ -66,7 +66,7 @@ export function SettingsButton(props: ButtonProps) {
     >
       <DialogTrigger asChild>
         <TooltipButton tooltip={t('Settings')} {...props}>
-          <Settings />
+          <Settings className="h-4 w-4" />
         </TooltipButton>
       </DialogTrigger>
       <DialogContent className="max-w-[700px] outline-none">

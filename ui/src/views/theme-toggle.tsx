@@ -33,9 +33,9 @@ export function ThemeToggle(props: ButtonProps) {
 
   return (
     <TooltipButton tooltip={t('Toggle theme')} onClick={toggleTheme} {...props}>
-      {theme.display === Theme.Light && <Sun />}
-      {theme.display === Theme.Dark && <Moon />}
-      {theme.display === Theme.System && <TvMinimal />}
+      {theme.display === Theme.Light && <Sun className="h-4 w-4" />}
+      {theme.display === Theme.Dark && <Moon className="h-4 w-4" />}
+      {theme.display === Theme.System && <TvMinimal className="h-4 w-4" />}
     </TooltipButton>
   );
 }
