@@ -16,9 +16,12 @@ export function useVideoServer() {
 
   useEffect(() => {
     getPort()
-      .then(setPort)
+      .then((p) => {
+        console.log('[useVideoServer] Got port:', p);
+        setPort(p);
+      })
       .catch((err) => {
-        console.error('Failed to get video server port', err);
+        console.error('[useVideoServer] Failed to get video server port', err);
       });
   }, []);
 

@@ -69,7 +69,7 @@ export function SimilarVideos() {
 
   // Calculate dynamic row height based on thumbnail size
   const dynamicRowHeight = useMemo(() => {
-    if (!settings.similarVideosEnableThumbnails) {
+    if (!(settings.similarVideosEnableThumbnails ?? true)) {
       return 36;
     }
     const thumbnailSize = Math.max(20, Math.min(thumbnailColumnWidth - 8, 200));
@@ -90,6 +90,9 @@ export function SimilarVideos() {
     });
   };
 
+  // Debug: Check if thumbnail column should be rendered
+  console.log('[SimilarVideos] similarVideosEnableThumbnails:', settings.similarVideosEnableThumbnails);
+
   const columns: ColumnDef<VideosEntry>[] = [
     {
       id: 'select',
@@ -108,7 +111,7 @@ export function SimilarVideos() {
         return <TableRowSelectionCell row={row} />;
       },
     },
-    ...(settings.similarVideosEnableThumbnails
+    ...((settings.similarVideosEnableThumbnails ?? true)
       ? [
           {
             id: 'thumbnail',
@@ -123,7 +126,7 @@ export function SimilarVideos() {
               return (
                 <DynamicVideoThumbnailCell
                   path={row.original.path}
-                  enableLazyLoad={true}
+                  enableLazyLoad={false}
                   onSizeChange={setThumbnailColumnWidth}
                   onClick={() => handleVideoClick(row.original.path)}
                 />

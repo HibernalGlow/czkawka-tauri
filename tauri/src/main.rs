@@ -140,7 +140,7 @@ fn handle_video_conn(mut stream: TcpStream) {
 	}
 	let mime = from_path(&full_path).first_or_octet_stream();
 	let mut headers = format!(
-		"HTTP/1.1 {} {}\r\nContent-Type: {}\r\nAccept-Ranges: bytes\r\nContent-Length: {}\r\n",
+		"HTTP/1.1 {} {}\r\nContent-Type: {}\r\nAccept-Ranges: bytes\r\nContent-Length: {}\r\nAccess-Control-Allow-Origin: *\r\n",
 		status,
 		if status == 206 {
 			"Partial Content"

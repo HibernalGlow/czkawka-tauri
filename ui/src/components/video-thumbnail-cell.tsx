@@ -93,45 +93,74 @@ export function VideoThumbnailCell({
 
   // Generate thumbnail when visible
   useEffect(() => {
-    if (!isVisible || !videoUrl) return;
+    if (!isVisible) return;
+    if (!videoUrl) {
+      console.log('[VideoThumbnailCell] Waiting for videoUrl...', path);
+      return;
+    }
 
+    console.log('[VideoThumbnailCell] Starting generation for:', videoUrl);
     setIsLoading(true);
     setHasError(false);
 
     const video = document.createElement('video');
     video.preload = 'metadata';
-    video.crossOrigin = 'anonymous';
+    video.crossOrigin = 'anonymous'; // Important for CORS
+    video.playsInline = true;
+    video.muted = true; // Often required for automated loading
 
     const handleLoadedMetadata = () => {
+      console.log('[VideoThumbnailCell] loadedmetadata:', path, 'duration:', video.duration);
       // Seek to 1 second or 10% of video duration
-      video.currentTime = Math.min(1, video.duration * 0.1);
+      const seekTime = Math.min(1, video.duration * 0.1);
+      video.currentTime = seekTime;
     };
 
     const handleSeeked = () => {
+      console.log('[VideoThumbnailCell] seeked:', path, 'currentTime:', video.currentTime);
       try {
+        if (video.videoWidth === 0 || video.videoHeight === 0) {
+          console.warn('[VideoThumbnailCell] Video dimensions are 0, retrying or failing...');
+          // Maybe wait a bit? usually seeked implies dimensions are ready.
+          setHasError(true);
+          setIsLoading(false);
+          return;
+        }
+
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         const ctx = canvas.getContext('2d');
         if (ctx) {
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-          setThumbnailData(dataUrl);
-          setIsLoading(false);
+          try {
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            console.log('[VideoThumbnailCell] Thumbnail generated successfully');
+            setThumbnailData(dataUrl);
+            setIsLoading(false);
+          } catch (e) {
+             console.error('[VideoThumbnailCell] Canvas toDataURL failed (likely CORS):', e);
+             setHasError(true);
+             setIsLoading(false);
+          }
         } else {
+          console.error('[VideoThumbnailCell] Failed to get 2d context');
           setHasError(true);
           setIsLoading(false);
         }
       } catch (error) {
-        console.error('Error generating video thumbnail:', error);
+        console.error('[VideoThumbnailCell] Error generating video thumbnail:', error);
         setHasError(true);
         setIsLoading(false);
       } finally {
-        video.remove();
+        // Only remove if we are sure we are done. 
+        // In some cases keeping it might smooth things but for memory we remove.
+        video.remove(); 
       }
     };
 
-    const handleError = () => {
+    const handleError = (e: any) => {
+      console.error('[VideoThumbnailCell] Video error:', path, video.error, e);
       setHasError(true);
       setIsLoading(false);
       video.remove();
@@ -142,14 +171,21 @@ export function VideoThumbnailCell({
     video.addEventListener('error', handleError);
 
     video.src = videoUrl;
+    console.log('[VideoThumbnailCell] Set video src');
 
     return () => {
+      console.log('[VideoThumbnailCell] Cleanup');
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
       video.removeEventListener('seeked', handleSeeked);
       video.removeEventListener('error', handleError);
       video.remove();
     };
   }, [videoUrl, isVisible]);
+
+  // ...
+  
+  // Debug log for render
+  console.log('[VideoThumbnailCell] Render:', path, 'visible:', isVisible, 'url:', videoUrl);
 
   const handleClick = () => {
     if (onClick) {

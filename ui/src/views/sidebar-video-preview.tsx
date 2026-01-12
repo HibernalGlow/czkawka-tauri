@@ -7,6 +7,8 @@ import { Button } from '~/components/shadcn/button';
 import { useT } from '~/hooks';
 import { cn } from '~/utils/cn';
 
+import { useVideoServer } from '~/hooks/use-video-server';
+
 export function SidebarVideoPreview() {
   const [sidebarState, setSidebarState] = useAtom(sidebarVideoPreviewAtom);
   const { isOpen, videoPath, mode, position, size } = sidebarState;
@@ -22,6 +24,7 @@ export function SidebarVideoPreview() {
     width: 0,
     height: 0,
   });
+  const { getVideoUrl } = useVideoServer();
 
   const closeSidebar = () => {
     // Pause video on close
@@ -169,22 +172,7 @@ export function SidebarVideoPreview() {
           height: `${size.height}px`,
         };
 
-  // 现状：convertFileSrc -> asset.localhost 无法访问磁盘视频 (ERR_CONNECTION_REFUSED)
-  // 临时策略：直接尝试 file:// 访问；如果失败，提示需要启用自定义协议（后端实现后再切换）。
-  // 使用自定义协议 videofs://local/<percent-encoded-absolute-path>
-  // Windows WebView2 不接受自定义 scheme (ERR_UNKNOWN_URL_SCHEME) 需后续在打包层做 scheme 权限放行，这里先回退 convertFileSrc 以保证可用
-  const [httpPort, setHttpPort] = useState<number | null>(null);
-  useEffect(() => {
-    if (isOpen && httpPort == null) {
-      invoke<number>('get_video_server_port')
-        .then(setHttpPort)
-        .catch(() => {});
-    }
-  }, [isOpen, httpPort]);
-
-  const src = httpPort
-    ? `http://127.0.0.1:${httpPort}/video?path=${encodeURIComponent(videoPath)}`
-    : undefined;
+  const src = getVideoUrl(videoPath);
 
   return (
     <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 9999 }}>
