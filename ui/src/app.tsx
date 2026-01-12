@@ -97,6 +97,7 @@ export default function App() {
             <SidebarInset className="flex flex-col overflow-hidden bg-transparent">
               <TooltipProvider delayDuration={100} skipDelayDuration={90}>
                 <ResizablePanelGroup
+                  className="flex-1"
                   direction="vertical"
                   autoSaveId="app-layout"
                   onLayout={(sizes) => {

@@ -125,7 +125,7 @@ export function DataTable<T extends BaseEntry>(props: DataTableProps<T>) {
   return (
     <div
       className={cn(
-        'rounded-sm border overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent scrollbar-thumb-rounded-full',
+        'h-full rounded-sm border overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent scrollbar-thumb-rounded-full',
         className,
       )}
     >
