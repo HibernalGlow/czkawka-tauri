@@ -63,7 +63,19 @@ export function MoveFiles(props: MoveFilesProps) {
     );
     if (!options.copyMode) {
       const set = new Set(successPaths);
-      const newData = currentToolData.filter((v) => !set.has(v.path));
+      const newData = currentToolData
+        .map((v) => {
+          if (Array.isArray(v)) {
+            return v.filter((item) => !set.has(item.path));
+          }
+          return v;
+        })
+        .filter((v) => {
+          if (Array.isArray(v)) {
+            return v.length > 0;
+          }
+          return !set.has(v.path);
+        });
       setCurrentToolData(newData);
     }
     setCurrentToolRowSelection({});

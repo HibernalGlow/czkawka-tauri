@@ -343,4 +343,7 @@ export const zh: Record<TranslationKeys, string> = {
   'Mask opacity': '遮罩透明度',
   'File too large': '文件过大',
   'Maximum file size is 5MB': '最大文件大小为 5MB',
+  'Toggle Sidebar': '切换侧边栏',
+  'Change language': '更改语言',
+  Language: '语言',
 };

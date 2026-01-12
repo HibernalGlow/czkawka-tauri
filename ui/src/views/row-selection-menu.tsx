@@ -48,11 +48,16 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
   const [isRegex, setIsRegex] = useState(false);
 
   const handleInvertSelection = () => {
-    invertSelection(currentToolData, setCurrentToolRowSelection);
+    invertSelection(
+      currentToolData as (BaseEntry & Partial<RefEntry>)[],
+      setCurrentToolRowSelection,
+    );
   };
 
   const handleSelectAll = () => {
-    const paths = getPathsFromEntries(currentToolData);
+    const paths = getPathsFromEntries(
+      currentToolData as (BaseEntry & Partial<RefEntry>)[],
+    );
     setCurrentToolRowSelection(pathsToRowSelection(paths));
   };
 
@@ -68,11 +73,20 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
     ) {
       return;
     }
-    setCurrentToolRowSelection(selectItem(currentToolData, type, dir, inverse));
+    setCurrentToolRowSelection(
+      selectItem(
+        currentToolData as (BaseEntry & RefEntry & WithRaw)[],
+        type,
+        dir,
+        inverse,
+      ),
+    );
   };
 
   const handleSelectByFolder = () => {
-    setCurrentToolRowSelection(selectByFolder(currentToolData));
+    setCurrentToolRowSelection(
+      selectByFolder(currentToolData as (BaseEntry & RefEntry)[]),
+    );
   };
 
   const handleCustomSelect = (unselect = false) => {
@@ -80,7 +94,9 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
 
     try {
       const pattern = isRegex ? new RegExp(customPattern) : customPattern;
-      const paths = getPathsFromEntries(currentToolData);
+      const paths = getPathsFromEntries(
+        currentToolData as (BaseEntry & Partial<RefEntry>)[],
+      );
 
       const matchedPaths = paths.filter((path) => {
         if (isRegex) {

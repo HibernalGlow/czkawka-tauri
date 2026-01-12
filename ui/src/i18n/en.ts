@@ -351,6 +351,9 @@ export const en = {
   'Mask opacity': 'Mask Opacity',
   'File too large': 'File too large',
   'Maximum file size is 5MB': 'Maximum file size is 5MB',
+  'Toggle Sidebar': 'Toggle Sidebar',
+  'Change language': 'Change language',
+  Language: 'Language',
 };
 
 export type TranslationKeys = keyof typeof en;

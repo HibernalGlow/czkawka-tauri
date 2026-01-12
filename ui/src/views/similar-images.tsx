@@ -21,9 +21,11 @@ import { DynamicThumbnailCell } from '~/components/dynamic-thumbnail-cell';
 import { useT } from '~/hooks';
 import type { ImagesEntry as BaseImagesEntry, FolderStat } from '~/types';
 
-// 扩展 ImagesEntry 类型，添加 _isGroupEnd 可选属性
-type ImagesEntry = BaseImagesEntry & {
+// 扩展 ImagesEntry 类型，支持文件夹行
+type CombinedEntry = BaseImagesEntry & {
   _isGroupEnd?: boolean;
+  id?: string;
+  isFolder?: boolean;
 };
 
 import { formatPathDisplay } from '~/utils/path-utils';
@@ -50,6 +52,7 @@ export function SimilarImages() {
   // 将文件夹数据转换为表格行格式，复用现有的列结构
   const transformedFoldersData = useMemo(() => {
     return filteredFoldersData.map((folder: FolderStat, index: number) => ({
+      ...({} as BaseImagesEntry),
       id: `folder-${index}`,
       similarity: '',
       size: `${folder.count} 张图片`,
@@ -60,7 +63,6 @@ export function SimilarImages() {
       isRef: false,
       hidden: false,
       raw: {} as any,
-      // 为文件夹添加标识，用于区分是否为文件夹行
       isFolder: true,
     }));
   }, [filteredFoldersData]);
@@ -142,16 +144,16 @@ export function SimilarImages() {
     // 根据视图模式选择数据源并进行最后处理
     if (viewMode === 'folders') {
       // 文件夹模式也应用筛选
-      if (!filter) return transformedFoldersData;
+      if (!filter) return transformedFoldersData as CombinedEntry[];
       const lowercaseFilter = filter.toLowerCase();
-      return transformedFoldersData.filter(
+      return (transformedFoldersData as CombinedEntry[]).filter(
         (item) =>
           item.fileName.toLowerCase().includes(lowercaseFilter) ||
           item.path.toLowerCase().includes(lowercaseFilter),
       );
     }
 
-    const result: ImagesEntry[] = [];
+    const result: CombinedEntry[] = [];
     for (let i = 0; i < filteredImagesData.length; i++) {
       const curr = filteredImagesData[i];
       if (curr.hidden) continue; // 跳过 hidden 行
@@ -165,7 +167,7 @@ export function SimilarImages() {
     return result;
   }, [imagesData, viewMode, transformedFoldersData, filter]);
 
-  const columns: ColumnDef<ImagesEntry>[] = [
+  const columns: ColumnDef<CombinedEntry>[] = [
     {
       id: 'select',
       meta: { span: 1 },
@@ -358,7 +360,7 @@ export function SimilarImages() {
   );
 }
 
-function FileName(props: { row: Row<ImagesEntry> }) {
+function FileName(props: { row: Row<CombinedEntry> }) {
   const { row } = props;
   const { hidden, path, fileName } = row.original;
   const imagesData = useAtomValue(currentToolDataAtom) as BaseImagesEntry[];
@@ -403,7 +405,7 @@ function FileName(props: { row: Row<ImagesEntry> }) {
   return fileName;
 }
 
-function ClickablePath(props: { row: Row<ImagesEntry> }) {
+function ClickablePath(props: { row: Row<CombinedEntry> }) {
   const { row } = props;
   const { path } = row.original;
   const imagesData = useAtomValue(currentToolDataAtom) as BaseImagesEntry[];
@@ -447,7 +449,7 @@ function ClickablePath(props: { row: Row<ImagesEntry> }) {
 }
 
 // 通用的可点击单元格组件
-function ClickableCell(props: { row: Row<ImagesEntry>; value: string }) {
+function ClickableCell(props: { row: Row<CombinedEntry>; value: string }) {
   const { row, value } = props;
   const { path } = row.original;
   const imagesData = useAtomValue(currentToolDataAtom) as BaseImagesEntry[];

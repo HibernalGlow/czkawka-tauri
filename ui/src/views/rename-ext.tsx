@@ -40,7 +40,19 @@ export function RenameExt(props: RenameExtProps) {
       ),
     );
     const set = new Set(successPaths);
-    const newData = currentToolData.filter((v) => !set.has(v.path));
+    const newData = currentToolData
+      .map((v) => {
+        if (Array.isArray(v)) {
+          return v.filter((item) => !set.has(item.path));
+        }
+        return v;
+      })
+      .filter((v) => {
+        if (Array.isArray(v)) {
+          return v.length > 0;
+        }
+        return !set.has(v.path);
+      });
     setCurrentToolData(newData);
     setCurrentToolRowSelection({});
   });
@@ -60,9 +72,11 @@ export function RenameExt(props: RenameExtProps) {
     }
     loading.on();
     ipc.renameExt({
-      items: currentToolData.map((v) => {
-        return { path: v.path, ext: v.properExtension };
-      }),
+      items: (currentToolData as any[])
+        .flatMap((v) => (Array.isArray(v) ? v : [v]))
+        .map((v) => {
+          return { path: v.path, ext: v.properExtension };
+        }),
     });
   };
 
