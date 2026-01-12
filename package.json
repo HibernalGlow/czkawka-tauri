@@ -1,7 +1,7 @@
 {
   "name": "czkawka-tauri-root",
   "private": true,
-  "version": "1.2.2",
+  "version": "1.2.3",
   "author": "shixinhuang99 <shixinhuang99@gmail.com>",
   "type": "module",
   "repository": {
