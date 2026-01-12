@@ -119,6 +119,7 @@
 /* 当有自定义背景图片时，让主要容器背景变半透明 */
 [data-custom-bg="true"] [data-sidebar="sidebar"],
 [data-custom-bg="true"] main,
+[data-custom-bg="true"] header,
 [data-custom-bg="true"] .bg-background,
 [data-custom-bg="true"] .bg-card,
 [data-custom-bg="true"] .bg-popover,
@@ -141,7 +142,6 @@
 }
 
 /* 针对特定组件的透明化处理，避免多重遮罩叠加 */
-[data-custom-bg="true"] header,
 [data-custom-bg="true"] .sticky,
 [data-custom-bg="true"] [role="tablist"] {
   background-color: transparent !important;

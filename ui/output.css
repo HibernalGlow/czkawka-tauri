@@ -801,6 +801,10 @@ body {
   left: 0px;
 }
 
+.left-1\/2 {
+  left: 50%;
+}
+
 .left-2 {
   left: 0.5rem;
 }
@@ -877,8 +881,8 @@ body {
   top: 50%;
 }
 
-.left-1\/2 {
-  left: 50%;
+.top-10 {
+  top: 2.5rem;
 }
 
 .z-0 {
@@ -1152,6 +1156,10 @@ body {
 
 .h-svh {
   height: 100svh;
+}
+
+.h-\[calc\(100vh-2\.5rem\)\] {
+  height: calc(100vh - 2.5rem);
 }
 
 .max-h-96 {
@@ -2115,10 +2123,6 @@ body {
   padding-right: 0.75rem;
 }
 
-.pr-4 {
-  padding-right: 1rem;
-}
-
 .pr-8 {
   padding-right: 2rem;
 }
@@ -2133,10 +2137,6 @@ body {
 
 .pt-4 {
   padding-top: 1rem;
-}
-
-.pt-6 {
-  padding-top: 1.5rem;
 }
 
 .text-left {
@@ -2739,6 +2739,7 @@ body {
 
 [data-custom-bg="true"] [data-sidebar="sidebar"],
 [data-custom-bg="true"] main,
+[data-custom-bg="true"] header,
 [data-custom-bg="true"] .bg-background,
 [data-custom-bg="true"] .bg-card,
 [data-custom-bg="true"] .bg-popover,
@@ -2764,7 +2765,6 @@ body {
 
 /* 针对特定组件的透明化处理，避免多重遮罩叠加 */
 
-[data-custom-bg="true"] header,
 [data-custom-bg="true"] .sticky,
 [data-custom-bg="true"] [role="tablist"] {
   background-color: transparent !important;

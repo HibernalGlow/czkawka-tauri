@@ -41,8 +41,8 @@ export function AppHeader() {
   };
 
   return (
-    <div
-      className="w-full h-10 flex justify-between items-center px-3 py-0 border-b border-border/40 dark:border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 select-none relative"
+    <header
+      className="w-full h-10 flex justify-between items-center px-3 py-0 border-b border-border/40 dark:border-border/60 bg-background/95 z-50 select-none relative transition-all duration-300"
       data-tauri-drag-region
     >
       {/* 这里的子元素需要标记为 no-drag，否则由于 z-index 提升可能导致点击失效或拖拽失效 */}
@@ -99,7 +99,7 @@ export function AppHeader() {
       <div className="flex justify-end items-center pl-4 relative z-10 no-drag">
         <WindowControls />
       </div>
-    </div>
+    </header>
   );
 }
 

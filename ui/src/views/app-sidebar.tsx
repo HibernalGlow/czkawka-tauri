@@ -110,7 +110,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r transition-all duration-300">
+    <Sidebar collapsible="icon" className="border-r transition-all duration-300 top-10 h-[calc(100vh-2.5rem)]">
       <SidebarContent className="hide-scrollbar">
         <SidebarGroup className="py-2">
           <SidebarGroupContent>
