@@ -31,7 +31,7 @@ export default defineConfig({
     },
   },
   define: {
-    PKG_NAME: JSON.stringify(pkg.productName || ''),
+    PKG_NAME: JSON.stringify(''),
     PKG_VERSION: JSON.stringify(pkg.version || ''),
     REPOSITORY_URL: JSON.stringify(pkg.repository?.url || ''),
     PLATFORM: JSON.stringify(process.platform),
