@@ -643,15 +643,7 @@ body {
 }
 
 [data-custom-bg="true"] body {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-
-.dark[data-custom-bg="true"] body,
-[data-custom-bg="true"].dark body,
-.dark [data-custom-bg="true"] body {
-  background: rgba(25, 30, 40, 0.85);
+  background: color-mix(in srgb, var(--background) 85%, transparent);
 }
 
 * {
@@ -664,15 +656,7 @@ body {
 }
 
 [data-custom-bg="true"] body {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-
-.dark[data-custom-bg="true"] body,
-[data-custom-bg="true"].dark body,
-.dark [data-custom-bg="true"] body {
-  background: rgba(25, 30, 40, 0.85);
+  background: color-mix(in srgb, var(--background) 85%, transparent);
 }
 
 .\!container {
@@ -883,8 +867,8 @@ body {
   top: 50%;
 }
 
-.isolate {
-  isolation: isolate;
+.z-0 {
+  z-index: 0;
 }
 
 .z-10 {
@@ -897,10 +881,6 @@ body {
 
 .z-50 {
   z-index: 50;
-}
-
-.z-\[-1\] {
-  z-index: -1;
 }
 
 .m-0 {
@@ -2559,60 +2539,28 @@ body {
 
 /* 当有自定义背景图片时，让主要容器背景变半透明 */
 
-/* Light mode */
-
 [data-custom-bg="true"] [data-sidebar="sidebar"] {
-  background: rgba(250, 250, 250, 0.75) !important;
+  background: color-mix(in srgb, var(--sidebar-background, var(--background)) 75%, transparent) !important;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 
 [data-custom-bg="true"] main {
-  background: rgba(255, 255, 255, 0.8) !important;
+  background: color-mix(in srgb, var(--background) 80%, transparent) !important;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-}
-
-/* Dark mode */
-
-.dark[data-custom-bg="true"] [data-sidebar="sidebar"],
-[data-custom-bg="true"].dark [data-sidebar="sidebar"],
-.dark [data-custom-bg="true"] [data-sidebar="sidebar"] {
-  background: rgba(20, 20, 30, 0.75) !important;
-}
-
-.dark[data-custom-bg="true"] main,
-[data-custom-bg="true"].dark main,
-.dark [data-custom-bg="true"] main {
-  background: rgba(25, 30, 40, 0.8) !important;
 }
 
 /* 确保背景图片层在正确的位置 */
 
 [data-custom-bg="true"] {
-  background: transparent !important;
+  background: transparent;
 }
 
-/* 让 SidebarProvider wrapper 透明 */
-
-[data-custom-bg="true"] .group\/sidebar-wrapper {
-  background: transparent !important;
-}
-
-/* 底部面板 - Light mode */
+/* 底部面板也需要透明 */
 
 [data-custom-bg="true"] .bg-background {
-  background: rgba(255, 255, 255, 0.85) !important;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-
-/* 底部面板 - Dark mode */
-
-.dark[data-custom-bg="true"] .bg-background,
-[data-custom-bg="true"].dark .bg-background,
-.dark [data-custom-bg="true"] .bg-background {
-  background: rgba(25, 30, 40, 0.85) !important;
+  background: color-mix(in srgb, var(--background) 85%, transparent) !important;
 }
 
 .\*\:pl-4 > * {

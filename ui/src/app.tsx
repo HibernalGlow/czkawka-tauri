@@ -70,20 +70,19 @@ export default function App() {
 
   return (
     <div 
-      className="h-screen w-screen flex flex-col relative overflow-hidden isolate"
+      className="h-screen w-screen flex flex-col relative overflow-hidden"
       data-custom-bg={backgroundImage ? "true" : undefined}
     >
-      {/* 自定义背景图片层 - 使用 z-[-1] 确保在所有内容后面 */}
+      {/* 自定义背景图片层 */}
       {backgroundImage && (
         <div
-          className="fixed inset-0 pointer-events-none"
+          className="fixed inset-0 pointer-events-none z-0"
           style={{
             backgroundImage: `url(${backgroundImage})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             opacity: backgroundOpacity / 100,
-            zIndex: -1,
           }}
         />
       )}

@@ -64,11 +64,17 @@ function applyThemeWithColors(
 
 /**
  * 应用背景图片和透明度到 DOM
- * 注意：实际的背景图片渲染现在由 React (app.tsx) 处理，
- * 这个函数保留用于未来可能需要的 CSS 变量设置
  */
-function applyBackgroundImage(_image: string | null, _opacity: number) {
-  // 背景图片现在由 React 组件直接渲染，无需设置 CSS 变量
+function applyBackgroundImage(image: string | null, opacity: number) {
+  const root = document.documentElement;
+  
+  if (image) {
+    root.style.setProperty('--custom-bg-image', `url(${image})`);
+    root.style.setProperty('--custom-bg-opacity', String(opacity / 100));
+  } else {
+    root.style.removeProperty('--custom-bg-image');
+    root.style.removeProperty('--custom-bg-opacity');
+  }
 }
 
 export const initThemeAtom = atom(null, (_, set) => {
