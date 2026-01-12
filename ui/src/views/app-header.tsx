@@ -17,6 +17,9 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
 } from '~/components/shadcn/dropdown-menu';
 import { Button } from '~/components/shadcn/button';
 import { useT, useTableSelectionStats } from '~/hooks';
@@ -305,6 +308,7 @@ function BackgroundButton() {
 
 function ChangeLanguageButton() {
   const { i18n } = useTranslation();
+  const t = useT();
   const [value, setValue] = useState(i18n.language);
 
   const handleLanguageChange = (v: string) => {
@@ -314,23 +318,33 @@ function ChangeLanguageButton() {
     document.documentElement.lang = v;
   };
 
+  const options = [
+    { label: 'English', value: 'en' },
+    { label: '简体中文', value: 'zh' },
+  ];
+
   return (
-    <Select
-      trigger={
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
         <button
           className="inline-flex items-center justify-center h-8 w-8 rounded-md transition-colors hover:bg-accent hover:text-accent-foreground text-muted-foreground"
-          title="Change Language"
+          title={t('Change language')}
         >
           <Languages className="h-4 w-4" />
         </button>
-      }
-      value={value}
-      onChange={handleLanguageChange}
-      options={[
-        { label: 'English', value: 'en' },
-        { label: '简体中文', value: 'zh' },
-      ]}
-    />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-32">
+        <DropdownMenuLabel>{t('Language')}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuRadioGroup value={value} onValueChange={handleLanguageChange}>
+          {options.map((option) => (
+            <DropdownMenuRadioItem key={option.value} value={option.value} className="text-xs">
+              {option.label}
+            </DropdownMenuRadioItem>
+          ))}
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
