@@ -41,9 +41,11 @@ export function AppHeader() {
 
   return (
     <div
-      className="w-full h-10 flex justify-between items-center px-2 py-0 border-b border-border/40 dark:border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 select-none"
-      data-tauri-drag-region
+      className="relative w-full h-10 flex justify-between items-center px-2 py-0 border-b border-border/40 dark:border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 select-none"
     >
+      {/* 拖拽区域：仅在中间空白部分响应 */}
+      <div className="absolute inset-y-0 left-48 right-36 -z-10" data-tauri-drag-region />
+
       {/* 左侧：统计信息 */}
       <div className="flex-1 flex items-center min-w-0 pr-4 pointer-events-none">
         {selectionStats && (
@@ -56,7 +58,7 @@ export function AppHeader() {
       </div>
 
       {/* 中间：核心控制区 (搜索, 背景, 明暗, 语言) */}
-      <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-full border border-border/30">
+      <div className="relative z-10 flex items-center gap-1 bg-muted/30 p-1 rounded-full border border-border/30">
         <div className={`flex items-center transition-all duration-300 ease-out overflow-hidden ${searchExpanded ? 'w-48 px-1' : 'w-8'}`}>
           {searchExpanded ? (
             <div className="relative w-full">
@@ -90,7 +92,7 @@ export function AppHeader() {
       </div>
 
       {/* 右侧：窗口控制 */}
-      <div className="flex-1 flex justify-end items-center pl-4">
+      <div className="flex-1 flex justify-end items-center pl-4 relative z-10">
         <WindowControls />
       </div>
     </div>
@@ -99,28 +101,41 @@ export function AppHeader() {
 
 function WindowControls() {
   const [isMaximized, setIsMaximized] = useState(false);
-  const appWindow = getCurrentWindow();
+  
+  const onMinimize = async () => {
+    const { getCurrentWindow } = await import('@tauri-apps/api/window');
+    await getCurrentWindow().minimize();
+  };
+
+  const onToggleMaximize = async () => {
+    const { getCurrentWindow } = await import('@tauri-apps/api/window');
+    const win = getCurrentWindow();
+    await win.toggleMaximize();
+    setIsMaximized(await win.isMaximized());
+  };
+
+  const onClose = async () => {
+    const { getCurrentWindow } = await import('@tauri-apps/api/window');
+    await getCurrentWindow().close();
+  };
 
   return (
-    <div className="flex items-center h-full -mr-2">
+    <div className="flex items-center h-full -mr-2 relative z-50">
       <button
-        onClick={() => appWindow.minimize()}
-        className="w-11 h-10 flex items-center justify-center hover:bg-muted/80 transition-colors"
+        onClick={onMinimize}
+        className="w-11 h-10 flex items-center justify-center hover:bg-muted/80 transition-colors cursor-pointer pointer-events-auto"
       >
         <Minus className="h-4 w-4" />
       </button>
       <button
-        onClick={() => {
-          appWindow.toggleMaximize();
-          setIsMaximized(!isMaximized);
-        }}
-        className="w-11 h-10 flex items-center justify-center hover:bg-muted/80 transition-colors"
+        onClick={onToggleMaximize}
+        className="w-11 h-10 flex items-center justify-center hover:bg-muted/80 transition-colors cursor-pointer pointer-events-auto"
       >
         <Square className="h-3 w-3" />
       </button>
       <button
-        onClick={() => appWindow.close()}
-        className="w-11 h-10 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
+        onClick={onClose}
+        className="w-11 h-10 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors cursor-pointer pointer-events-auto"
       >
         <X className="h-4 w-4" />
       </button>
