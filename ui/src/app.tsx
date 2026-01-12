@@ -70,28 +70,26 @@ export default function App() {
 
   return (
     <div 
-      className="h-screen w-screen flex flex-col relative overflow-hidden"
+      className="h-screen w-screen flex flex-col relative overflow-hidden isolate"
       data-custom-bg={backgroundImage ? "true" : undefined}
     >
-      {/* 自定义背景图片层 */}
+      {/* 自定义背景图片层 - 使用 z-[-1] 确保在所有内容后面 */}
       {backgroundImage && (
         <div
-          className="absolute inset-0 pointer-events-none"
+          className="fixed inset-0 pointer-events-none"
           style={{
             backgroundImage: `url(${backgroundImage})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             opacity: backgroundOpacity / 100,
+            zIndex: -1,
           }}
-          aria-hidden="true"
         />
       )}
-      {/* 主内容容器 - 需要相对定位以便在背景之上 */}
-      <div className="relative flex flex-1 w-full h-full overflow-hidden z-[1]">
-        <SidebarProvider style={{ '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}>
-          <AppSidebar />
-          <SidebarInset className="flex flex-col overflow-hidden">
+      <SidebarProvider style={{ '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}>
+        <AppSidebar />
+        <SidebarInset className="flex flex-col overflow-hidden">
           <TooltipProvider delayDuration={100} skipDelayDuration={90}>
             <ResizablePanelGroup
               direction="vertical"
@@ -121,7 +119,6 @@ export default function App() {
           </TooltipProvider>
         </SidebarInset>
       </SidebarProvider>
-      </div>
       <Toaster />
       <SidebarImagePreview />
       <SidebarVideoPreview />
