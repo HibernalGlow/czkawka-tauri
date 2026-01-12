@@ -154,39 +154,7 @@ export function ThemePanel() {
 
   return (
     <ScrollArea className="h-full">
-      <div className="space-y-6 p-4">
-        {/* 顶部应用标识与设置标题 */}
-        <div className="flex items-center justify-between border-b border-border/40 pb-6 mb-2">
-          <div className="flex items-center gap-3">
-            <img
-              className="size-10 shadow-sm"
-              src="/icon.ico"
-              alt="czkawka icon"
-            />
-            <div className="flex flex-col">
-              <div className="flex items-center gap-2">
-                <span className="font-serif text-xl font-bold tracking-tight">{PKG_NAME}</span>
-                <span className="text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded text-muted-foreground">v{PKG_VERSION}</span>
-              </div>
-              <p className="text-muted-foreground text-xs">
-                {t('Theme settings')}
-              </p>
-            </div>
-          </div>
-
-          <BoxReveal boxColor="hsl(var(--primary))" duration={1.0}>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 flex items-center gap-2 rounded-full border-primary/20 hover:bg-primary/10 transition-all group"
-              onClick={() => openUrl(REPOSITORY_URL)}
-            >
-              <Github className="h-3.5 w-3.5 group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-semibold">Source Code</span>
-            </Button>
-          </BoxReveal>
-        </div>
-
+      <div className="space-y-6 p-4 pt-2 pb-4">
         {/* 主题模式选择 */}
         <div className="space-y-3">
           <Label className="text-sm font-semibold">{t('Theme mode')}</Label>
