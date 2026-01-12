@@ -36,6 +36,8 @@ export const backgroundOpacityAtom = atom<number>(100);
 
 // 背景模糊度 (0-20px)
 export const backgroundBlurAtom = atom<number>(8);
+// 遮罩透明度
+export const maskOpacityAtom = atom<number>(80);
 
 export const presetsAtom = atomWithStorage<Preset[]>(
   'setting-presets',

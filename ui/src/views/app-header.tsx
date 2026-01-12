@@ -4,8 +4,8 @@ import { ImageIcon, Languages, Trash2 } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDebouncedCallback } from 'use-debounce';
-import { backgroundBlurAtom, backgroundImageAtom, backgroundOpacityAtom, searchInputValueAtom } from '~/atom/primitive';
-import { setBackgroundBlurAtom, setBackgroundImageAtom, setBackgroundOpacityAtom } from '~/atom/theme';
+import { backgroundBlurAtom, backgroundImageAtom, backgroundOpacityAtom, maskOpacityAtom, searchInputValueAtom } from '~/atom/primitive';
+import { setBackgroundBlurAtom, setBackgroundImageAtom, setBackgroundOpacityAtom, setMaskOpacityAtom } from '~/atom/theme';
 import { currentToolFilterAtom } from '~/atom/tools';
 import { SearchInput, Select, Slider, TooltipButton, toastError } from '~/components';
 import { GitHub } from '~/components/icons'
@@ -103,9 +103,11 @@ function BackgroundButton() {
   const backgroundImage = useAtomValue(backgroundImageAtom);
   const backgroundOpacity = useAtomValue(backgroundOpacityAtom);
   const backgroundBlur = useAtomValue(backgroundBlurAtom);
+  const maskOpacity = useAtomValue(maskOpacityAtom);
   const setBackgroundImage = useSetAtom(setBackgroundImageAtom);
   const setBackgroundOpacity = useSetAtom(setBackgroundOpacityAtom);
   const setBackgroundBlur = useSetAtom(setBackgroundBlurAtom);
+  const setMaskOpacity = useSetAtom(setMaskOpacityAtom);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -217,6 +219,20 @@ function BackgroundButton() {
             min={0}
             max={20}
             step={1}
+          />
+        </div>
+
+        <div className="space-y-2 pt-4" onPointerDown={(e) => e.stopPropagation()}>
+          <div className="flex items-center justify-between text-xs">
+            <span>{t('Mask opacity')}</span>
+            <span className="text-muted-foreground">{maskOpacity}%</span>
+          </div>
+          <Slider
+            value={[maskOpacity]}
+            onValueChange={(values) => setMaskOpacity(values[0])}
+            min={0}
+            max={100}
+            step={5}
           />
         </div>
       </DropdownMenuContent>

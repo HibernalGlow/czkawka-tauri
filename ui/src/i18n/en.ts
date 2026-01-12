@@ -348,6 +348,7 @@ export const en = {
   Remove: 'Remove',
   'Background opacity': 'Background Opacity',
   'Background blur': 'Background Blur',
+  'Mask opacity': 'Mask Opacity',
   'File too large': 'File too large',
   'Maximum file size is 5MB': 'Maximum file size is 5MB',
 };

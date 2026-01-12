@@ -114,4 +114,16 @@ export const storage = {
   setBackgroundBlur(blur: number) {
     localStorage.setItem('background-blur', String(blur));
   },
+
+  // 遮罩透明度 (0-100)
+  getMaskOpacity(): number {
+    const val = localStorage.getItem('mask-opacity');
+    if (val === null) return 80;
+    const num = parseInt(val, 10);
+    return isNaN(num) ? 80 : Math.max(0, Math.min(100, num));
+  },
+
+  setMaskOpacity(opacity: number) {
+    localStorage.setItem('mask-opacity', String(opacity));
+  },
 };
