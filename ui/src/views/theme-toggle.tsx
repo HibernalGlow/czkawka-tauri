@@ -8,10 +8,9 @@ import {
   toggleThemeAtom,
 } from '~/atom/theme';
 import { TooltipButton } from '~/components';
+import { ButtonProps } from '~/components/shadcn/button';
 import { DARK_MODE_MEDIA, Theme } from '~/consts';
 import { useT } from '~/hooks';
-
-import { ButtonProps } from '~/components/shadcn/button';
 
 export function ThemeToggle(props: ButtonProps) {
   const theme = useAtomValue(themeAtom);

@@ -1,35 +1,55 @@
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { getCurrentWindow } from '@tauri-apps/api/window';
-import { ImageIcon, Languages, Minus, Search, Square, Trash2, X } from 'lucide-react';
+import {
+  ImageIcon,
+  Languages,
+  Minus,
+  Search,
+  Square,
+  Trash2,
+  X,
+} from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDebouncedCallback } from 'use-debounce';
-import { backgroundBlurAtom, backgroundEnabledAtom, backgroundImageAtom, backgroundOpacityAtom, maskOpacityAtom, searchInputValueAtom } from '~/atom/primitive';
-import { setBackgroundBlurAtom, setBackgroundEnabledAtom, setBackgroundImageAtom, setBackgroundOpacityAtom, setMaskOpacityAtom } from '~/atom/theme';
+import {
+  backgroundBlurAtom,
+  backgroundEnabledAtom,
+  backgroundImageAtom,
+  backgroundOpacityAtom,
+  maskOpacityAtom,
+  searchInputValueAtom,
+} from '~/atom/primitive';
+import {
+  setBackgroundBlurAtom,
+  setBackgroundEnabledAtom,
+  setBackgroundImageAtom,
+  setBackgroundOpacityAtom,
+  setMaskOpacityAtom,
+} from '~/atom/theme';
 import { currentToolFilterAtom } from '~/atom/tools';
 import { Select, Slider, TooltipButton, toastError } from '~/components';
-import { GitHub } from '~/components/icons'
+import { GitHub } from '~/components/icons';
 import { SelectIconTrigger } from '~/components/one-select';
+import { Button } from '~/components/shadcn/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuTrigger,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from '~/components/shadcn/dropdown-menu';
-import { Button } from '~/components/shadcn/button';
+import { Label } from '~/components/shadcn/label';
+import { SidebarTrigger } from '~/components/shadcn/sidebar';
+import { Switch } from '~/components/shadcn/switch';
 import { useT, useTableSelectionStats } from '~/hooks';
 import { storage } from '~/utils/storage';
-import { Switch } from '~/components/shadcn/switch';
-import { Label } from '~/components/shadcn/label';
-
 import { SettingsButton } from './settings';
 import { ThemeToggle } from './theme-toggle';
-import { SidebarTrigger } from '~/components/shadcn/sidebar';
 
 // 新增 selectionStats props，便于顶栏显示统计信息
 export function AppHeader() {
@@ -54,16 +74,18 @@ export function AppHeader() {
 
       {/* 左侧区域：侧边栏切换与统计信息 */}
       <div className="flex items-center gap-2 no-drag min-w-0 flex-shrink-0">
-        <SidebarTrigger 
-          className="h-8 w-8 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors" 
-          title={t('Toggle Sidebar')} 
+        <SidebarTrigger
+          className="h-8 w-8 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+          title={t('Toggle Sidebar')}
         />
         <div className="flex items-center pointer-events-none hidden sm:flex">
           {selectionStats && (
             <div className="flex items-center gap-2 text-[10px] text-muted-foreground/80 bg-muted/20 border border-border/30 rounded-full px-3 py-0.5 pointer-events-auto">
               <span className="truncate">已选 {selectionStats.count}</span>
               <span className="opacity-30">|</span>
-              <span className="truncate">{formatSize(selectionStats.totalSize)}</span>
+              <span className="truncate">
+                {formatSize(selectionStats.totalSize)}
+              </span>
             </div>
           )}
         </div>
@@ -71,7 +93,9 @@ export function AppHeader() {
 
       {/* 中间：核心控制区 (搜索, 背景, 明暗, 语言) - 绝对居中 */}
       <div className="absolute left-1/2 -translate-x-1/2 z-10 flex items-center gap-0.5 bg-muted/40 p-0.5 rounded-full border border-border/40 no-drag shadow-sm backdrop-blur-sm">
-        <div className={`flex items-center transition-all duration-300 ease-out overflow-hidden ${searchExpanded ? 'w-48 px-1' : 'w-8'}`}>
+        <div
+          className={`flex items-center transition-all duration-300 ease-out overflow-hidden ${searchExpanded ? 'w-48 px-1' : 'w-8'}`}
+        >
           {searchExpanded ? (
             <div className="relative w-full">
               <input
@@ -95,9 +119,9 @@ export function AppHeader() {
             </button>
           )}
         </div>
-        
+
         <div className="w-[1px] h-4 bg-border/40 mx-0.5" />
-        
+
         <BackgroundButton />
         <ThemeToggle size="sm" className="text-muted-foreground" />
         <ChangeLanguageButton />
@@ -131,7 +155,7 @@ function WindowControls() {
           setIsMaximized(await appWindow.isMaximized());
         }}
         className="w-11 h-10 flex items-center justify-center hover:bg-muted/80 transition-colors pointer-events-auto"
-        title={isMaximized ? "Restore" : "Maximize"}
+        title={isMaximized ? 'Restore' : 'Maximize'}
       >
         <Square className="h-3 w-3" />
       </button>
@@ -203,10 +227,17 @@ function BackgroundButton() {
           <ImageIcon className="h-4 w-4" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-64 p-3" align="end" onCloseAutoFocus={(e) => e.preventDefault()}>
+      <DropdownMenuContent
+        className="w-64 p-3"
+        align="end"
+        onCloseAutoFocus={(e) => e.preventDefault()}
+      >
         <DropdownMenuLabel className="px-0 py-0 mb-4 flex items-center justify-between">
           <span>{t('Custom background')}</span>
-          <div className="flex items-center gap-2" onPointerDown={(e) => e.stopPropagation()}>
+          <div
+            className="flex items-center gap-2"
+            onPointerDown={(e) => e.stopPropagation()}
+          >
             <Switch
               id="bg-enable"
               checked={backgroundEnabled}
@@ -214,7 +245,7 @@ function BackgroundButton() {
             />
           </div>
         </DropdownMenuLabel>
-        
+
         <input
           ref={fileInputRef}
           type="file"
@@ -223,7 +254,10 @@ function BackgroundButton() {
           className="hidden"
         />
 
-        <div className="flex gap-2 mb-3" onPointerDown={(e) => e.stopPropagation()}>
+        <div
+          className="flex gap-2 mb-3"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           <Button
             variant="outline"
             size="sm"
@@ -245,14 +279,17 @@ function BackgroundButton() {
         </div>
 
         {backgroundImage && (
-          <div className={`h-20 w-full overflow-hidden rounded border mb-3 transition-opacity ${backgroundEnabled ? 'opacity-100' : 'opacity-40 grayscale'}`}>
+          <div
+            className={`h-20 w-full overflow-hidden rounded border mb-3 transition-opacity ${backgroundEnabled ? 'opacity-100' : 'opacity-40 grayscale'}`}
+          >
             <img
               src={backgroundImage}
               alt="Background"
               className="h-full w-full object-cover"
-              style={{ 
+              style={{
                 opacity: backgroundOpacity / 100,
-                filter: backgroundBlur > 0 ? `blur(${backgroundBlur / 4}px)` : 'none'
+                filter:
+                  backgroundBlur > 0 ? `blur(${backgroundBlur / 4}px)` : 'none',
               }}
             />
           </div>
@@ -260,7 +297,10 @@ function BackgroundButton() {
 
         <DropdownMenuSeparator />
 
-        <div className="space-y-2 pt-2" onPointerDown={(e) => e.stopPropagation()}>
+        <div
+          className="space-y-2 pt-2"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           <div className="flex items-center justify-between text-xs">
             <span>{t('Background opacity')}</span>
             <span className="text-muted-foreground">{backgroundOpacity}%</span>
@@ -274,7 +314,10 @@ function BackgroundButton() {
           />
         </div>
 
-        <div className="space-y-2 pt-4" onPointerDown={(e) => e.stopPropagation()}>
+        <div
+          className="space-y-2 pt-4"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           <div className="flex items-center justify-between text-xs">
             <span>{t('Background blur')}</span>
             <span className="text-muted-foreground">{backgroundBlur}px</span>
@@ -288,7 +331,10 @@ function BackgroundButton() {
           />
         </div>
 
-        <div className="space-y-2 pt-4" onPointerDown={(e) => e.stopPropagation()}>
+        <div
+          className="space-y-2 pt-4"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           <div className="flex items-center justify-between text-xs">
             <span>{t('Mask opacity')}</span>
             <span className="text-muted-foreground">{maskOpacity}%</span>
@@ -305,8 +351,6 @@ function BackgroundButton() {
     </DropdownMenu>
   );
 }
-
-
 
 function ChangeLanguageButton() {
   const { i18n } = useTranslation();
@@ -338,9 +382,16 @@ function ChangeLanguageButton() {
       <DropdownMenuContent align="end" className="w-32">
         <DropdownMenuLabel>{t('Language')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuRadioGroup value={value} onValueChange={handleLanguageChange}>
+        <DropdownMenuRadioGroup
+          value={value}
+          onValueChange={handleLanguageChange}
+        >
           {options.map((option) => (
-            <DropdownMenuRadioItem key={option.value} value={option.value} className="text-xs">
+            <DropdownMenuRadioItem
+              key={option.value}
+              value={option.value}
+              className="text-xs"
+            >
               {option.label}
             </DropdownMenuRadioItem>
           ))}
@@ -349,5 +400,3 @@ function ChangeLanguageButton() {
     </DropdownMenu>
   );
 }
-
-

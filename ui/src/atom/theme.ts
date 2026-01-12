@@ -8,11 +8,11 @@ import { isSystemDark } from '~/utils/theme';
 import { applyThemeColors, PRESET_THEMES } from '~/utils/themeManager';
 import {
   backgroundBlurAtom,
-  backgroundImageAtom,
   backgroundEnabledAtom,
+  backgroundImageAtom,
   backgroundOpacityAtom,
-  maskOpacityAtom,
   customThemesAtom,
+  maskOpacityAtom,
   selectedThemeAtom,
   themeAtom,
 } from './primitive';
@@ -68,9 +68,15 @@ function applyThemeWithColors(
 /**
  * 应用背景图片和透明度到 DOM
  */
-function applyBackgroundImage(image: string | null, opacity: number, blur: number, maskOpacity: number, enabled: boolean) {
+function applyBackgroundImage(
+  image: string | null,
+  opacity: number,
+  blur: number,
+  maskOpacity: number,
+  enabled: boolean,
+) {
   const root = document.documentElement;
-  
+
   if (image && enabled) {
     root.style.setProperty('--custom-bg-image', `url(${image})`);
     root.style.setProperty('--custom-bg-opacity', String(opacity / 100));
@@ -210,7 +216,9 @@ export const addCustomThemesAtom = atom(
     let newCustomThemes = [...customThemes];
 
     for (const themeConfig of themeConfigs) {
-      const index = newCustomThemes.findIndex((t) => t.name === themeConfig.name);
+      const index = newCustomThemes.findIndex(
+        (t) => t.name === themeConfig.name,
+      );
       if (index >= 0) {
         newCustomThemes[index] = themeConfig;
       } else {
@@ -287,18 +295,15 @@ export const setBackgroundOpacityAtom = atom(
 /**
  * 设置背景模糊度
  */
-export const setBackgroundBlurAtom = atom(
-  null,
-  (get, set, blur: number) => {
-    const image = get(backgroundImageAtom);
-    const opacity = get(backgroundOpacityAtom);
-    const maskOpacity = get(maskOpacityAtom);
-    const enabled = get(backgroundEnabledAtom);
-    set(backgroundBlurAtom, blur);
-    storage.setBackgroundBlur(blur);
-    applyBackgroundImage(image, opacity, blur, maskOpacity, enabled);
-  },
-);
+export const setBackgroundBlurAtom = atom(null, (get, set, blur: number) => {
+  const image = get(backgroundImageAtom);
+  const opacity = get(backgroundOpacityAtom);
+  const maskOpacity = get(maskOpacityAtom);
+  const enabled = get(backgroundEnabledAtom);
+  set(backgroundBlurAtom, blur);
+  storage.setBackgroundBlur(blur);
+  applyBackgroundImage(image, opacity, blur, maskOpacity, enabled);
+});
 
 /**
  * 设置遮罩透明度

@@ -1,6 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
-
+import { invoke } from '@tauri-apps/api/core';
 import { useAtom, useAtomValue } from 'jotai';
+import { ExternalLink } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { settingsAtom } from '~/atom/settings';
 import {
@@ -16,15 +17,13 @@ import {
   TableRowSelectionHeader,
 } from '~/components/data-table';
 import { DynamicVideoThumbnailCell } from '~/components/dynamic-video-thumbnail-cell';
-import { VideoPlayerDialog } from '~/components/video-player-dialog';
+import { toastError } from '~/components/toast';
 import { TooltipButton } from '~/components/tooltip-button';
+import { VideoPlayerDialog } from '~/components/video-player-dialog';
 import { useT } from '~/hooks';
 import type { VideosEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
 import { ClickableVideoPreview } from './clickable-video-preview';
-import { invoke } from '@tauri-apps/api/core';
-import { ExternalLink } from 'lucide-react';
-import { toastError } from '~/components/toast';
 
 export function SimilarVideos() {
   const data = useAtomValue(currentToolDataAtom) as VideosEntry[];
@@ -34,7 +33,9 @@ export function SimilarVideos() {
   const t = useT();
 
   // Video player state
-  const [selectedVideoPath, setSelectedVideoPath] = useState<string | null>(null);
+  const [selectedVideoPath, setSelectedVideoPath] = useState<string | null>(
+    null,
+  );
   const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
   const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80);
 
@@ -91,7 +92,10 @@ export function SimilarVideos() {
   };
 
   // Debug: Check if thumbnail column should be rendered
-  console.log('[SimilarVideos] similarVideosEnableThumbnails:', settings.similarVideosEnableThumbnails);
+  console.log(
+    '[SimilarVideos] similarVideosEnableThumbnails:',
+    settings.similarVideosEnableThumbnails,
+  );
 
   const columns: ColumnDef<VideosEntry>[] = [
     {

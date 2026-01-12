@@ -1,6 +1,16 @@
-import { useAtomValue, useSetAtom } from 'jotai';
-import { Check, Copy, Moon, Palette, Sun, Trash2, TvMinimal, Github, ChevronDown } from 'lucide-react';
 import { openUrl } from '@tauri-apps/plugin-opener';
+import { useAtomValue, useSetAtom } from 'jotai';
+import {
+  Check,
+  ChevronDown,
+  Copy,
+  Github,
+  Moon,
+  Palette,
+  Sun,
+  Trash2,
+  TvMinimal,
+} from 'lucide-react';
 import { useRef, useState } from 'react';
 import {
   customThemesAtom,
@@ -29,9 +39,9 @@ import { useT } from '~/hooks';
 import type { CustomThemeConfig } from '~/types';
 import {
   fetchThemeFromURL,
-  parseTweakcnThemes,
   PRESET_THEMES,
   parseTweakcnTheme,
+  parseTweakcnThemes,
 } from '~/utils/themeManager';
 
 export function ThemePanel() {
@@ -53,7 +63,6 @@ export function ThemePanel() {
 
   const placeholderText =
     'JSON Format (Single or Array):\n[{"name":"My Theme","cssVars":{...}}, ...]';
-
 
   const handleImportFromUrl = async () => {
     if (!themeUrl.trim()) return;
@@ -258,28 +267,43 @@ export function ThemePanel() {
         {/* 自定义主题 */}
         {customThemes.length > 0 && (
           <div className="space-y-3">
-            <div 
+            <div
               className="flex w-full items-center justify-between cursor-pointer hover:bg-muted/30 p-1 -m-1 rounded-md transition-colors"
               onClick={() => setIsCustomThemesExpanded(!isCustomThemesExpanded)}
             >
               <div className="flex items-center gap-2">
-                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isCustomThemesExpanded ? '' : '-rotate-90'}`} />
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform duration-200 ${isCustomThemesExpanded ? '' : '-rotate-90'}`}
+                />
                 <Label className="text-sm font-semibold cursor-pointer">
                   {t('Custom themes')} ({customThemes.length})
                 </Label>
               </div>
               {isCustomThemesExpanded && (
-                <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                  <Button variant="outline" size="sm" className="h-6 text-xs" onClick={importAllThemes}>
+                <div
+                  className="flex gap-1"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-6 text-xs"
+                    onClick={importAllThemes}
+                  >
                     {t('Import all')}
                   </Button>
-                  <Button variant="outline" size="sm" className="h-6 text-xs" onClick={exportAllThemes}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-6 text-xs"
+                    onClick={exportAllThemes}
+                  >
                     {t('Export all')}
                   </Button>
                 </div>
               )}
             </div>
-            
+
             {isCustomThemesExpanded && (
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2 animate-in fade-in slide-in-from-top-1 duration-200">
                 {customThemes.map((customTheme) => (
@@ -309,14 +333,18 @@ export function ThemePanel() {
                         <div
                           className="h-6 w-6 rounded-full border"
                           style={{
-                            background: customTheme.colors.light.primary || 'hsl(0 0% 50%)',
+                            background:
+                              customTheme.colors.light.primary ||
+                              'hsl(0 0% 50%)',
                           }}
                           title="Light primary"
                         />
                         <div
                           className="h-6 w-6 rounded-full border"
                           style={{
-                            background: customTheme.colors.dark.primary || 'hsl(0 0% 50%)',
+                            background:
+                              customTheme.colors.dark.primary ||
+                              'hsl(0 0% 50%)',
                           }}
                           title="Dark primary"
                         />
@@ -336,7 +364,9 @@ export function ThemePanel() {
                         variant="ghost"
                         size="sm"
                         className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                        onClick={() => handleDeleteCustomTheme(customTheme.name)}
+                        onClick={() =>
+                          handleDeleteCustomTheme(customTheme.name)
+                        }
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -432,7 +462,6 @@ export function ThemePanel() {
             <strong>💡 {t('Tip')}:</strong> {t('Theme settings are auto-saved')}
           </p>
         </div>
-
       </div>
     </ScrollArea>
   );

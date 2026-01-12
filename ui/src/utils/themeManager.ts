@@ -46,7 +46,10 @@ export function parseTweakcnThemes(json: string): CustomThemeConfig[] {
 
       const base = item.cssVars.theme ?? {};
       const light = { ...base, ...(item.cssVars.light ?? {}) };
-      const dark = { ...base, ...(item.cssVars.dark ?? item.cssVars.light ?? {}) };
+      const dark = {
+        ...base,
+        ...(item.cssVars.dark ?? item.cssVars.light ?? {}),
+      };
 
       results.push({
         name: item.name || 'Custom Theme',
@@ -133,9 +136,11 @@ export function applyThemeColors(colors: Record<string, string>) {
         // 如果当前 key 是 fallback 源 (如 background)
         if (key === bKey) {
           // 检查是否已有明确的 sidebar 定义
-          const hasExplicit = colors[sKey] || (sKey === 'sidebar-background' && colors['sidebar']);
+          const hasExplicit =
+            colors[sKey] ||
+            (sKey === 'sidebar-background' && colors['sidebar']);
           if (!hasExplicit) {
-             root.style.setProperty(`--${sKey}`, value);
+            root.style.setProperty(`--${sKey}`, value);
           }
         }
       }

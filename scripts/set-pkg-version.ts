@@ -13,6 +13,7 @@ async function main() {
     return;
   }
   console.log('set pkg version to', version);
+  await setPkgVersion('./package.json', version);
   await setPkgVersion('./ui/package.json', version);
 }
 

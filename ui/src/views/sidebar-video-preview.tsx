@@ -5,9 +5,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { sidebarVideoPreviewAtom } from '~/atom/primitive';
 import { Button } from '~/components/shadcn/button';
 import { useT } from '~/hooks';
-import { cn } from '~/utils/cn';
-
 import { useVideoServer } from '~/hooks/use-video-server';
+import { cn } from '~/utils/cn';
 
 export function SidebarVideoPreview() {
   const [sidebarState, setSidebarState] = useAtom(sidebarVideoPreviewAtom);

@@ -110,17 +110,29 @@ export function VideoThumbnailCell({
     video.muted = true; // Often required for automated loading
 
     const handleLoadedMetadata = () => {
-      console.log('[VideoThumbnailCell] loadedmetadata:', path, 'duration:', video.duration);
+      console.log(
+        '[VideoThumbnailCell] loadedmetadata:',
+        path,
+        'duration:',
+        video.duration,
+      );
       // Seek to 1 second or 10% of video duration
       const seekTime = Math.min(1, video.duration * 0.1);
       video.currentTime = seekTime;
     };
 
     const handleSeeked = () => {
-      console.log('[VideoThumbnailCell] seeked:', path, 'currentTime:', video.currentTime);
+      console.log(
+        '[VideoThumbnailCell] seeked:',
+        path,
+        'currentTime:',
+        video.currentTime,
+      );
       try {
         if (video.videoWidth === 0 || video.videoHeight === 0) {
-          console.warn('[VideoThumbnailCell] Video dimensions are 0, retrying or failing...');
+          console.warn(
+            '[VideoThumbnailCell] Video dimensions are 0, retrying or failing...',
+          );
           // Maybe wait a bit? usually seeked implies dimensions are ready.
           setHasError(true);
           setIsLoading(false);
@@ -135,13 +147,18 @@ export function VideoThumbnailCell({
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
           try {
             const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-            console.log('[VideoThumbnailCell] Thumbnail generated successfully');
+            console.log(
+              '[VideoThumbnailCell] Thumbnail generated successfully',
+            );
             setThumbnailData(dataUrl);
             setIsLoading(false);
           } catch (e) {
-             console.error('[VideoThumbnailCell] Canvas toDataURL failed (likely CORS):', e);
-             setHasError(true);
-             setIsLoading(false);
+            console.error(
+              '[VideoThumbnailCell] Canvas toDataURL failed (likely CORS):',
+              e,
+            );
+            setHasError(true);
+            setIsLoading(false);
           }
         } else {
           console.error('[VideoThumbnailCell] Failed to get 2d context');
@@ -149,13 +166,16 @@ export function VideoThumbnailCell({
           setIsLoading(false);
         }
       } catch (error) {
-        console.error('[VideoThumbnailCell] Error generating video thumbnail:', error);
+        console.error(
+          '[VideoThumbnailCell] Error generating video thumbnail:',
+          error,
+        );
         setHasError(true);
         setIsLoading(false);
       } finally {
-        // Only remove if we are sure we are done. 
+        // Only remove if we are sure we are done.
         // In some cases keeping it might smooth things but for memory we remove.
-        video.remove(); 
+        video.remove();
       }
     };
 
@@ -183,9 +203,16 @@ export function VideoThumbnailCell({
   }, [videoUrl, isVisible]);
 
   // ...
-  
+
   // Debug log for render
-  console.log('[VideoThumbnailCell] Render:', path, 'visible:', isVisible, 'url:', videoUrl);
+  console.log(
+    '[VideoThumbnailCell] Render:',
+    path,
+    'visible:',
+    isVisible,
+    'url:',
+    videoUrl,
+  );
 
   const handleClick = () => {
     if (onClick) {

@@ -1,8 +1,8 @@
 import { open } from '@tauri-apps/plugin-dialog';
 import { openPath, openUrl } from '@tauri-apps/plugin-opener';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { motion } from 'framer-motion';
-import { CircleHelp, Folder, Palette, Settings, Github } from 'lucide-react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { CircleHelp, Folder, Github, Palette, Settings } from 'lucide-react';
 import { useEffect } from 'react';
 import { initCurrentPresetAtom } from '~/atom/preset';
 import { platformSettingsAtom } from '~/atom/primitive';
@@ -20,6 +20,7 @@ import {
 } from '~/components';
 import { BoxReveal } from '~/components/box-reveal';
 import { Form, FormItem } from '~/components/form';
+import { ButtonProps } from '~/components/shadcn/button';
 import {
   Dialog,
   DialogContent,
@@ -40,8 +41,6 @@ import { useBoolean, useT } from '~/hooks';
 import { eventPreventDefault } from '~/utils/event';
 import { PresetSelect } from './preset-select';
 import { ThemePanel } from './theme-panel';
-
-import { ButtonProps } from '~/components/shadcn/button';
 
 export function SettingsButton(props: ButtonProps) {
   const dialogOpen = useBoolean();
@@ -71,7 +70,10 @@ export function SettingsButton(props: ButtonProps) {
       </DialogTrigger>
       <DialogContent className="max-w-[700px] outline-none">
         {/* 顶部应用标识与源码链接 */}
-        <div className="flex items-center justify-between border-b border-border/40 pb-5 mb-5 select-none" data-tauri-drag-region>
+        <div
+          className="flex items-center justify-between border-b border-border/40 pb-5 mb-5 select-none"
+          data-tauri-drag-region
+        >
           <div className="flex items-center gap-5">
             <div className="relative group perspective-1000">
               <div className="absolute -inset-2 bg-gradient-to-tr from-primary/30 via-purple-500/20 to-pink-500/30 rounded-full blur-xl opacity-0 group-hover:opacity-60 transition-all duration-700 animate-pulse"></div>
@@ -84,21 +86,29 @@ export function SettingsButton(props: ButtonProps) {
             </div>
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-3">
-                <BoxReveal boxColor="hsl(var(--primary))" duration={0.6} delay={0.1}>
+                <BoxReveal
+                  boxColor="hsl(var(--primary))"
+                  duration={0.6}
+                  delay={0.1}
+                >
                   <span className="font-serif text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-foreground via-foreground to-foreground/50">
                     {PKG_NAME || 'Czkawka'}
                   </span>
                 </BoxReveal>
-                <motion.span 
+                <motion.span
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.9, type: "spring", stiffness: 200 }}
+                  transition={{ delay: 0.9, type: 'spring', stiffness: 200 }}
                   className="text-[10px] font-mono font-bold bg-primary text-primary-foreground px-2 py-0.5 rounded shadow-sm uppercase tracking-widest"
                 >
                   v{PKG_VERSION}
                 </motion.span>
               </div>
-              <BoxReveal boxColor="hsl(var(--muted-foreground))" duration={0.6} delay={0.3}>
+              <BoxReveal
+                boxColor="hsl(var(--muted-foreground))"
+                duration={0.6}
+                delay={0.3}
+              >
                 <p className="text-muted-foreground text-xs font-bold tracking-[0.2em] uppercase opacity-60">
                   {t('Settings')}
                 </p>
@@ -114,7 +124,9 @@ export function SettingsButton(props: ButtonProps) {
               className="h-10 flex items-center gap-3 rounded-full border-primary/20 hover:border-primary/60 hover:bg-primary/5 transition-all group px-5 shadow-lg active:scale-95"
             >
               <Github className="h-4 w-4 group-hover:rotate-[360deg] transition-transform duration-1000 ease-in-out" />
-              <span className="text-xs font-black tracking-widest uppercase">Source Code</span>
+              <span className="text-xs font-black tracking-widest uppercase">
+                Source Code
+              </span>
             </Button>
           </BoxReveal>
         </div>

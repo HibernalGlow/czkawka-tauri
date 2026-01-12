@@ -1,14 +1,19 @@
+import { useAtomValue } from 'jotai';
 import { useEffect, useRef, useState } from 'react';
 import type { ImperativePanelHandle } from 'react-resizable-panels';
+import {
+  backgroundBlurAtom,
+  backgroundEnabledAtom,
+  backgroundImageAtom,
+  backgroundOpacityAtom,
+  sidebarWidthAtom,
+} from '~/atom/primitive';
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from '~/components/shadcn/resizable';
-import {
-  SidebarInset,
-  SidebarProvider,
-} from '~/components/shadcn/sidebar';
+import { SidebarInset, SidebarProvider } from '~/components/shadcn/sidebar';
 import { Toaster } from '~/components/shadcn/sonner';
 import { TooltipProvider } from '~/components/shadcn/tooltip';
 import { AppBody } from '~/views/app-body';
@@ -18,9 +23,6 @@ import { BottomBar } from '~/views/bottom-bar';
 import { FloatingFilterPanel } from '~/views/floating-filter-panel';
 import { SidebarImagePreview } from '~/views/sidebar-image-preview';
 import { SidebarVideoPreview } from '~/views/sidebar-video-preview';
-
-import { useAtomValue } from 'jotai';
-import { backgroundBlurAtom, backgroundEnabledAtom, backgroundImageAtom, backgroundOpacityAtom, sidebarWidthAtom } from '~/atom/primitive';
 
 export default function App() {
   const sidebarWidth = useAtomValue(sidebarWidthAtom);
@@ -73,9 +75,9 @@ export default function App() {
   }, []);
 
   return (
-    <div 
+    <div
       className="h-screen w-screen flex flex-col relative overflow-hidden"
-      data-custom-bg={showBackground ? "true" : undefined}
+      data-custom-bg={showBackground ? 'true' : undefined}
     >
       {/* 自定义背景图片层 */}
       {showBackground && (
@@ -92,7 +94,11 @@ export default function App() {
           }}
         />
       )}
-      <SidebarProvider style={{ '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}>
+      <SidebarProvider
+        style={
+          { '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties
+        }
+      >
         <div className="flex flex-col h-full w-full overflow-hidden">
           <AppHeader />
           <div className="flex flex-1 overflow-hidden">
@@ -134,4 +140,3 @@ export default function App() {
     </div>
   );
 }
-

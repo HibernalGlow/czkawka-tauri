@@ -1,8 +1,13 @@
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from '~/components/shadcn/dialog';
+import { Maximize, Pause, Play, Volume2, VolumeX, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { Play, Pause, Volume2, VolumeX, Maximize, X } from 'lucide-react';
-import { cn } from '~/utils/cn';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from '~/components/shadcn/dialog';
 import { useVideoServer } from '~/hooks/use-video-server';
+import { cn } from '~/utils/cn';
 
 interface VideoPlayerDialogProps {
   path: string;

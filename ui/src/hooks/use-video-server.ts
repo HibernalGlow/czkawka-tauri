@@ -27,12 +27,15 @@ export function useVideoServer() {
 
   const getVideoUrl = (path: string) => {
     if (!port || !path) return undefined;
-    
+
     // Check if we already have the correct URL format (starts with http://127.0.0.1)
-    if (path.startsWith('http://127.0.0.1') || path.startsWith('http://localhost')) {
+    if (
+      path.startsWith('http://127.0.0.1') ||
+      path.startsWith('http://localhost')
+    ) {
       return path;
     }
-    
+
     return `http://127.0.0.1:${port}/video?path=${encodeURIComponent(path)}`;
   };
 

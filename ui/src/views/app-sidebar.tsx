@@ -13,23 +13,26 @@ import {
   Trash2,
   Video,
 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-import { currentToolAtom, progressAtom } from '~/atom/primitive';
-import { restoreFilterAtom } from '~/atom/tools';
 import { useCallback, useRef } from 'react';
-import { sidebarWidthAtom } from '~/atom/primitive';
+import { useTranslation } from 'react-i18next';
+import {
+  currentToolAtom,
+  progressAtom,
+  sidebarWidthAtom,
+} from '~/atom/primitive';
+import { restoreFilterAtom } from '~/atom/tools';
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
-  SidebarHeader,
-  useSidebar,
   SidebarRail,
+  SidebarTrigger,
+  useSidebar,
 } from '~/components/shadcn/sidebar';
 import { Tools } from '~/consts';
 import type { ToolsValues } from '~/types';
@@ -110,7 +113,10 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r transition-all duration-300 top-10 h-[calc(100vh-2.5rem)]">
+    <Sidebar
+      collapsible="icon"
+      className="border-r transition-all duration-300 top-10 h-[calc(100vh-2.5rem)]"
+    >
       <SidebarContent className="hide-scrollbar">
         <SidebarGroup className="py-2">
           <SidebarGroupContent>
@@ -138,7 +144,9 @@ export function AppSidebar() {
                           <IconComponent
                             className={cn(
                               'w-4 h-4 transition-colors duration-200',
-                              isActive ? 'text-primary' : 'text-muted-foreground',
+                              isActive
+                                ? 'text-primary'
+                                : 'text-muted-foreground',
                             )}
                           />
                           {isLoading && (
@@ -157,7 +165,10 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarRail onMouseDown={startResizing} onClickCapture={handleRailClick} />
+      <SidebarRail
+        onMouseDown={startResizing}
+        onClickCapture={handleRailClick}
+      />
     </Sidebar>
   );
 }
