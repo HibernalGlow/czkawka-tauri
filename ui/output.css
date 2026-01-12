@@ -1543,6 +1543,10 @@ body {
   gap: 1rem;
 }
 
+.gap-0\.5 {
+  gap: 0.125rem;
+}
+
 .space-x-2 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-x-reverse: 0;
   margin-right: calc(0.5rem * var(--tw-space-x-reverse));
@@ -3088,6 +3092,10 @@ body {
 
 .hover\:text-sidebar-accent-foreground:hover {
   color: var(--sidebar-accent-foreground);
+}
+
+.hover\:text-destructive:hover {
+  color: var(--destructive);
 }
 
 .hover\:underline:hover {

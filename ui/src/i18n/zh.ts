@@ -325,6 +325,9 @@ export const zh: Record<TranslationKeys, string> = {
   'Import from JSON': '从 JSON 导入主题',
   'Import JSON': '导入 JSON',
   'Import theme failed': '导入主题失败',
+  'Import all': '导入全部',
+  'Export all': '导出全部',
+  'Export theme': '导出主题',
   'Color preview': '颜色预览',
   Tip: '提示',
   'Theme settings are auto-saved':

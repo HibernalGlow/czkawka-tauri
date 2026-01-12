@@ -159,6 +159,29 @@ export const addCustomThemeAtom = atom(
 );
 
 /**
+ * 批量添加自定义主题
+ */
+export const addCustomThemesAtom = atom(
+  null,
+  (get, set, themeConfigs: CustomThemeConfig[]) => {
+    const customThemes = get(customThemesAtom);
+    let newCustomThemes = [...customThemes];
+
+    for (const themeConfig of themeConfigs) {
+      const index = newCustomThemes.findIndex((t) => t.name === themeConfig.name);
+      if (index >= 0) {
+        newCustomThemes[index] = themeConfig;
+      } else {
+        newCustomThemes.push(themeConfig);
+      }
+    }
+
+    set(customThemesAtom, newCustomThemes);
+    storage.setCustomThemes(newCustomThemes);
+  },
+);
+
+/**
  * 删除自定义主题
  */
 export const removeCustomThemeAtom = atom(

@@ -333,6 +333,9 @@ export const en = {
   'Import from JSON': 'Import from JSON',
   'Import JSON': 'Import JSON',
   'Import theme failed': 'Import theme failed',
+  'Import all': 'Import All',
+  'Export all': 'Export All',
+  'Export theme': 'Export Theme',
   'Color preview': 'Color Preview',
   Tip: 'Tip',
   'Theme settings are auto-saved':

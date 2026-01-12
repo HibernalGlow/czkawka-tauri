@@ -1,5 +1,5 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { Check, Moon, Palette, Sun, Trash2, TvMinimal } from 'lucide-react';
+import { Check, Copy, Moon, Palette, Sun, Trash2, TvMinimal } from 'lucide-react';
 import { useState } from 'react';
 import {
   customThemesAtom,
@@ -8,6 +8,7 @@ import {
 } from '~/atom/primitive';
 import {
   addCustomThemeAtom,
+  addCustomThemesAtom,
   removeCustomThemeAtom,
   selectThemeAtom,
   setThemeModeAtom,
@@ -25,6 +26,7 @@ import { useT } from '~/hooks';
 import type { CustomThemeConfig } from '~/types';
 import {
   fetchThemeFromURL,
+  parseTweakcnThemes,
   PRESET_THEMES,
   parseTweakcnTheme,
 } from '~/utils/themeManager';
@@ -37,6 +39,7 @@ export function ThemePanel() {
   const setThemeMode = useSetAtom(setThemeModeAtom);
   const selectTheme = useSetAtom(selectThemeAtom);
   const addCustomTheme = useSetAtom(addCustomThemeAtom);
+  const addCustomThemes = useSetAtom(addCustomThemesAtom);
   const removeCustomTheme = useSetAtom(removeCustomThemeAtom);
 
   const [themeUrl, setThemeUrl] = useState('');
@@ -45,7 +48,7 @@ export function ThemePanel() {
   const [isImporting, setIsImporting] = useState(false);
 
   const placeholderText =
-    '{"name":"My Theme","cssVars":{"theme":{},"light":{},"dark":{}}}';
+    'JSON Format (Single or Array):\n[{"name":"My Theme","cssVars":{...}}, ...]';
 
   const handleImportFromUrl = async () => {
     if (!themeUrl.trim()) return;
@@ -70,10 +73,12 @@ export function ThemePanel() {
     const raw = themeJson.trim();
     if (!raw) return;
     try {
-      const themeConfig = parseTweakcnTheme(raw);
-      if (themeConfig) {
-        addCustomTheme(themeConfig);
-        selectTheme(themeConfig);
+      const themeConfigs = parseTweakcnThemes(raw);
+      if (themeConfigs.length > 0) {
+        addCustomThemes(themeConfigs);
+        if (themeConfigs.length === 1) {
+          selectTheme(themeConfigs[0]);
+        }
         setThemeJson('');
       } else {
         toastError(t('Import theme failed'), 'Invalid JSON format');
@@ -108,6 +113,37 @@ export function ThemePanel() {
     // 如果删除的是当前选中的主题，切换到默认主题
     if (selectedTheme?.name === themeName) {
       selectTheme(PRESET_THEMES[0]);
+    }
+  };
+
+  const exportTheme = (theme: CustomThemeConfig, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const exportData = {
+      name: theme.name,
+      description: theme.description,
+      cssVars: { light: theme.colors.light, dark: theme.colors.dark },
+    };
+    navigator.clipboard.writeText(JSON.stringify(exportData, null, 2));
+  };
+
+  const exportAllThemes = () => {
+    const exportData = customThemes.map((theme) => ({
+      name: theme.name,
+      description: theme.description,
+      cssVars: { light: theme.colors.light, dark: theme.colors.dark },
+    }));
+    navigator.clipboard.writeText(JSON.stringify(exportData, null, 2));
+  };
+
+  const importAllThemes = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      const themeConfigs = parseTweakcnThemes(text);
+      if (themeConfigs.length > 0) {
+        addCustomThemes(themeConfigs);
+      }
+    } catch (e) {
+      toastError(t('Import theme failed'), e);
     }
   };
 
@@ -228,14 +264,24 @@ export function ThemePanel() {
         {/* 自定义主题 */}
         {customThemes.length > 0 && (
           <div className="space-y-3">
-            <Label className="text-sm font-semibold">
-              {t('Custom themes')}
-            </Label>
+            <div className="flex w-full items-center justify-between">
+              <Label className="text-sm font-semibold">
+                {t('Custom themes')} ({customThemes.length})
+              </Label>
+              <div className="flex gap-1">
+                <Button variant="outline" size="sm" className="h-6 text-xs" onClick={importAllThemes}>
+                  {t('Import all')}
+                </Button>
+                <Button variant="outline" size="sm" className="h-6 text-xs" onClick={exportAllThemes}>
+                  {t('Export all')}
+                </Button>
+              </div>
+            </div>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               {customThemes.map((customTheme) => (
                 <div
                   key={customTheme.name}
-                  className={`hover:bg-accent relative flex flex-col items-start gap-2 rounded-lg border p-4 text-left transition-colors ${
+                  className={`hover:bg-accent group relative flex flex-col items-start gap-2 rounded-lg border p-4 text-left transition-colors ${
                     selectedTheme?.name === customTheme.name
                       ? 'border-primary bg-primary/5'
                       : ''
@@ -272,14 +318,25 @@ export function ThemePanel() {
                       />
                     </div>
                   </button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-2 top-2 h-8 w-8 p-0"
-                    onClick={() => handleDeleteCustomTheme(customTheme.name)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div className="absolute right-2 top-2 flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={(e) => exportTheme(customTheme, e)}
+                      title={t('Export theme')}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                      onClick={() => handleDeleteCustomTheme(customTheme.name)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>

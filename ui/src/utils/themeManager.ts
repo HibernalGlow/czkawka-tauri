@@ -26,32 +26,48 @@ export interface CustomThemeConfig {
 /**
  * 从 tweakcn JSON 解析主题配置
  */
-export function parseTweakcnTheme(json: string): CustomThemeConfig | null {
+/**
+ * 从 tweakcn JSON 解析主题配置 (支持单个或数组)
+ */
+export function parseTweakcnThemes(json: string): CustomThemeConfig[] {
   try {
-    const parsed = JSON.parse(json) as TweakcnTheme;
-    if (
-      !parsed ||
-      !parsed.cssVars ||
-      !parsed.cssVars.light ||
-      !parsed.cssVars.dark
-    ) {
-      console.error('JSON 格式不正确，缺少 cssVars.light / cssVars.dark');
-      return null;
+    const parsed = JSON.parse(json);
+    const items = Array.isArray(parsed) ? parsed : [parsed];
+    const results: CustomThemeConfig[] = [];
+
+    for (const item of items) {
+      if (
+        !item ||
+        !item.cssVars ||
+        (!item.cssVars.light && !item.cssVars.dark)
+      ) {
+        continue;
+      }
+
+      const base = item.cssVars.theme ?? {};
+      const light = { ...base, ...(item.cssVars.light ?? {}) };
+      const dark = { ...base, ...(item.cssVars.dark ?? item.cssVars.light ?? {}) };
+
+      results.push({
+        name: item.name || 'Custom Theme',
+        description: item.description || '来自 JSON 的主题',
+        colors: { light, dark },
+      });
     }
 
-    const base = parsed.cssVars.theme ?? {};
-    const light = { ...base, ...parsed.cssVars.light };
-    const dark = { ...base, ...parsed.cssVars.dark };
-
-    return {
-      name: parsed.name || 'Custom Theme',
-      description: '来自 JSON 的主题',
-      colors: { light, dark },
-    };
+    return results;
   } catch (error) {
     console.error('从 JSON 导入主题失败', error);
-    return null;
+    return [];
   }
+}
+
+/**
+ * 从 tweakcn JSON 解析单个主题配置 (兼容旧方法)
+ */
+export function parseTweakcnTheme(json: string): CustomThemeConfig | null {
+  const themes = parseTweakcnThemes(json);
+  return themes.length > 0 ? themes[0] : null;
 }
 
 /**
@@ -102,14 +118,25 @@ export function applyThemeColors(colors: Record<string, string>) {
     if (typeof value === 'string') {
       root.style.setProperty(`--${key}`, value);
 
+      // 特殊处理: sidebar 属性映射到 sidebar-background
+      if (key === 'sidebar') {
+        root.style.setProperty('--sidebar-background', value);
+      }
+
       // 如果是基础变量，同时设置对应的 sidebar 变量（除非 sidebar 变量已显式定义）
-      // 注意：sidebar 变量需要提取 HSL 值（去除 hsl() 包裹）
-      const hslMatch = value.match(/hsl\((.*)\)/);
-      const hslValue = hslMatch ? hslMatch[1] : value;
+      // 注意：sidebar 变量需要提取 HSL 值（去除 hsl() 包裹） - 已不再需强制去除，因 tailwind 配置已更新支持直接变量
+      // const hslMatch = value.match(/hsl\((.*)\)/);
+      // const hslValue = hslMatch ? hslMatch[1] : value;
+      // 直接使用 value，支持 oklch 等
 
       for (const [sKey, bKey] of Object.entries(sidebarVars)) {
-        if (key === bKey && !colors[sKey]) {
-          root.style.setProperty(`--${sKey}`, hslValue);
+        // 如果当前 key 是 fallback 源 (如 background)
+        if (key === bKey) {
+          // 检查是否已有明确的 sidebar 定义
+          const hasExplicit = colors[sKey] || (sKey === 'sidebar-background' && colors['sidebar']);
+          if (!hasExplicit) {
+             root.style.setProperty(`--${sKey}`, value);
+          }
         }
       }
     }
