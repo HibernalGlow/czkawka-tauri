@@ -208,14 +208,14 @@ export function ThemePanel() {
                   <div
                     className="h-6 w-6 rounded-full border"
                     style={{
-                      background: `hsl(${presetTheme.colors.light.primary})`,
+                      background: presetTheme.colors.light.primary,
                     }}
                     title="Light primary"
                   />
                   <div
                     className="h-6 w-6 rounded-full border"
                     style={{
-                      background: `hsl(${presetTheme.colors.dark.primary})`,
+                      background: presetTheme.colors.dark.primary,
                     }}
                     title="Dark primary"
                   />
@@ -259,14 +259,14 @@ export function ThemePanel() {
                       <div
                         className="h-6 w-6 rounded-full border"
                         style={{
-                          background: `hsl(${customTheme.colors.light.primary || '0 0% 50%'})`,
+                          background: customTheme.colors.light.primary || 'hsl(0 0% 50%)',
                         }}
                         title="Light primary"
                       />
                       <div
                         className="h-6 w-6 rounded-full border"
                         style={{
-                          background: `hsl(${customTheme.colors.dark.primary || '0 0% 50%'})`,
+                          background: customTheme.colors.dark.primary || 'hsl(0 0% 50%)',
                         }}
                         title="Dark primary"
                       />
