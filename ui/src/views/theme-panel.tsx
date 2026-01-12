@@ -1,5 +1,5 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { Check, Copy, Moon, Palette, Sun, Trash2, TvMinimal, Github } from 'lucide-react';
+import { Check, Copy, Moon, Palette, Sun, Trash2, TvMinimal, Github, ChevronDown } from 'lucide-react';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { useRef, useState } from 'react';
 import {
@@ -49,6 +49,7 @@ export function ThemePanel() {
   const [themeJson, setThemeJson] = useState('');
   const [customThemeName, setCustomThemeName] = useState('');
   const [isImporting, setIsImporting] = useState(false);
+  const [isCustomThemesExpanded, setIsCustomThemesExpanded] = useState(false);
 
   const placeholderText =
     'JSON Format (Single or Array):\n[{"name":"My Theme","cssVars":{...}}, ...]';
@@ -268,82 +269,93 @@ export function ThemePanel() {
         {/* 自定义主题 */}
         {customThemes.length > 0 && (
           <div className="space-y-3">
-            <div className="flex w-full items-center justify-between">
-              <Label className="text-sm font-semibold">
-                {t('Custom themes')} ({customThemes.length})
-              </Label>
-              <div className="flex gap-1">
-                <Button variant="outline" size="sm" className="h-6 text-xs" onClick={importAllThemes}>
-                  {t('Import all')}
-                </Button>
-                <Button variant="outline" size="sm" className="h-6 text-xs" onClick={exportAllThemes}>
-                  {t('Export all')}
-                </Button>
+            <div 
+              className="flex w-full items-center justify-between cursor-pointer hover:bg-muted/30 p-1 -m-1 rounded-md transition-colors"
+              onClick={() => setIsCustomThemesExpanded(!isCustomThemesExpanded)}
+            >
+              <div className="flex items-center gap-2">
+                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isCustomThemesExpanded ? '' : '-rotate-90'}`} />
+                <Label className="text-sm font-semibold cursor-pointer">
+                  {t('Custom themes')} ({customThemes.length})
+                </Label>
               </div>
-            </div>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              {customThemes.map((customTheme) => (
-                <div
-                  key={customTheme.name}
-                  className={`hover:bg-accent group relative flex flex-col items-start gap-2 rounded-lg border p-4 text-left transition-colors ${
-                    selectedTheme?.name === customTheme.name
-                      ? 'border-primary bg-primary/5'
-                      : ''
-                  }`}
-                >
-                  <button
-                    type="button"
-                    className="w-full text-left"
-                    onClick={() => selectTheme(customTheme)}
-                  >
-                    <div className="flex w-full items-center justify-between">
-                      <h4 className="font-medium">{customTheme.name}</h4>
-                      {selectedTheme?.name === customTheme.name && (
-                        <Check className="text-primary h-4 w-4" />
-                      )}
-                    </div>
-                    <p className="text-muted-foreground text-sm">
-                      {customTheme.description}
-                    </p>
-                    <div className="mt-2 flex gap-2">
-                      <div
-                        className="h-6 w-6 rounded-full border"
-                        style={{
-                          background: customTheme.colors.light.primary || 'hsl(0 0% 50%)',
-                        }}
-                        title="Light primary"
-                      />
-                      <div
-                        className="h-6 w-6 rounded-full border"
-                        style={{
-                          background: customTheme.colors.dark.primary || 'hsl(0 0% 50%)',
-                        }}
-                        title="Dark primary"
-                      />
-                    </div>
-                  </button>
-                  <div className="absolute right-2 top-2 flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                      onClick={(e) => exportTheme(customTheme, e)}
-                      title={t('Export theme')}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                      onClick={() => handleDeleteCustomTheme(customTheme.name)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+              {isCustomThemesExpanded && (
+                <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                  <Button variant="outline" size="sm" className="h-6 text-xs" onClick={importAllThemes}>
+                    {t('Import all')}
+                  </Button>
+                  <Button variant="outline" size="sm" className="h-6 text-xs" onClick={exportAllThemes}>
+                    {t('Export all')}
+                  </Button>
                 </div>
-              ))}
+              )}
             </div>
+            
+            {isCustomThemesExpanded && (
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                {customThemes.map((customTheme) => (
+                  <div
+                    key={customTheme.name}
+                    className={`hover:bg-accent group relative flex flex-col items-start gap-2 rounded-lg border p-4 text-left transition-colors ${
+                      selectedTheme?.name === customTheme.name
+                        ? 'border-primary bg-primary/5'
+                        : ''
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      className="w-full text-left"
+                      onClick={() => selectTheme(customTheme)}
+                    >
+                      <div className="flex w-full items-center justify-between">
+                        <h4 className="font-medium">{customTheme.name}</h4>
+                        {selectedTheme?.name === customTheme.name && (
+                          <Check className="text-primary h-4 w-4" />
+                        )}
+                      </div>
+                      <p className="text-muted-foreground text-sm">
+                        {customTheme.description}
+                      </p>
+                      <div className="mt-2 flex gap-2">
+                        <div
+                          className="h-6 w-6 rounded-full border"
+                          style={{
+                            background: customTheme.colors.light.primary || 'hsl(0 0% 50%)',
+                          }}
+                          title="Light primary"
+                        />
+                        <div
+                          className="h-6 w-6 rounded-full border"
+                          style={{
+                            background: customTheme.colors.dark.primary || 'hsl(0 0% 50%)',
+                          }}
+                          title="Dark primary"
+                        />
+                      </div>
+                    </button>
+                    <div className="absolute right-2 top-2 flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={(e) => exportTheme(customTheme, e)}
+                        title={t('Export theme')}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                        onClick={() => handleDeleteCustomTheme(customTheme.name)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

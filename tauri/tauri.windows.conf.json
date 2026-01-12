@@ -3,6 +3,7 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "CzkawkaTauri",
         "width": 1100,
         "minWidth": 1100,
