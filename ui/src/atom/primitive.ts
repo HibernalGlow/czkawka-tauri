@@ -1,7 +1,12 @@
 import type { RowSelectionState, SortingState } from '@tanstack/react-table';
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import { Tools, getDefaultPlatformSettings, getDefaultPreset, getDefaultProgress } from '~/consts';
+import {
+  getDefaultPlatformSettings,
+  getDefaultPreset,
+  getDefaultProgress,
+  Tools,
+} from '~/consts';
 import type {
   BaseEntry,
   CustomThemeConfig,
@@ -120,7 +125,7 @@ export const toolTabsCollapsedAtom = atomWithStorage(
 
 // Re-export local feature atoms for backward compatibility
 export {
+  filterPanelAtom,
   sidebarImagePreviewAtom,
   sidebarVideoPreviewAtom,
-  filterPanelAtom,
 } from './local-features';

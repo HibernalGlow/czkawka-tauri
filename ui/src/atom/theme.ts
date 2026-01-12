@@ -5,7 +5,7 @@ import { Theme } from '~/consts';
 import type { CustomThemeConfig } from '~/types';
 import { storage } from '~/utils/storage';
 import { isSystemDark } from '~/utils/theme';
-import { PRESET_THEMES, applyThemeColors } from '~/utils/themeManager';
+import { applyThemeColors, PRESET_THEMES } from '~/utils/themeManager';
 import { customThemesAtom, selectedThemeAtom, themeAtom } from './primitive';
 
 function setTheme(theme: string) {

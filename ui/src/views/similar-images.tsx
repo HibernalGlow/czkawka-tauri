@@ -25,6 +25,7 @@ import type { ImagesEntry as BaseImagesEntry, FolderStat } from '~/types';
 type ImagesEntry = BaseImagesEntry & {
   _isGroupEnd?: boolean;
 };
+
 import { formatPathDisplay } from '~/utils/path-utils';
 import { ThumbnailPreloader } from '~/utils/thumbnail-preloader';
 import { ClickableImagePreview } from './clickable-image-preview';
@@ -38,7 +39,6 @@ export function SimilarImages() {
   const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const t = useT();
-
 
   // 根据阈值过滤文件夹数据
   const filteredFoldersData = useMemo(() => {

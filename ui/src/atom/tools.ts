@@ -1,6 +1,10 @@
 import type { RowSelectionState, SortingState } from '@tanstack/react-table';
 import { atom } from 'jotai';
-import type { FilterStateUpdater, RowSelectionUpdater, SortingStateUpdater } from '~/components/data-table';
+import type {
+  FilterStateUpdater,
+  RowSelectionUpdater,
+  SortingStateUpdater,
+} from '~/components/data-table';
 import type { BaseEntry, FolderStat } from '~/types';
 import {
   currentToolAtom,

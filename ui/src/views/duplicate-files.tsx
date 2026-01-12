@@ -33,7 +33,6 @@ export function DuplicateFiles() {
   const settings = useAtomValue(settingsAtom);
   const t = useT();
 
-
   // 根据缩略图列宽动态计算行高
   const dynamicRowHeight = useMemo(() => {
     if (!settings.similarImagesEnableThumbnails) {

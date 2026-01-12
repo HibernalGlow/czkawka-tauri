@@ -24,8 +24,8 @@ import { Theme } from '~/consts';
 import { useT } from '~/hooks';
 import type { CustomThemeConfig } from '~/types';
 import {
-  PRESET_THEMES,
   fetchThemeFromURL,
+  PRESET_THEMES,
   parseTweakcnTheme,
 } from '~/utils/themeManager';
 

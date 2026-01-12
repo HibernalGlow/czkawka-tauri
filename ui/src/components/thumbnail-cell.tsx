@@ -1,6 +1,6 @@
 import { Image } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { ThumbnailLoader, isImageFile } from '~/utils/thumbnail-loader';
+import { isImageFile, ThumbnailLoader } from '~/utils/thumbnail-loader';
 import { ClickableImagePreview } from '~/views/clickable-image-preview';
 
 interface ThumbnailCellProps {

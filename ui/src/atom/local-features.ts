@@ -51,4 +51,3 @@ export const filterPanelAtom = atom<{
 
 // NOTE: selectedThemeAtom and customThemesAtom are defined in primitive.ts
 // We keep these here for logical grouping with other local features
-

@@ -13,8 +13,8 @@ import {
 } from '~/components/shadcn/dropdown-menu';
 import { useT } from '~/hooks';
 import {
-  type SimilarityLevel,
   getAllSimilarityLevelsWithRanges,
+  type SimilarityLevel,
 } from '~/utils/similarity-utils';
 
 interface SimilarityFilterProps {

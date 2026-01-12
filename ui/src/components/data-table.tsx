@@ -1,18 +1,17 @@
 import {
   type ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
   type Row,
   type RowSelectionState,
   type SortingState,
   type Table as TTable,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { revealItemInDir } from '@tauri-apps/plugin-opener';
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
-import { FolderOpen } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, FolderOpen } from 'lucide-react';
 import { useRef } from 'react';
 import { useT } from '~/hooks';
 import type { BaseEntry } from '~/types';
@@ -61,7 +60,6 @@ export type RowSelectionUpdater =
 export type SortingStateUpdater =
   | SortingState
   | ((prev: SortingState) => SortingState);
-
 
 export function DataTable<T extends BaseEntry>(props: DataTableProps<T>) {
   'use no memo';

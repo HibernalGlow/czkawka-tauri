@@ -3,9 +3,15 @@ import { Settings2, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { currentToolAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
-import { Button, OperationButton } from '~/components';
-import { InputNumber } from '~/components';
-import { CheckboxWithLabel, Select, Slider, Switch } from '~/components';
+import {
+  Button,
+  CheckboxWithLabel,
+  InputNumber,
+  OperationButton,
+  Select,
+  Slider,
+  Switch,
+} from '~/components';
 import { Form, FormItem } from '~/components/form';
 import {
   Dialog,
@@ -248,7 +254,10 @@ function Fallback() {
 function DuplicateFilesSettings({
   showControls = true,
   showAlgorithms = true,
-}: { showControls?: boolean; showAlgorithms?: boolean }) {
+}: {
+  showControls?: boolean;
+  showAlgorithms?: boolean;
+}) {
   const t = useT();
   const settings = useAtomValue(settingsAtom);
 
@@ -316,7 +325,10 @@ function DuplicateFilesSettings({
 function BigFilesSettings({
   showControls = true,
   showAlgorithms = true,
-}: { showControls?: boolean; showAlgorithms?: boolean }) {
+}: {
+  showControls?: boolean;
+  showAlgorithms?: boolean;
+}) {
   const t = useT();
 
   return (
@@ -353,7 +365,10 @@ function BigFilesSettings({
 function SimilarImagesSettings({
   showControls = true,
   showAlgorithms = true,
-}: { showControls?: boolean; showAlgorithms?: boolean }) {
+}: {
+  showControls?: boolean;
+  showAlgorithms?: boolean;
+}) {
   const settings = useAtomValue(settingsAtom);
   const setSettings = useSetAtom(settingsAtom);
   const t = useT();
@@ -444,7 +459,10 @@ function SimilarImagesSettings({
 function SimilarVideosSettings({
   showControls = true,
   showAlgorithms: _showAlgorithms = true,
-}: { showControls?: boolean; showAlgorithms?: boolean }) {
+}: {
+  showControls?: boolean;
+  showAlgorithms?: boolean;
+}) {
   const settings = useAtomValue(settingsAtom);
   const t = useT();
 
@@ -510,7 +528,10 @@ function SimilarVideosSettings({
 function MusicDuplicatesSettings({
   showControls = true,
   showAlgorithms = true,
-}: { showControls?: boolean; showAlgorithms?: boolean }) {
+}: {
+  showControls?: boolean;
+  showAlgorithms?: boolean;
+}) {
   const settings = useAtomValue(settingsAtom);
   const t = useT();
 
@@ -610,7 +631,10 @@ function MusicDuplicatesSettings({
 function BrokenFilesSettings({
   showControls = true,
   showAlgorithms: _showAlgorithms = true,
-}: { showControls?: boolean; showAlgorithms?: boolean }) {
+}: {
+  showControls?: boolean;
+  showAlgorithms?: boolean;
+}) {
   const t = useT();
 
   return (

@@ -8,9 +8,9 @@ import {
   currentToolRowSelectionAtom,
 } from '~/atom/tools';
 import {
+  createColumns,
   DataTable,
   FilterStateUpdater,
-  createColumns,
 } from '~/components/data-table';
 import { useT } from '~/hooks';
 import type { SymlinksFileEntry } from '~/types';

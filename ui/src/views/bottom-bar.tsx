@@ -16,11 +16,11 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import {
+  currentToolAtom,
   excludedDirsRowSelectionAtom,
   includedDirsRowSelectionAtom,
   logsAtom,
 } from '~/atom/primitive';
-import { currentToolAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
 import { currentToolDataAtom } from '~/atom/tools';
 import {
@@ -31,9 +31,9 @@ import {
   TooltipButton,
 } from '~/components';
 import {
+  createColumns,
   DataTable,
   type RowSelection,
-  createColumns,
 } from '~/components/data-table';
 import {
   Dialog,
@@ -52,8 +52,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '~/components/shadcn/tabs';
 import { Tools } from '~/consts';
 import { useBoolean, useT } from '~/hooks';
-import type { DirsType } from '~/types';
-import type { FolderStat } from '~/types';
+import type { DirsType, FolderStat } from '~/types';
 import { cn } from '~/utils/cn';
 import { getRowSelectionKeys, splitStr } from '~/utils/common';
 import { FileFilter } from './file-filter';
