@@ -90,36 +90,38 @@ export default function App() {
         />
       )}
       <SidebarProvider style={{ '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}>
-        <AppSidebar />
-        <SidebarInset className="flex flex-col overflow-hidden">
-          <TooltipProvider delayDuration={100} skipDelayDuration={90}>
-            <ResizablePanelGroup
-              direction="vertical"
-              autoSaveId="app-layout"
-              onLayout={(sizes) => {
-                const bottom = sizes[sizes.length - 1] ?? PANEL_SIZE;
-                localStorage.setItem(STORAGE_KEY, String(bottom));
-                setDefaultBottomSize(bottom);
-              }}
-            >
-              <ResizablePanel>
-                <div className="flex flex-col h-full">
-                  <AppHeader />
-                  <AppBody />
-                </div>
-              </ResizablePanel>
-              <ResizableHandle onDoubleClick={handleResetPanelSize} />
-              <ResizablePanel
-                ref={bottomPanelRef}
-                defaultSize={defaultBottomSize}
-                minSize={bottomPanelMinSize}
-                maxSize={50}
-              >
-                <BottomBar headerRef={headerRef} />
-              </ResizablePanel>
-            </ResizablePanelGroup>
-          </TooltipProvider>
-        </SidebarInset>
+        <div className="flex flex-col h-full w-full overflow-hidden">
+          <AppHeader />
+          <div className="flex flex-1 overflow-hidden">
+            <AppSidebar />
+            <SidebarInset className="flex flex-col overflow-hidden bg-transparent">
+              <TooltipProvider delayDuration={100} skipDelayDuration={90}>
+                <ResizablePanelGroup
+                  direction="vertical"
+                  autoSaveId="app-layout"
+                  onLayout={(sizes) => {
+                    const bottom = sizes[sizes.length - 1] ?? PANEL_SIZE;
+                    localStorage.setItem(STORAGE_KEY, String(bottom));
+                    setDefaultBottomSize(bottom);
+                  }}
+                >
+                  <ResizablePanel>
+                    <AppBody />
+                  </ResizablePanel>
+                  <ResizableHandle onDoubleClick={handleResetPanelSize} />
+                  <ResizablePanel
+                    ref={bottomPanelRef}
+                    defaultSize={defaultBottomSize}
+                    minSize={bottomPanelMinSize}
+                    maxSize={50}
+                  >
+                    <BottomBar headerRef={headerRef} />
+                  </ResizablePanel>
+                </ResizablePanelGroup>
+              </TooltipProvider>
+            </SidebarInset>
+          </div>
+        </div>
       </SidebarProvider>
       <Toaster />
       <SidebarImagePreview />

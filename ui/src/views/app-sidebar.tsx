@@ -111,12 +111,6 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r transition-all duration-300">
-      <SidebarHeader className={cn(
-        'flex h-14 px-2 justify-center transition-all duration-300',
-        PLATFORM === 'darwin' ? 'pt-6 h-20' : 'h-14',
-      )}>
-        <SidebarTrigger className="h-8 w-8" />
-      </SidebarHeader>
       <SidebarContent className="hide-scrollbar">
         <SidebarGroup className="py-2">
           <SidebarGroupContent>

@@ -24,6 +24,7 @@ import { storage } from '~/utils/storage';
 
 import { SettingsButton } from './settings';
 import { ThemeToggle } from './theme-toggle';
+import { SidebarTrigger } from '~/components/shadcn/sidebar';
 
 // 新增 selectionStats props，便于顶栏显示统计信息
 export function AppHeader() {
@@ -41,23 +42,27 @@ export function AppHeader() {
 
   return (
     <div
-      className="w-full h-10 flex justify-between items-center px-2 py-0 border-b border-border/40 dark:border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 select-none relative"
+      className="w-full h-10 flex justify-between items-center px-3 py-0 border-b border-border/40 dark:border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 select-none relative"
       data-tauri-drag-region
     >
       {/* 这里的子元素需要标记为 no-drag，否则由于 z-index 提升可能导致点击失效或拖拽失效 */}
 
-      <div className="flex-1 flex items-center min-w-0 pr-4 pointer-events-none no-drag">
-        {selectionStats && (
-          <div className="flex items-center gap-2 text-[10px] text-muted-foreground/80 bg-muted/40 rounded-full px-3 py-1 ml-2 pointer-events-auto">
-            <span className="truncate">已选 {selectionStats.count}</span>
-            <span className="opacity-30">|</span>
-            <span className="truncate">{formatSize(selectionStats.totalSize)}</span>
-          </div>
-        )}
+      {/* 左侧区域：侧边栏切换与统计信息 */}
+      <div className="flex items-center gap-2 no-drag min-w-0 flex-shrink-0">
+        <SidebarTrigger className="h-8 w-8 hover:bg-accent/80 transition-colors" />
+        <div className="flex items-center pointer-events-none hidden sm:flex">
+          {selectionStats && (
+            <div className="flex items-center gap-2 text-[10px] text-muted-foreground/80 bg-muted/20 border border-border/30 rounded-full px-3 py-0.5 pointer-events-auto">
+              <span className="truncate">已选 {selectionStats.count}</span>
+              <span className="opacity-30">|</span>
+              <span className="truncate">{formatSize(selectionStats.totalSize)}</span>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* 中间：核心控制区 (搜索, 背景, 明暗, 语言) */}
-      <div className="relative z-10 flex items-center gap-1 bg-muted/30 p-1 rounded-full border border-border/30 no-drag">
+      {/* 中间：核心控制区 (搜索, 背景, 明暗, 语言) - 绝对居中 */}
+      <div className="absolute left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-muted/40 p-1 rounded-full border border-border/40 no-drag shadow-sm backdrop-blur-sm">
         <div className={`flex items-center transition-all duration-300 ease-out overflow-hidden ${searchExpanded ? 'w-48 px-1' : 'w-8'}`}>
           {searchExpanded ? (
             <div className="relative w-full">
@@ -91,7 +96,7 @@ export function AppHeader() {
       </div>
 
       {/* 右侧：窗口控制 */}
-      <div className="flex-1 flex justify-end items-center pl-4 relative z-10">
+      <div className="flex justify-end items-center pl-4 relative z-10 no-drag">
         <WindowControls />
       </div>
     </div>
