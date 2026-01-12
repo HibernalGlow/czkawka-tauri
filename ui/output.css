@@ -1246,6 +1246,10 @@ body {
   width: 75%;
 }
 
+.w-32 {
+  width: 8rem;
+}
+
 .w-4 {
   width: 1rem;
 }
@@ -1312,10 +1316,6 @@ body {
 
 .w-screen {
   width: 100vw;
-}
-
-.w-32 {
-  width: 8rem;
 }
 
 .min-w-0 {
@@ -1995,6 +1995,10 @@ body {
   padding: 0px;
 }
 
+.p-0\.5 {
+  padding: 0.125rem;
+}
+
 .p-1 {
   padding: 0.25rem;
 }
@@ -2017,10 +2021,6 @@ body {
 
 .p-\[1px\] {
   padding: 1px;
-}
-
-.p-0\.5 {
-  padding: 0.125rem;
 }
 
 .px-0 {
@@ -3389,10 +3389,6 @@ body {
 
 .hover\:text-muted-foreground:hover {
   color: var(--muted-foreground);
-}
-
-.hover\:text-primary:hover {
-  color: var(--primary);
 }
 
 .hover\:text-primary-foreground:hover {
