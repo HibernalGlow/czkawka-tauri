@@ -1,5 +1,6 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { Check, Copy, Moon, Palette, Sun, Trash2, TvMinimal } from 'lucide-react';
+import { Check, Copy, Moon, Palette, Sun, Trash2, TvMinimal, Github } from 'lucide-react';
+import { openUrl } from '@tauri-apps/plugin-opener';
 import { useRef, useState } from 'react';
 import {
   customThemesAtom,
@@ -22,6 +23,7 @@ import {
   Textarea,
   toastError,
 } from '~/components';
+import { BoxReveal } from '~/components/box-reveal';
 import { Theme } from '~/consts';
 import { useT } from '~/hooks';
 import type { CustomThemeConfig } from '~/types';
@@ -428,6 +430,35 @@ export function ThemePanel() {
           <p className="text-sm">
             <strong>💡 {t('Tip')}:</strong> {t('Theme settings are auto-saved')}
           </p>
+        </div>
+
+        {/* 应用信息 (从顶栏移至此处) */}
+        <div className="pt-8 pb-4 flex flex-col items-center gap-4 opacity-40 hover:opacity-100 transition-opacity">
+          <img
+            className="size-12 grayscale hover:grayscale-0 transition-all cursor-pointer"
+            src="/icon.ico"
+            alt="czkawka icon"
+          />
+          <div className="flex flex-col items-center gap-1">
+            <BoxReveal boxColor="#d946ef" duration={0.5}>
+              <span className="font-serif text-xl tracking-wider font-bold">{PKG_NAME}</span>
+            </BoxReveal>
+            <span className="font-mono text-[10px] opacity-70">
+              Version {PKG_VERSION}
+            </span>
+          </div>
+
+          <BoxReveal boxColor="#0ea5e9" duration={0.6}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-2 flex items-center gap-2 rounded-full border-muted-foreground/20 hover:border-primary/50 transition-colors"
+              onClick={() => openUrl(REPOSITORY_URL)}
+            >
+              <Github className="h-4 w-4" />
+              <span>Source Code</span>
+            </Button>
+          </BoxReveal>
         </div>
       </div>
     </ScrollArea>

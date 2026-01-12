@@ -1,13 +1,14 @@
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { ImageIcon, Languages, Trash2 } from 'lucide-react';
+import { getCurrentWindow } from '@tauri-apps/api/window';
+import { ImageIcon, Languages, Minus, Search, Square, Trash2, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDebouncedCallback } from 'use-debounce';
 import { backgroundBlurAtom, backgroundImageAtom, backgroundOpacityAtom, maskOpacityAtom, searchInputValueAtom } from '~/atom/primitive';
 import { setBackgroundBlurAtom, setBackgroundImageAtom, setBackgroundOpacityAtom, setMaskOpacityAtom } from '~/atom/theme';
 import { currentToolFilterAtom } from '~/atom/tools';
-import { SearchInput, Select, Slider, TooltipButton, toastError } from '~/components';
+import { Select, Slider, TooltipButton, toastError } from '~/components';
 import { GitHub } from '~/components/icons'
 import { SelectIconTrigger } from '~/components/one-select';
 import {
@@ -31,6 +32,7 @@ export function AppHeader() {
   const [inputValue, setInputValue] = useAtom(searchInputValueAtom);
   const debouncedSetFilter = useDebouncedCallback(setFilter, 300);
   const t = useT();
+  const [searchExpanded, setSearchExpanded] = useState(!!inputValue);
 
   const handleInputChange = (v: string) => {
     setInputValue(v);
@@ -39,52 +41,89 @@ export function AppHeader() {
 
   return (
     <div
-      className="w-full h-11 flex justify-between items-center px-4 py-1 border-b border-border/50 dark:border-border"
-      data-tauri-drag-region={PLATFORM === 'darwin' ? true : undefined}
+      className="w-full h-10 flex justify-between items-center px-2 py-0 border-b border-border/40 dark:border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 select-none"
+      data-tauri-drag-region
     >
-      {/* 左侧应用图标和版本号 */}
-      <div className="flex items-center gap-2">
-        <img
-          className="size-8 flex-shrink-0"
-          src="/icon.ico"
-          alt="czkawka icon"
-        />
-        <div className="flex items-center gap-1">
-          <span className="font-serif">{PKG_NAME}</span>
-          <span className="font-extralight text-[10px] pb-[1px] opacity-60">
-            v{PKG_VERSION}
-          </span>
-        </div>
-      </div>
-
-      {/* 中间搜索框 */}
-      <div className="flex-1 max-w-sm px-4">
-        <SearchInput
-          placeholder={`${t('search')}...`}
-          value={inputValue}
-          onChange={handleInputChange}
-          className="h-8"
-        />
-      </div>
-      {/* 右侧统计信息和操作按钮 */}
-      <div className="flex items-center gap-4">
+      {/* 左侧：统计信息 */}
+      <div className="flex-1 flex items-center min-w-0 pr-4 pointer-events-none">
         {selectionStats && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/60 rounded px-2 py-0.5">
-            <span>已选 {selectionStats.count} 项</span>
-            <span>|</span>
-            <span>总大小 {formatSize(selectionStats.totalSize)}</span>
-            <span>|</span>
-            <span>格式 {selectionStats.formats.join(', ')}</span>
+          <div className="flex items-center gap-2 text-[10px] text-muted-foreground/80 bg-muted/40 rounded-full px-3 py-1 ml-2 pointer-events-auto">
+            <span className="truncate">已选 {selectionStats.count}</span>
+            <span className="opacity-30">|</span>
+            <span className="truncate">{formatSize(selectionStats.totalSize)}</span>
           </div>
         )}
-        <div className="flex items-center gap-1.5">
-          <BackgroundButton />
-          <ChangeLanguageButton />
-          <SettingsButton />
-          <ThemeToggle />
-          <ViewGitHubButton />
-        </div>
       </div>
+
+      {/* 中间：核心控制区 (搜索, 背景, 明暗, 语言) */}
+      <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-full border border-border/30">
+        <div className={`flex items-center transition-all duration-300 ease-out overflow-hidden ${searchExpanded ? 'w-48 px-1' : 'w-8'}`}>
+          {searchExpanded ? (
+            <div className="relative w-full">
+              <input
+                autoFocus
+                type="text"
+                placeholder={`${t('search')}...`}
+                value={inputValue}
+                onChange={(e) => handleInputChange(e.target.value)}
+                onBlur={() => !inputValue && setSearchExpanded(false)}
+                className="w-full h-7 pl-8 pr-2 text-xs bg-transparent outline-none border-none placeholder:text-muted-foreground/50"
+              />
+              <Search className="absolute left-2 top-1.5 h-3.5 w-3.5 text-muted-foreground/60" />
+            </div>
+          ) : (
+            <button
+              onClick={() => setSearchExpanded(true)}
+              className="flex items-center justify-center h-7 w-8 hover:text-primary transition-colors text-muted-foreground"
+            >
+              <Search className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        
+        <div className="w-[1px] h-4 bg-border/40 mx-0.5" />
+        
+        <BackgroundButton />
+        <ThemeToggle />
+        <ChangeLanguageButton />
+        <SettingsButton />
+      </div>
+
+      {/* 右侧：窗口控制 */}
+      <div className="flex-1 flex justify-end items-center pl-4">
+        <WindowControls />
+      </div>
+    </div>
+  );
+}
+
+function WindowControls() {
+  const [isMaximized, setIsMaximized] = useState(false);
+  const appWindow = getCurrentWindow();
+
+  return (
+    <div className="flex items-center h-full -mr-2">
+      <button
+        onClick={() => appWindow.minimize()}
+        className="w-11 h-10 flex items-center justify-center hover:bg-muted/80 transition-colors"
+      >
+        <Minus className="h-4 w-4" />
+      </button>
+      <button
+        onClick={() => {
+          appWindow.toggleMaximize();
+          setIsMaximized(!isMaximized);
+        }}
+        className="w-11 h-10 flex items-center justify-center hover:bg-muted/80 transition-colors"
+      >
+        <Square className="h-3 w-3" />
+      </button>
+      <button
+        onClick={() => appWindow.close()}
+        className="w-11 h-10 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
+      >
+        <X className="h-4 w-4" />
+      </button>
     </div>
   );
 }
@@ -240,18 +279,7 @@ function BackgroundButton() {
   );
 }
 
-function ViewGitHubButton() {
-  const t = useT();
 
-  return (
-    <TooltipButton
-      tooltip={t('View source code')}
-      onClick={() => openUrl(REPOSITORY_URL)}
-    >
-      <GitHub />
-    </TooltipButton>
-  );
-}
 
 function ChangeLanguageButton() {
   const { i18n } = useTranslation();
@@ -267,9 +295,12 @@ function ChangeLanguageButton() {
   return (
     <Select
       trigger={
-        <SelectIconTrigger>
-          <Languages />
-        </SelectIconTrigger>
+        <button
+          className="inline-flex items-center justify-center h-8 w-8 rounded-md transition-colors hover:bg-accent hover:text-accent-foreground text-muted-foreground"
+          title="Change Language"
+        >
+          <Languages className="h-4 w-4" />
+        </button>
       }
       value={value}
       onChange={handleLanguageChange}
