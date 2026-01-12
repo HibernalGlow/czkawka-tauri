@@ -863,10 +863,6 @@ body {
   margin-right: 0.5rem;
 }
 
-.mt-1 {
-  margin-top: 0.25rem;
-}
-
 .mt-2 {
   margin-top: 0.5rem;
 }
@@ -1148,16 +1144,8 @@ body {
   width: 1px;
 }
 
-.w-\[200px\] {
-  width: 200px;
-}
-
 .w-\[500px\] {
   width: 500px;
-}
-
-.w-\[60px\] {
-  width: 60px;
 }
 
 .w-auto {
@@ -1437,10 +1425,6 @@ body {
 
 .items-center {
   align-items: center;
-}
-
-.justify-start {
-  justify-content: flex-start;
 }
 
 .justify-end {
@@ -1864,10 +1848,6 @@ body {
 .py-4 {
   padding-top: 1rem;
   padding-bottom: 1rem;
-}
-
-.pb-1 {
-  padding-bottom: 0.25rem;
 }
 
 .pb-2 {

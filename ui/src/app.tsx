@@ -5,15 +5,19 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '~/components/shadcn/resizable';
+import {
+  SidebarInset,
+  SidebarProvider,
+} from '~/components/shadcn/sidebar';
 import { Toaster } from '~/components/shadcn/sonner';
 import { TooltipProvider } from '~/components/shadcn/tooltip';
 import { AppBody } from '~/views/app-body';
 import { AppHeader } from '~/views/app-header';
+import { AppSidebar } from '~/views/app-sidebar';
 import { BottomBar } from '~/views/bottom-bar';
 import { FloatingFilterPanel } from '~/views/floating-filter-panel';
 import { SidebarImagePreview } from '~/views/sidebar-image-preview';
 import { SidebarVideoPreview } from '~/views/sidebar-video-preview';
-import { ToolTabs } from '~/views/tool-tabs';
 
 export default function App() {
   const PANEL_SIZE = 30;
@@ -59,37 +63,39 @@ export default function App() {
   }, []);
 
   return (
-    <div className="h-screen w-screen flex flex-col relative">
-      <TooltipProvider delayDuration={100} skipDelayDuration={90}>
-        <ResizablePanelGroup
-          direction="vertical"
-          autoSaveId="app-layout"
-          onLayout={(sizes) => {
-            const bottom = sizes[sizes.length - 1] ?? PANEL_SIZE;
-            localStorage.setItem(STORAGE_KEY, String(bottom));
-            setDefaultBottomSize(bottom);
-          }}
-        >
-          <ResizablePanel>
-            <div className="flex h-full">
-              <ToolTabs />
-              <div className="flex flex-col flex-1 w-px">
-                <AppHeader />
-                <AppBody />
-              </div>
-            </div>
-          </ResizablePanel>
-          <ResizableHandle withHandle onDoubleClick={handleResetPanelSize} />
-          <ResizablePanel
-            ref={bottomPanelRef}
-            defaultSize={defaultBottomSize}
-            minSize={bottomPanelMinSize}
-            maxSize={50}
-          >
-            <BottomBar headerRef={headerRef} />
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </TooltipProvider>
+    <div className="h-screen w-screen flex flex-col relative overflow-hidden">
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset className="flex flex-col overflow-hidden">
+          <TooltipProvider delayDuration={100} skipDelayDuration={90}>
+            <ResizablePanelGroup
+              direction="vertical"
+              autoSaveId="app-layout"
+              onLayout={(sizes) => {
+                const bottom = sizes[sizes.length - 1] ?? PANEL_SIZE;
+                localStorage.setItem(STORAGE_KEY, String(bottom));
+                setDefaultBottomSize(bottom);
+              }}
+            >
+              <ResizablePanel>
+                <div className="flex flex-col h-full">
+                  <AppHeader />
+                  <AppBody />
+                </div>
+              </ResizablePanel>
+              <ResizableHandle withHandle onDoubleClick={handleResetPanelSize} />
+              <ResizablePanel
+                ref={bottomPanelRef}
+                defaultSize={defaultBottomSize}
+                minSize={bottomPanelMinSize}
+                maxSize={50}
+              >
+                <BottomBar headerRef={headerRef} />
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </TooltipProvider>
+        </SidebarInset>
+      </SidebarProvider>
       <Toaster />
       <SidebarImagePreview />
       <SidebarVideoPreview />

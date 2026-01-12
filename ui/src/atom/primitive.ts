@@ -117,12 +117,6 @@ export const searchInputValueAtom = atom('');
 
 export const scanResultAtom = atom<any>(null);
 
-// 工具栏折叠状态
-export const toolTabsCollapsedAtom = atomWithStorage(
-  'tool-tabs-collapsed',
-  false,
-);
-
 // Re-export local feature atoms for backward compatibility
 export {
   filterPanelAtom,

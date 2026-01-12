@@ -1,3 +1,4 @@
+import { openUrl } from '@tauri-apps/plugin-opener';
 import { useAtom, useSetAtom } from 'jotai';
 import { Languages } from 'lucide-react';
 import { useState } from 'react';
