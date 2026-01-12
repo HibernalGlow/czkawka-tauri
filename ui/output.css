@@ -867,6 +867,14 @@ body {
   margin-top: 0.5rem;
 }
 
+.ml-1 {
+  margin-left: 0.25rem;
+}
+
+.mt-auto {
+  margin-top: auto;
+}
+
 .block {
   display: block;
 }
@@ -1028,6 +1036,10 @@ body {
   height: 100svh;
 }
 
+.h-0 {
+  height: 0px;
+}
+
 .max-h-96 {
   max-height: 24rem;
 }
@@ -1164,6 +1176,10 @@ body {
   width: 100vw;
 }
 
+.w-0 {
+  width: 0px;
+}
+
 .min-w-0 {
   min-width: 0px;
 }
@@ -1282,6 +1298,12 @@ body {
 
 .rotate-180 {
   --tw-rotate: 180deg;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.scale-90 {
+  --tw-scale-x: .9;
+  --tw-scale-y: .9;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
@@ -1405,6 +1427,10 @@ body {
 
 .grid-cols-4 {
   grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.flex-row {
+  flex-direction: row;
 }
 
 .flex-col {
@@ -1563,6 +1589,11 @@ body {
 
 .rounded-xl {
   border-radius: 0.75rem;
+}
+
+.rounded-r-full {
+  border-top-right-radius: 9999px;
+  border-bottom-right-radius: 9999px;
 }
 
 .border {
@@ -1850,6 +1881,16 @@ body {
   padding-bottom: 1rem;
 }
 
+.px-0 {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+.px-\[14px\] {
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
 .pb-2 {
   padding-bottom: 0.5rem;
 }
@@ -1892,6 +1933,14 @@ body {
 
 .pt-5 {
   padding-top: 1.25rem;
+}
+
+.pt-6 {
+  padding-top: 1.5rem;
+}
+
+.pl-3 {
+  padding-left: 0.75rem;
 }
 
 .text-left {
@@ -1942,6 +1991,11 @@ body {
   line-height: 1rem;
 }
 
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
 .font-extralight {
   font-weight: 200;
 }
@@ -1956,6 +2010,14 @@ body {
 
 .font-semibold {
   font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.uppercase {
+  text-transform: uppercase;
 }
 
 .tabular-nums {
@@ -1973,6 +2035,10 @@ body {
 
 .tracking-widest {
   letter-spacing: 0.1em;
+}
+
+.tracking-wider {
+  letter-spacing: 0.05em;
 }
 
 .text-accent-foreground {
@@ -2100,6 +2166,10 @@ body {
 
 .opacity-70 {
   opacity: 0.7;
+}
+
+.opacity-100 {
+  opacity: 1;
 }
 
 .shadow {
@@ -2943,6 +3013,10 @@ body {
 
 .hover\:text-sidebar-accent-foreground:hover {
   color: hsl(var(--sidebar-accent-foreground));
+}
+
+.hover\:text-foreground:hover {
+  color: var(--foreground);
 }
 
 .hover\:underline:hover {

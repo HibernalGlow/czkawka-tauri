@@ -110,14 +110,17 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className={cn(PLATFORM === 'darwin' && 'pt-5')}>
+    <Sidebar collapsible="icon" className="border-r transition-all duration-300">
+      <SidebarHeader className={cn(
+        'flex h-14 px-2 justify-center transition-all duration-300',
+        PLATFORM === 'darwin' ? 'pt-6 h-20' : 'h-14',
+      )}>
         <SidebarTrigger className="h-8 w-8" />
       </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
+      <SidebarContent className="hide-scrollbar">
+        <SidebarGroup className="py-2">
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-1">
               {Object.values(Tools).map((name) => {
                 const IconComponent = toolIcons[name] || FileQuestion;
                 const isActive = currentTool === name;
@@ -129,14 +132,29 @@ export function AppSidebar() {
                       onClick={() => handleClick(name)}
                       isActive={isActive}
                       tooltip={t(name)}
+                      className={cn(
+                        'relative h-10 px-[14px] transition-all duration-300',
+                        isActive
+                          ? 'bg-primary/10 text-primary hover:bg-primary/15 font-semibold'
+                          : 'hover:bg-accent/50 text-muted-foreground hover:text-foreground',
+                      )}
                     >
-                      <div className="relative">
-                        <IconComponent className="h-4 w-4" />
-                        {isLoading && (
-                          <LoaderCircle className="absolute inset-0 h-4 w-4 animate-spin" />
-                        )}
+                      <div className="flex items-center justify-center w-5 h-5 shrink-0">
+                        <div className="relative">
+                          <IconComponent
+                            className={cn(
+                              'w-4 h-4 transition-colors duration-200',
+                              isActive ? 'text-primary' : 'text-muted-foreground',
+                            )}
+                          />
+                          {isLoading && (
+                            <LoaderCircle className="absolute inset-0 h-4 w-4 animate-spin text-primary opacity-70" />
+                          )}
+                        </div>
                       </div>
-                      <span className="truncate">{t(name)}</span>
+                      <span className="truncate ml-2 transition-opacity duration-300">
+                        {t(name)}
+                      </span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
