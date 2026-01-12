@@ -1783,6 +1783,10 @@ body {
   fill: #eab308;
 }
 
+.fill-destructive {
+  fill: var(--destructive);
+}
+
 .object-contain {
   -o-object-fit: contain;
      object-fit: contain;
@@ -2142,6 +2146,10 @@ body {
 .text-yellow-600 {
   --tw-text-opacity: 1;
   color: rgb(202 138 4 / var(--tw-text-opacity, 1));
+}
+
+.text-destructive {
+  color: var(--destructive);
 }
 
 .underline-offset-4 {
@@ -2662,6 +2670,10 @@ body {
   border-color: rgb(239 68 68 / var(--tw-border-opacity, 1));
 }
 
+.data-\[state\=instant-open\]\:border-destructive[data-state="instant-open"] {
+  border-color: var(--destructive);
+}
+
 .data-\[active\=true\]\:bg-sidebar-accent[data-active="true"] {
   background-color: hsl(var(--sidebar-accent));
 }
@@ -3160,6 +3172,10 @@ body {
 .data-\[state\=instant-open\]\:focus-visible\:ring-red-500:focus-visible[data-state="instant-open"] {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(239 68 68 / var(--tw-ring-opacity, 1));
+}
+
+.data-\[state\=instant-open\]\:focus-visible\:ring-destructive:focus-visible[data-state="instant-open"] {
+  --tw-ring-color: var(--destructive);
 }
 
 .active\:bg-sidebar-accent:active {

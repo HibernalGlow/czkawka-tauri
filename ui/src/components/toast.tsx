@@ -3,10 +3,10 @@ import { toast } from 'sonner';
 
 function toastErrorImpl(msg: string, error?: string) {
   toast(msg, {
-    icon: <CircleX className="text-red-500" />,
+    icon: <CircleX className="text-destructive" />,
     className: 'gap-2',
     classNames: {
-      title: 'text-red-500',
+      title: 'text-destructive',
       icon: 'size-6 m-0',
     },
     description: error,

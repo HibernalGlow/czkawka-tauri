@@ -95,7 +95,7 @@ export function EditInput(props: EditInputProps) {
         <Input
           ref={inputRef}
           className={cn(
-            'dark:bg-gray-900 placeholder:italic data-[state=instant-open]:border-red-500 data-[state=instant-open]:focus-visible:ring-red-500',
+            'dark:bg-muted/20 placeholder:italic data-[state=instant-open]:border-destructive data-[state=instant-open]:focus-visible:ring-destructive',
             className,
           )}
           value={value}
@@ -105,8 +105,8 @@ export function EditInput(props: EditInputProps) {
           {...restProps}
         />
       </TooltipTrigger>
-      <TooltipContent className="bg-red-500">
-        <TooltipArrow className="fill-red-500" />
+      <TooltipContent className="bg-destructive text-destructive-foreground">
+        <TooltipArrow className="fill-destructive" />
         {err}
       </TooltipContent>
     </Tooltip>
