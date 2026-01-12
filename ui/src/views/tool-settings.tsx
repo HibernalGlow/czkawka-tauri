@@ -132,6 +132,24 @@ function ImageDisplaySettings() {
   );
 }
 
+// 通用视频设置组件
+function VideoDisplaySettings() {
+  const settings = useAtomValue(settingsAtom);
+  const t = useT();
+
+  return (
+    <>
+      <FormItem
+        name="similarVideosEnableThumbnails"
+        label={t('Enable video thumbnails')}
+        comp="switch"
+      >
+        <Switch />
+      </FormItem>
+    </>
+  );
+}
+
 const toolsWithoutSettings = new Set<string>([
   // 移除所有工具，因为现在所有工具都有路径显示设置
 ]);
@@ -519,7 +537,7 @@ function SimilarVideosSettings({
           </FormItem>
         </>
       )}
-      <ImageDisplaySettings />
+      <VideoDisplaySettings />
       <PathDisplaySettings />
     </>
   );

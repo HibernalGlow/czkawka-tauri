@@ -79,6 +79,7 @@ export interface Settings {
   biggestFilesSubNumberOfFiles: number;
 
   similarVideosHideHardLinks: boolean;
+  similarVideosEnableThumbnails: boolean;
   similarVideosDeleteOutdatedEntries: boolean;
   similarVideosSubIgnoreSameSize: boolean;
   similarVideosSubSimilarity: number;

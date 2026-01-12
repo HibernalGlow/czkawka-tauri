@@ -1,7 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
 
 import { useAtom, useAtomValue } from 'jotai';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { settingsAtom } from '~/atom/settings';
 import {
   currentToolDataAtom,
@@ -15,10 +15,16 @@ import {
   TableRowSelectionCell,
   TableRowSelectionHeader,
 } from '~/components/data-table';
+import { DynamicVideoThumbnailCell } from '~/components/dynamic-video-thumbnail-cell';
+import { VideoPlayerDialog } from '~/components/video-player-dialog';
+import { TooltipButton } from '~/components/tooltip-button';
 import { useT } from '~/hooks';
 import type { VideosEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
 import { ClickableVideoPreview } from './clickable-video-preview';
+import { invoke } from '@tauri-apps/api/core';
+import { ExternalLink } from 'lucide-react';
+import { toastError } from '~/components/toast';
 
 export function SimilarVideos() {
   const data = useAtomValue(currentToolDataAtom) as VideosEntry[];
@@ -26,6 +32,11 @@ export function SimilarVideos() {
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);
   const t = useT();
+
+  // Video player state
+  const [selectedVideoPath, setSelectedVideoPath] = useState<string | null>(null);
+  const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
+  const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80);
 
   const filteredData = useMemo(() => {
     if (!filter) return data;
@@ -56,6 +67,29 @@ export function SimilarVideos() {
     return cleaned;
   }, [data, filter]);
 
+  // Calculate dynamic row height based on thumbnail size
+  const dynamicRowHeight = useMemo(() => {
+    if (!settings.similarVideosEnableThumbnails) {
+      return 36;
+    }
+    const thumbnailSize = Math.max(20, Math.min(thumbnailColumnWidth - 8, 200));
+    return Math.max(36, thumbnailSize + 16);
+  }, [settings.similarVideosEnableThumbnails, thumbnailColumnWidth]);
+
+  // Handle opening video in app player
+  const handleVideoClick = (path: string) => {
+    setSelectedVideoPath(path);
+    setIsVideoPlayerOpen(true);
+  };
+
+  // Handle opening video in system player
+  const handleOpenInSystemPlayer = (path: string) => {
+    invoke('open_system_path', { path }).catch((e) => {
+      console.error('Failed to open video in system player', path, e);
+      toastError(t('Opreation failed'), e);
+    });
+  };
+
   const columns: ColumnDef<VideosEntry>[] = [
     {
       id: 'select',
@@ -74,6 +108,30 @@ export function SimilarVideos() {
         return <TableRowSelectionCell row={row} />;
       },
     },
+    ...(settings.similarVideosEnableThumbnails
+      ? [
+          {
+            id: 'thumbnail',
+            header: t('Thumbnail'),
+            size: 80,
+            minSize: 60,
+            maxSize: 120,
+            cell: ({ row }: { row: any }) => {
+              if (row.original.hidden) {
+                return null;
+              }
+              return (
+                <DynamicVideoThumbnailCell
+                  path={row.original.path}
+                  enableLazyLoad={true}
+                  onSizeChange={setThumbnailColumnWidth}
+                  onClick={() => handleVideoClick(row.original.path)}
+                />
+              );
+            },
+          },
+        ]
+      : []),
     {
       accessorKey: 'size',
       header: t('Size'),
@@ -89,11 +147,12 @@ export function SimilarVideos() {
         if (row.original.hidden) return null;
         const { path, fileName } = row.original;
         return (
-          <ClickableVideoPreview path={path}>
-            <div className="truncate cursor-pointer hover:bg-accent/20 rounded px-1 py-0.5 transition-colors">
-              {fileName}
-            </div>
-          </ClickableVideoPreview>
+          <div
+            className="truncate cursor-pointer hover:bg-accent/20 rounded px-1 py-0.5 transition-colors"
+            onClick={() => handleVideoClick(path)}
+          >
+            {fileName}
+          </div>
         );
       },
     },
@@ -111,11 +170,12 @@ export function SimilarVideos() {
           settings.reversePathDisplay,
         );
         return (
-          <ClickableVideoPreview path={row.original.path}>
-            <div className="truncate cursor-pointer hover:bg-accent/20 rounded px-1 py-0.5 transition-colors">
-              {displayPath}
-            </div>
-          </ClickableVideoPreview>
+          <div
+            className="truncate cursor-pointer hover:bg-accent/20 rounded px-1 py-0.5 transition-colors"
+            onClick={() => handleVideoClick(row.original.path)}
+          >
+            {displayPath}
+          </div>
         );
       },
     },
@@ -127,30 +187,53 @@ export function SimilarVideos() {
     },
     {
       id: 'actions',
-      size: 55,
-      minSize: 55,
+      size: 90,
+      minSize: 90,
       cell: ({ cell }) => {
         if (cell.row.original.isRef) {
           return null;
         }
-        return <TableActions path={cell.row.original.path} />;
+        return (
+          <div className="flex items-center gap-1">
+            <TooltipButton
+              tooltip={t('Open in system player')}
+              onClick={() => handleOpenInSystemPlayer(cell.row.original.path)}
+            >
+              <ExternalLink className="w-4 h-4" />
+            </TooltipButton>
+            <TableActions path={cell.row.original.path} />
+          </div>
+        );
       },
     },
   ];
 
   return (
-    <DataTable
-      className="flex-1 rounded-none border-none grow"
-      data={filteredData}
-      columns={columns}
-      rowSelection={rowSelection}
-      onRowSelectionChange={setRowSelection}
-      globalFilter={filter}
-      onGlobalFilterChange={(updater: FilterStateUpdater) => {
-        const newValue =
-          typeof updater === 'function' ? updater(filter) : updater;
-        setFilter(newValue);
-      }}
-    />
+    <>
+      <DataTable
+        className="flex-1 rounded-none border-none grow"
+        data={filteredData}
+        columns={columns}
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
+        rowHeight={dynamicRowHeight}
+        globalFilter={filter}
+        onGlobalFilterChange={(updater: FilterStateUpdater) => {
+          const newValue =
+            typeof updater === 'function' ? updater(filter) : updater;
+          setFilter(newValue);
+        }}
+      />
+      {selectedVideoPath && (
+        <VideoPlayerDialog
+          path={selectedVideoPath}
+          isOpen={isVideoPlayerOpen}
+          onClose={() => {
+            setIsVideoPlayerOpen(false);
+            setSelectedVideoPath(null);
+          }}
+        />
+      )}
+    </>
   );
 }

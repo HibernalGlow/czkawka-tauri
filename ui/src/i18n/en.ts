@@ -338,6 +338,8 @@ export const en = {
   'Theme settings are auto-saved':
     'Theme settings are auto-saved and will be applied next time you open the app.',
   search: 'Search',
+  'Enable video thumbnails': 'Enable video thumbnails',
+  'Open in system player': 'Open in system player',
 };
 
 export type TranslationKeys = keyof typeof en;

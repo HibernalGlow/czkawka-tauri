@@ -105,6 +105,7 @@ export function getDefaultSettings(): Settings {
     biggestFilesSubNumberOfFiles: 50,
 
     similarVideosHideHardLinks: true,
+    similarVideosEnableThumbnails: true,
     similarVideosDeleteOutdatedEntries: true,
     similarVideosSubIgnoreSameSize: false,
     similarVideosSubSimilarity: 15,

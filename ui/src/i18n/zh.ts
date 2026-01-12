@@ -330,4 +330,6 @@ export const zh: Record<TranslationKeys, string> = {
   'Theme settings are auto-saved':
     '主题设置会自动保存，下次打开应用时会自动应用。',
   search: '搜索',
+  'Enable video thumbnails': '启用视频缩略图',
+  'Open in system player': '在系统播放器中打开',
 };
