@@ -5,8 +5,8 @@ import { ImageIcon, Languages, Minus, Search, Square, Trash2, X } from 'lucide-r
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDebouncedCallback } from 'use-debounce';
-import { backgroundBlurAtom, backgroundImageAtom, backgroundOpacityAtom, maskOpacityAtom, searchInputValueAtom } from '~/atom/primitive';
-import { setBackgroundBlurAtom, setBackgroundImageAtom, setBackgroundOpacityAtom, setMaskOpacityAtom } from '~/atom/theme';
+import { backgroundBlurAtom, backgroundEnabledAtom, backgroundImageAtom, backgroundOpacityAtom, maskOpacityAtom, searchInputValueAtom } from '~/atom/primitive';
+import { setBackgroundBlurAtom, setBackgroundEnabledAtom, setBackgroundImageAtom, setBackgroundOpacityAtom, setMaskOpacityAtom } from '~/atom/theme';
 import { currentToolFilterAtom } from '~/atom/tools';
 import { Select, Slider, TooltipButton, toastError } from '~/components';
 import { GitHub } from '~/components/icons'
@@ -21,6 +21,8 @@ import {
 import { Button } from '~/components/shadcn/button';
 import { useT, useTableSelectionStats } from '~/hooks';
 import { storage } from '~/utils/storage';
+import { Switch } from '~/components/shadcn/switch';
+import { Label } from '~/components/shadcn/label';
 
 import { SettingsButton } from './settings';
 import { ThemeToggle } from './theme-toggle';
@@ -152,7 +154,9 @@ function BackgroundButton() {
   const backgroundOpacity = useAtomValue(backgroundOpacityAtom);
   const backgroundBlur = useAtomValue(backgroundBlurAtom);
   const maskOpacity = useAtomValue(maskOpacityAtom);
+  const backgroundEnabled = useAtomValue(backgroundEnabledAtom);
   const setBackgroundImage = useSetAtom(setBackgroundImageAtom);
+  const setBackgroundEnabled = useSetAtom(setBackgroundEnabledAtom);
   const setBackgroundOpacity = useSetAtom(setBackgroundOpacityAtom);
   const setBackgroundBlur = useSetAtom(setBackgroundBlurAtom);
   const setMaskOpacity = useSetAtom(setMaskOpacityAtom);
@@ -195,7 +199,16 @@ function BackgroundButton() {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-64 p-3" align="end" onCloseAutoFocus={(e) => e.preventDefault()}>
-        <DropdownMenuLabel className="px-0 py-0 mb-2">{t('Custom background')}</DropdownMenuLabel>
+        <DropdownMenuLabel className="px-0 py-0 mb-4 flex items-center justify-between">
+          <span>{t('Custom background')}</span>
+          <div className="flex items-center gap-2" onPointerDown={(e) => e.stopPropagation()}>
+            <Switch
+              id="bg-enable"
+              checked={backgroundEnabled}
+              onCheckedChange={setBackgroundEnabled}
+            />
+          </div>
+        </DropdownMenuLabel>
         
         <input
           ref={fileInputRef}
@@ -227,7 +240,7 @@ function BackgroundButton() {
         </div>
 
         {backgroundImage && (
-          <div className="h-16 w-full overflow-hidden rounded border mb-3">
+          <div className={`h-20 w-full overflow-hidden rounded border mb-3 transition-opacity ${backgroundEnabled ? 'opacity-100' : 'opacity-40 grayscale'}`}>
             <img
               src={backgroundImage}
               alt="Background"

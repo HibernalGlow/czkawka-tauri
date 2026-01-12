@@ -31,6 +31,9 @@ export const customThemesAtom = atom<CustomThemeConfig[]>([]);
 // 自定义背景图片 (base64 or null)
 export const backgroundImageAtom = atom<string | null>(null);
 
+// 是否启用背景图片
+export const backgroundEnabledAtom = atom<boolean>(true);
+
 // 背景透明度 (0-100, 100 = 完全不透明)
 export const backgroundOpacityAtom = atom<number>(100);
 

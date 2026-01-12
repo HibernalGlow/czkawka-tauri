@@ -20,13 +20,16 @@ import { SidebarImagePreview } from '~/views/sidebar-image-preview';
 import { SidebarVideoPreview } from '~/views/sidebar-video-preview';
 
 import { useAtomValue } from 'jotai';
-import { backgroundImageAtom, backgroundBlurAtom, backgroundOpacityAtom, sidebarWidthAtom } from '~/atom/primitive';
+import { backgroundBlurAtom, backgroundEnabledAtom, backgroundImageAtom, backgroundOpacityAtom, sidebarWidthAtom } from '~/atom/primitive';
 
 export default function App() {
   const sidebarWidth = useAtomValue(sidebarWidthAtom);
   const backgroundImage = useAtomValue(backgroundImageAtom);
+  const backgroundEnabled = useAtomValue(backgroundEnabledAtom);
   const backgroundOpacity = useAtomValue(backgroundOpacityAtom);
   const backgroundBlur = useAtomValue(backgroundBlurAtom);
+
+  const showBackground = backgroundImage && backgroundEnabled;
   const PANEL_SIZE = 30;
   const STORAGE_KEY = 'app-bottom-panel-size';
   const [bottomPanelMinSize, setBottomPanelMinSize] = useState(8);
@@ -72,10 +75,10 @@ export default function App() {
   return (
     <div 
       className="h-screen w-screen flex flex-col relative overflow-hidden"
-      data-custom-bg={backgroundImage ? "true" : undefined}
+      data-custom-bg={showBackground ? "true" : undefined}
     >
       {/* 自定义背景图片层 */}
-      {backgroundImage && (
+      {showBackground && (
         <div
           className="fixed inset-0 pointer-events-none z-0"
           style={{

@@ -126,4 +126,14 @@ export const storage = {
   setMaskOpacity(opacity: number) {
     localStorage.setItem('mask-opacity', String(opacity));
   },
+
+  // 是否启用背景图片
+  getBackgroundEnabled(): boolean {
+    const val = localStorage.getItem('background-enabled');
+    return val !== 'false'; // 默认为 true
+  },
+
+  setBackgroundEnabled(enabled: boolean) {
+    localStorage.setItem('background-enabled', String(enabled));
+  },
 };
