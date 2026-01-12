@@ -8,6 +8,15 @@ tasks:
     desc: List all available tasks
     cmds:
       - task --list
+  run:tauri:
+    desc: Run Tauri application
+    cmds:
+      - node --run run:tauri
+
+  run:browser:
+    desc: Run application in browser
+    cmds:
+      - node --run run:browser
 
   toolchain:
     desc: Check versions of required tools
