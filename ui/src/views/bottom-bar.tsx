@@ -224,11 +224,11 @@ export function BottomBar({ headerRef }: BottomBarProps) {
                 <ResizablePanel defaultSize={25} minSize={15}>
                   <ToolControlsPanel />
                 </ResizablePanel>
-                <ResizableHandle withHandle />
+                <ResizableHandle />
                 <ResizablePanel defaultSize={25} minSize={15}>
                   <ToolAlgorithmPanel />
                 </ResizablePanel>
-                <ResizableHandle withHandle />
+                <ResizableHandle />
                 <ResizablePanel defaultSize={50} minSize={20}>
                   <IncludedDirsTable />
                 </ResizablePanel>

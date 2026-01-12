@@ -87,7 +87,7 @@ export default function App() {
                   <AppBody />
                 </div>
               </ResizablePanel>
-              <ResizableHandle withHandle onDoubleClick={handleResetPanelSize} />
+              <ResizableHandle onDoubleClick={handleResetPanelSize} />
               <ResizablePanel
                 ref={bottomPanelRef}
                 defaultSize={defaultBottomSize}
