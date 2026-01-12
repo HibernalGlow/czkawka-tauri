@@ -1,7 +1,7 @@
 import { open } from '@tauri-apps/plugin-dialog';
-import { openPath } from '@tauri-apps/plugin-opener';
+import { openPath, openUrl } from '@tauri-apps/plugin-opener';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { CircleHelp, Folder, Palette, Settings } from 'lucide-react';
+import { CircleHelp, Folder, Palette, Settings, Github } from 'lucide-react';
 import { useEffect } from 'react';
 import { initCurrentPresetAtom } from '~/atom/preset';
 import { platformSettingsAtom } from '~/atom/primitive';
@@ -17,6 +17,7 @@ import {
   TooltipButton,
   toastError,
 } from '~/components';
+import { BoxReveal } from '~/components/box-reveal';
 import { Form, FormItem } from '~/components/form';
 import {
   Dialog,
@@ -66,10 +67,37 @@ export function SettingsButton() {
         </TooltipButton>
       </DialogTrigger>
       <DialogContent className="max-w-[700px] outline-none">
-        <DialogHeader>
-          <DialogTitle>{t('Settings')}</DialogTitle>
-          <DialogDescription>{t('Application settings')}</DialogDescription>
-        </DialogHeader>
+        {/* 顶部应用标识与源码链接 */}
+        <div className="flex items-center justify-between border-b border-border/40 pb-4 mb-4">
+          <div className="flex items-center gap-3">
+            <img
+              className="size-10 shadow-sm"
+              src="/icon.ico"
+              alt="czkawka icon"
+            />
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <span className="font-serif text-xl font-bold tracking-tight">{PKG_NAME}</span>
+                <span className="text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded text-muted-foreground uppercase">v{PKG_VERSION}</span>
+              </div>
+              <p className="text-muted-foreground text-xs font-medium">
+                {t('Settings')}
+              </p>
+            </div>
+          </div>
+
+          <BoxReveal boxColor="hsl(var(--primary))" duration={1.0}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => openUrl(REPOSITORY_URL)}
+              className="h-8 flex items-center gap-2 rounded-full border-primary/20 hover:bg-primary/10 transition-all group pr-4"
+            >
+              <Github className="h-3.5 w-3.5 group-hover:scale-110 transition-transform" />
+              <span className="text-xs font-semibold">Source Code</span>
+            </Button>
+          </BoxReveal>
+        </div>
         <Tabs defaultValue="general" className="h-[550px] flex flex-col">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="general" className="flex items-center gap-2">

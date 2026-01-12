@@ -155,15 +155,36 @@ export function ThemePanel() {
   return (
     <ScrollArea className="h-full">
       <div className="space-y-6 p-4">
-        {/* 标题 */}
-        <div className="space-y-2">
-          <h3 className="flex items-center gap-2 text-lg font-semibold">
-            <Palette className="h-5 w-5" />
-            {t('Theme settings')}
-          </h3>
-          <p className="text-muted-foreground text-sm">
-            {t('Customize appearance and colors')}
-          </p>
+        {/* 顶部应用标识与设置标题 */}
+        <div className="flex items-center justify-between border-b border-border/40 pb-6 mb-2">
+          <div className="flex items-center gap-3">
+            <img
+              className="size-10 shadow-sm"
+              src="/icon.ico"
+              alt="czkawka icon"
+            />
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <span className="font-serif text-xl font-bold tracking-tight">{PKG_NAME}</span>
+                <span className="text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded text-muted-foreground">v{PKG_VERSION}</span>
+              </div>
+              <p className="text-muted-foreground text-xs">
+                {t('Theme settings')}
+              </p>
+            </div>
+          </div>
+
+          <BoxReveal boxColor="hsl(var(--primary))" duration={1.0}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 flex items-center gap-2 rounded-full border-primary/20 hover:bg-primary/10 transition-all group"
+              onClick={() => openUrl(REPOSITORY_URL)}
+            >
+              <Github className="h-3.5 w-3.5 group-hover:scale-110 transition-transform" />
+              <span className="text-xs font-semibold">Source Code</span>
+            </Button>
+          </BoxReveal>
         </div>
 
         {/* 主题模式选择 */}
@@ -444,34 +465,6 @@ export function ThemePanel() {
           </p>
         </div>
 
-        {/* 应用信息 (从顶栏移至此处) */}
-        <div className="pt-8 pb-4 flex flex-col items-center gap-4 opacity-40 hover:opacity-100 transition-opacity">
-          <img
-            className="size-12 grayscale hover:grayscale-0 transition-all cursor-pointer"
-            src="/icon.ico"
-            alt="czkawka icon"
-          />
-          <div className="flex flex-col items-center gap-1">
-            <BoxReveal boxColor="#d946ef" duration={0.5}>
-              <span className="font-serif text-xl tracking-wider font-bold">{PKG_NAME}</span>
-            </BoxReveal>
-            <span className="font-mono text-[10px] opacity-70">
-              Version {PKG_VERSION}
-            </span>
-          </div>
-
-          <BoxReveal boxColor="#0ea5e9" duration={0.6}>
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-2 flex items-center gap-2 rounded-full border-muted-foreground/20 hover:border-primary/50 transition-colors"
-              onClick={() => openUrl(REPOSITORY_URL)}
-            >
-              <Github className="h-4 w-4" />
-              <span>Source Code</span>
-            </Button>
-          </BoxReveal>
-        </div>
       </div>
     </ScrollArea>
   );

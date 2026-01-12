@@ -964,6 +964,10 @@ body {
   margin-top: 0.5rem;
 }
 
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
 .block {
   display: block;
 }
@@ -992,9 +996,9 @@ body {
   aspect-ratio: 1 / 1;
 }
 
-.size-12 {
-  width: 3rem;
-  height: 3rem;
+.size-10 {
+  width: 2.5rem;
+  height: 2.5rem;
 }
 
 .size-16 {
@@ -2073,6 +2077,10 @@ body {
   padding-top: 2rem;
 }
 
+.pb-6 {
+  padding-bottom: 1.5rem;
+}
+
 .text-left {
   text-align: left;
 }
@@ -2101,6 +2109,10 @@ body {
   font-size: 10px;
 }
 
+.text-\[9px\] {
+  font-size: 9px;
+}
+
 .text-base {
   font-size: 1rem;
   line-height: 1.5rem;
@@ -2116,18 +2128,14 @@ body {
   line-height: 1.25rem;
 }
 
-.text-xl {
-  font-size: 1.25rem;
-  line-height: 1.75rem;
-}
-
 .text-xs {
   font-size: 0.75rem;
   line-height: 1rem;
 }
 
-.font-bold {
-  font-weight: 700;
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
 }
 
 .font-medium {
@@ -2140,6 +2148,14 @@ body {
 
 .font-semibold {
   font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.uppercase {
+  text-transform: uppercase;
 }
 
 .tabular-nums {
@@ -2155,8 +2171,8 @@ body {
   letter-spacing: -0.025em;
 }
 
-.tracking-wider {
-  letter-spacing: 0.05em;
+.tracking-tighter {
+  letter-spacing: -0.05em;
 }
 
 .tracking-widest {
@@ -2289,10 +2305,6 @@ body {
 
 .opacity-30 {
   opacity: 0.3;
-}
-
-.opacity-40 {
-  opacity: 0.4;
 }
 
 .opacity-50 {
@@ -2743,6 +2755,12 @@ body {
 
 .group\/menu-item:focus-within .group-focus-within\/menu-item\:opacity-100 {
   opacity: 1;
+}
+
+.group:hover .group-hover\:scale-110 {
+  --tw-scale-x: 1.1;
+  --tw-scale-y: 1.1;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
 .group\/menu-item:hover .group-hover\/menu-item\:opacity-100 {
@@ -3286,11 +3304,6 @@ body {
   --tw-shadow: 0 0 0 1px hsl(var(--sidebar-accent));
   --tw-shadow-colored: 0 0 0 1px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
-}
-
-.hover\:grayscale-0:hover {
-  --tw-grayscale: grayscale(0);
-  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
 
 .hover\:after\:bg-sidebar-border:hover::after {
