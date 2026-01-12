@@ -64,7 +64,7 @@ export function AppHeader() {
       </div>
 
       {/* 中间：核心控制区 (搜索, 背景, 明暗, 语言) - 绝对居中 */}
-      <div className="absolute left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-muted/40 p-1 rounded-full border border-border/40 no-drag shadow-sm backdrop-blur-sm">
+      <div className="absolute left-1/2 -translate-x-1/2 z-10 flex items-center gap-0.5 bg-muted/40 p-0.5 rounded-full border border-border/40 no-drag shadow-sm backdrop-blur-sm">
         <div className={`flex items-center transition-all duration-300 ease-out overflow-hidden ${searchExpanded ? 'w-48 px-1' : 'w-8'}`}>
           {searchExpanded ? (
             <div className="relative w-full">
@@ -75,14 +75,14 @@ export function AppHeader() {
                 value={inputValue}
                 onChange={(e) => handleInputChange(e.target.value)}
                 onBlur={() => !inputValue && setSearchExpanded(false)}
-                className="w-full h-7 pl-8 pr-2 text-xs bg-transparent outline-none border-none placeholder:text-muted-foreground/50"
+                className="w-full h-8 pl-8 pr-2 text-xs bg-transparent outline-none border-none placeholder:text-muted-foreground/50"
               />
-              <Search className="absolute left-2 top-1.5 h-3.5 w-3.5 text-muted-foreground/60" />
+              <Search className="absolute left-2 top-[9px] h-3.5 w-3.5 text-muted-foreground/60" />
             </div>
           ) : (
             <button
               onClick={() => setSearchExpanded(true)}
-              className="flex items-center justify-center h-7 w-8 hover:text-primary transition-colors text-muted-foreground"
+              className="flex items-center justify-center h-8 w-8 hover:text-primary transition-colors text-muted-foreground"
             >
               <Search className="h-4 w-4" />
             </button>
@@ -92,9 +92,9 @@ export function AppHeader() {
         <div className="w-[1px] h-4 bg-border/40 mx-0.5" />
         
         <BackgroundButton />
-        <ThemeToggle />
+        <ThemeToggle size="sm" />
         <ChangeLanguageButton />
-        <SettingsButton />
+        <SettingsButton size="sm" />
       </div>
 
       {/* 右侧：窗口控制 */}

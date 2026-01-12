@@ -41,7 +41,9 @@ import { eventPreventDefault } from '~/utils/event';
 import { PresetSelect } from './preset-select';
 import { ThemePanel } from './theme-panel';
 
-export function SettingsButton() {
+import { ButtonProps } from '~/components/shadcn/button';
+
+export function SettingsButton(props: ButtonProps) {
   const dialogOpen = useBoolean();
   const isPreventDialogClose = useBoolean();
   const initCurrentPreset = useSetAtom(initCurrentPresetAtom);
@@ -63,7 +65,7 @@ export function SettingsButton() {
       checkOpenedSelect={false}
     >
       <DialogTrigger asChild>
-        <TooltipButton tooltip={t('Settings')}>
+        <TooltipButton tooltip={t('Settings')} {...props}>
           <Settings />
         </TooltipButton>
       </DialogTrigger>
