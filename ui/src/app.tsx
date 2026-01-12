@@ -20,12 +20,13 @@ import { SidebarImagePreview } from '~/views/sidebar-image-preview';
 import { SidebarVideoPreview } from '~/views/sidebar-video-preview';
 
 import { useAtomValue } from 'jotai';
-import { backgroundImageAtom, backgroundOpacityAtom, sidebarWidthAtom } from '~/atom/primitive';
+import { backgroundImageAtom, backgroundBlurAtom, backgroundOpacityAtom, sidebarWidthAtom } from '~/atom/primitive';
 
 export default function App() {
   const sidebarWidth = useAtomValue(sidebarWidthAtom);
   const backgroundImage = useAtomValue(backgroundImageAtom);
   const backgroundOpacity = useAtomValue(backgroundOpacityAtom);
+  const backgroundBlur = useAtomValue(backgroundBlurAtom);
   const PANEL_SIZE = 30;
   const STORAGE_KEY = 'app-bottom-panel-size';
   const [bottomPanelMinSize, setBottomPanelMinSize] = useState(8);
@@ -83,6 +84,8 @@ export default function App() {
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             opacity: backgroundOpacity / 100,
+            filter: `blur(${backgroundBlur}px)`,
+            transform: backgroundBlur > 0 ? 'scale(1.05)' : 'none',
           }}
         />
       )}

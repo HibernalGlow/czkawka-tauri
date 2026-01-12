@@ -34,6 +34,9 @@ export const backgroundImageAtom = atom<string | null>(null);
 // 背景透明度 (0-100, 100 = 完全不透明)
 export const backgroundOpacityAtom = atom<number>(100);
 
+// 背景模糊度 (0-20px)
+export const backgroundBlurAtom = atom<number>(8);
+
 export const presetsAtom = atomWithStorage<Preset[]>(
   'setting-presets',
   [getDefaultPreset()],

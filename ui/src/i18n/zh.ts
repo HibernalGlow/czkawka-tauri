@@ -339,6 +339,7 @@ export const zh: Record<TranslationKeys, string> = {
   'Upload image': '上传图片',
   Remove: '移除',
   'Background opacity': '背景透明度',
+  'Background blur': '背景模糊度',
   'File too large': '文件过大',
   'Maximum file size is 5MB': '最大文件大小为 5MB',
 };

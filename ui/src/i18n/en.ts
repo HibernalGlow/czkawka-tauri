@@ -347,6 +347,7 @@ export const en = {
   'Upload image': 'Upload Image',
   Remove: 'Remove',
   'Background opacity': 'Background Opacity',
+  'Background blur': 'Background Blur',
   'File too large': 'File too large',
   'Maximum file size is 5MB': 'Maximum file size is 5MB',
 };

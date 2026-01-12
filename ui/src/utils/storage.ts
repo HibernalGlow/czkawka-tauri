@@ -102,4 +102,16 @@ export const storage = {
   setBackgroundOpacity(opacity: number) {
     localStorage.setItem('background-opacity', String(opacity));
   },
+
+  // 背景模糊度 (0-20)
+  getBackgroundBlur(): number {
+    const val = localStorage.getItem('background-blur');
+    if (val === null) return 8;
+    const num = parseInt(val, 10);
+    return isNaN(num) ? 8 : Math.max(0, Math.min(20, num));
+  },
+
+  setBackgroundBlur(blur: number) {
+    localStorage.setItem('background-blur', String(blur));
+  },
 };

@@ -7,6 +7,7 @@ import { storage } from '~/utils/storage';
 import { isSystemDark } from '~/utils/theme';
 import { applyThemeColors, PRESET_THEMES } from '~/utils/themeManager';
 import {
+  backgroundBlurAtom,
   backgroundImageAtom,
   backgroundOpacityAtom,
   customThemesAtom,
@@ -65,15 +66,17 @@ function applyThemeWithColors(
 /**
  * 应用背景图片和透明度到 DOM
  */
-function applyBackgroundImage(image: string | null, opacity: number) {
+function applyBackgroundImage(image: string | null, opacity: number, blur: number) {
   const root = document.documentElement;
   
   if (image) {
     root.style.setProperty('--custom-bg-image', `url(${image})`);
     root.style.setProperty('--custom-bg-opacity', String(opacity / 100));
+    root.style.setProperty('--custom-bg-blur', `${blur}px`);
   } else {
     root.style.removeProperty('--custom-bg-image');
     root.style.removeProperty('--custom-bg-opacity');
+    root.style.removeProperty('--custom-bg-blur');
   }
 }
 
@@ -97,12 +100,14 @@ export const initThemeAtom = atom(null, (_, set) => {
   set(customThemesAtom, customThemes);
   setTheme(theme);
 
-  // 初始化背景图片和透明度
+  // 初始化背景图片、透明度和模糊度
   const bgImage = storage.getBackgroundImage();
   const bgOpacity = storage.getBackgroundOpacity();
+  const bgBlur = storage.getBackgroundBlur();
   set(backgroundImageAtom, bgImage);
   set(backgroundOpacityAtom, bgOpacity);
-  applyBackgroundImage(bgImage, bgOpacity);
+  set(backgroundBlurAtom, bgBlur);
+  applyBackgroundImage(bgImage, bgOpacity, bgBlur);
 });
 
 export const toggleThemeAtom = atom(null, (get, set) => {
@@ -229,9 +234,10 @@ export const setBackgroundImageAtom = atom(
   null,
   (get, set, image: string | null) => {
     const opacity = get(backgroundOpacityAtom);
+    const blur = get(backgroundBlurAtom);
     set(backgroundImageAtom, image);
     storage.setBackgroundImage(image);
-    applyBackgroundImage(image, opacity);
+    applyBackgroundImage(image, opacity, blur);
   },
 );
 
@@ -242,8 +248,23 @@ export const setBackgroundOpacityAtom = atom(
   null,
   (get, set, opacity: number) => {
     const image = get(backgroundImageAtom);
+    const blur = get(backgroundBlurAtom);
     set(backgroundOpacityAtom, opacity);
     storage.setBackgroundOpacity(opacity);
-    applyBackgroundImage(image, opacity);
+    applyBackgroundImage(image, opacity, blur);
+  },
+);
+
+/**
+ * 设置背景模糊度
+ */
+export const setBackgroundBlurAtom = atom(
+  null,
+  (get, set, blur: number) => {
+    const image = get(backgroundImageAtom);
+    const opacity = get(backgroundOpacityAtom);
+    set(backgroundBlurAtom, blur);
+    storage.setBackgroundBlur(blur);
+    applyBackgroundImage(image, opacity, blur);
   },
 );
