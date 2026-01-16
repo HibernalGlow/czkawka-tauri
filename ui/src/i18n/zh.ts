@@ -496,4 +496,9 @@ export const zh: Record<TranslationKeys, string> = {
   Custom: '自定义',
   'Match mode': '匹配模式',
   'Enter path pattern': '输入路径模式',
+  
+  // 相似图片视图
+  'Similar images list': '相似图片列表',
+  'Folder statistics': '文件夹统计',
+  folders: '个文件夹',
 };

@@ -504,6 +504,11 @@ export const en = {
   Custom: 'Custom',
   'Match mode': 'Match mode',
   'Enter path pattern': 'Enter path pattern',
+  
+  // Similar images view
+  'Similar images list': 'Similar images list',
+  'Folder statistics': 'Folder statistics',
+  folders: 'folders',
 };
 
 export type TranslationKeys = keyof typeof en;

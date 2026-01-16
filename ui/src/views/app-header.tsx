@@ -2,7 +2,9 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
+  FolderTree,
   ImageIcon,
+  Images,
   Languages,
   Minus,
   Search,
@@ -18,6 +20,7 @@ import {
   backgroundEnabledAtom,
   backgroundImageAtom,
   backgroundOpacityAtom,
+  currentToolAtom,
   maskOpacityAtom,
   searchInputValueAtom,
 } from '~/atom/primitive';
@@ -28,7 +31,7 @@ import {
   setBackgroundOpacityAtom,
   setMaskOpacityAtom,
 } from '~/atom/theme';
-import { currentToolFilterAtom } from '~/atom/tools';
+import { currentToolFilterAtom, similarImagesViewModeAtom } from '~/atom/tools';
 import { Select, Slider, TooltipButton, toastError } from '~/components';
 import { GitHub } from '~/components/icons';
 import { SelectIconTrigger } from '~/components/one-select';
@@ -46,6 +49,7 @@ import {
 import { Label } from '~/components/shadcn/label';
 import { SidebarTrigger } from '~/components/shadcn/sidebar';
 import { Switch } from '~/components/shadcn/switch';
+import { Tools } from '~/consts';
 import { useT, useTableSelectionStats } from '~/hooks';
 import { storage } from '~/utils/storage';
 import { SettingsButton } from './settings';
@@ -59,6 +63,11 @@ export function AppHeader() {
   const debouncedSetFilter = useDebouncedCallback(setFilter, 300);
   const t = useT();
   const [searchExpanded, setSearchExpanded] = useState(!!inputValue);
+  
+  // 相似图片视图切换
+  const currentTool = useAtomValue(currentToolAtom);
+  const [viewMode, setViewMode] = useAtom(similarImagesViewModeAtom);
+  const isSimilarImages = currentTool === Tools.SimilarImages;
 
   const handleInputChange = (v: string) => {
     setInputValue(v);
@@ -78,6 +87,35 @@ export function AppHeader() {
           className="h-8 w-8 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
           title={t('Toggle Sidebar')}
         />
+        
+        {/* 相似图片视图切换按钮 */}
+        {isSimilarImages && (
+          <div className="flex items-center gap-0.5 bg-muted/40 p-0.5 rounded-full border border-border/40">
+            <button
+              onClick={() => setViewMode('images')}
+              className={`flex items-center justify-center h-6 w-6 rounded-full transition-colors ${
+                viewMode === 'images' 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'hover:bg-accent hover:text-accent-foreground text-muted-foreground'
+              }`}
+              title={t('Similar images list')}
+            >
+              <Images className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={() => setViewMode('folders')}
+              className={`flex items-center justify-center h-6 w-6 rounded-full transition-colors ${
+                viewMode === 'folders' 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'hover:bg-accent hover:text-accent-foreground text-muted-foreground'
+              }`}
+              title={t('Folder statistics')}
+            >
+              <FolderTree className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
+        
         <div className="flex items-center pointer-events-none hidden sm:flex">
           {selectionStats && (
             <div className="flex items-center gap-2 text-[10px] text-muted-foreground/80 bg-muted/20 border border-border/30 rounded-full px-3 py-0.5 pointer-events-auto">

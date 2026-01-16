@@ -1,6 +1,5 @@
 import type { ColumnDef, Row } from '@tanstack/react-table';
 import { useAtom, useAtomValue } from 'jotai';
-import { FolderTree, List } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { settingsAtom } from '~/atom/settings';
 import {
@@ -8,8 +7,8 @@ import {
   currentToolFilterAtom,
   currentToolRowSelectionAtom,
   similarImagesFoldersAtom,
+  similarImagesViewModeAtom,
 } from '~/atom/tools';
-import { Button } from '~/components';
 import {
   DataTable,
   FilterStateUpdater,
@@ -33,7 +32,7 @@ import { ThumbnailPreloader } from '~/utils/thumbnail-preloader';
 import { ClickableImagePreview } from './clickable-image-preview';
 
 export function SimilarImages() {
-  const [viewMode, setViewMode] = useState<'images' | 'folders'>('images');
+  const [viewMode, setViewMode] = useAtom(similarImagesViewModeAtom);
   const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80);
   const imagesData = useAtomValue(currentToolDataAtom) as BaseImagesEntry[];
   const foldersData = useAtomValue(similarImagesFoldersAtom);
@@ -318,30 +317,6 @@ export function SimilarImages() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2 p-2 border-b">
-        <Button
-          variant={viewMode === 'images' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setViewMode('images')}
-        >
-          <List className="h-4 w-4 mr-1" />
-          相似图片列表
-        </Button>
-        <Button
-          variant={viewMode === 'folders' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setViewMode('folders')}
-        >
-          <FolderTree className="h-4 w-4 mr-1" />
-          文件夹统计
-        </Button>
-        {viewMode === 'folders' && (
-          <span className="text-sm text-muted-foreground ml-2">
-            共 {filteredFoldersData.length} 个文件夹 (≥
-            {settings.similarImagesFolderThreshold}张图片)
-          </span>
-        )}
-      </div>
       <DataTable
         className="flex-1 rounded-none border-none grow"
         data={processedData}

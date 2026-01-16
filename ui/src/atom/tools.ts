@@ -19,6 +19,10 @@ import {
 // 相似图片文件夹统计数据
 export const similarImagesFoldersAtom = atom<FolderStat[]>([]);
 
+// 相似图片视图模式：images（图片列表）或 folders（文件夹统计）
+export type SimilarImagesViewMode = 'images' | 'folders';
+export const similarImagesViewModeAtom = atom<SimilarImagesViewMode>('images');
+
 export const currentToolDataAtom = atom(
   (get) => {
     const currentTool = get(currentToolAtom);
