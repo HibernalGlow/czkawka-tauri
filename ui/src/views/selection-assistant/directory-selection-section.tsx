@@ -8,11 +8,10 @@ import { Check, FolderOpen, Plus, Trash2 } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
 import {
-  baseSelectionAtom,
   currentSelectionAtom,
   directoryRuleConfigAtom,
 } from '~/atom/selection-assistant';
-import { currentToolDataAtom } from '~/atom/tools';
+import { currentToolDataAtom, currentToolRowSelectionAtom } from '~/atom/tools';
 import { Button } from '~/components/shadcn/button';
 import { Checkbox } from '~/components/shadcn/checkbox';
 import { Label } from '~/components/shadcn/label';
@@ -28,7 +27,7 @@ export function DirectorySelectionSection() {
   const [config, setConfig] = useAtom(directoryRuleConfigAtom);
   const currentSelection = useAtomValue(currentSelectionAtom);
   const currentToolData = useAtomValue(currentToolDataAtom);
-  const setSelection = useSetAtom(baseSelectionAtom);
+  const setSelection = useSetAtom(currentToolRowSelectionAtom);
 
   // 模式选项
   const modeOptions = useMemo(

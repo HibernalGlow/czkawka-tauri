@@ -7,11 +7,10 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { Check, AlertCircle } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import {
-  baseSelectionAtom,
   currentSelectionAtom,
   textRuleConfigAtom,
 } from '~/atom/selection-assistant';
-import { currentToolDataAtom } from '~/atom/tools';
+import { currentToolDataAtom, currentToolRowSelectionAtom } from '~/atom/tools';
 import { Button } from '~/components/shadcn/button';
 import { Checkbox } from '~/components/shadcn/checkbox';
 import { Input } from '~/components/shadcn/input';
@@ -32,7 +31,7 @@ export function TextSelectionSection() {
   const [config, setConfig] = useAtom(textRuleConfigAtom);
   const currentSelection = useAtomValue(currentSelectionAtom);
   const currentToolData = useAtomValue(currentToolDataAtom);
-  const setSelection = useSetAtom(baseSelectionAtom);
+  const setSelection = useSetAtom(currentToolRowSelectionAtom);
   const [regexError, setRegexError] = useState<string | null>(null);
 
   // 列选项

@@ -14,6 +14,7 @@ import type {
   DirectoryRuleConfig,
   ExportConfig,
 } from '~/lib/selection-assistant/types';
+import { currentToolRowSelectionAtom } from '~/atom/tools';
 
 // ============ 默认配置 ============
 
@@ -116,8 +117,16 @@ export const selectionAssistantPanelAtom = atomWithStorage<SelectionAssistantPan
 /** 历史记录限制 */
 const HISTORY_LIMIT = 50;
 
-/** 基础选择状态 atom（用于历史追踪） */
-export const baseSelectionAtom = atom<RowSelectionState>({});
+/** 
+ * 基础选择状态 atom
+ * 直接使用表格的选择状态，确保同步
+ */
+export const baseSelectionAtom = atom(
+  (get) => get(currentToolRowSelectionAtom),
+  (_get, set, newSelection: RowSelectionState) => {
+    set(currentToolRowSelectionAtom, newSelection);
+  },
+);
 
 /** 带历史记录的选择状态 atom */
 export const selectionHistoryAtom = withHistory(baseSelectionAtom, HISTORY_LIMIT);
@@ -127,11 +136,11 @@ export const selectionHistoryAtom = withHistory(baseSelectionAtom, HISTORY_LIMIT
 /** 当前选择状态（从历史中获取） */
 export const currentSelectionAtom = atom(
   (get) => {
-    const history = get(selectionHistoryAtom);
-    return history[0] ?? {};
+    // 直接从表格获取当前选择状态
+    return get(currentToolRowSelectionAtom);
   },
-  (get, set, newSelection: RowSelectionState) => {
-    set(baseSelectionAtom, newSelection);
+  (_get, set, newSelection: RowSelectionState) => {
+    set(currentToolRowSelectionAtom, newSelection);
   },
 );
 
@@ -166,7 +175,7 @@ export const resetHistoryAtom = atom(null, (_get, set) => {
 
 /** 清空所有选择 */
 export const clearAllSelectionAtom = atom(null, (_get, set) => {
-  set(baseSelectionAtom, {});
+  set(currentToolRowSelectionAtom, {});
 });
 
 /** 反选操作 */
@@ -182,7 +191,7 @@ export const invertSelectionAtom = atom(
       }
     }
     
-    set(baseSelectionAtom, newSelection);
+    set(currentToolRowSelectionAtom, newSelection);
   },
 );
 
