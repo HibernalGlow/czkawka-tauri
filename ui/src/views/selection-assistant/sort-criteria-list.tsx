@@ -1,0 +1,239 @@
+/**
+ * 排序条件列表组件
+ * 使用 @dnd-kit 实现拖拽排序
+ */
+
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { GripVertical, Trash2 } from 'lucide-react';
+import { useCallback } from 'react';
+import { Button } from '~/components/shadcn/button';
+import { Checkbox } from '~/components/shadcn/checkbox';
+import { Select } from '~/components/one-select';
+import { useT } from '~/hooks';
+import type {
+  SortCriterion,
+  SortDirection,
+  SortField,
+} from '~/lib/selection-assistant/types';
+import { cn } from '~/utils/cn';
+
+interface SortCriteriaListProps {
+  criteria: SortCriterion[];
+  availableFields: { label: string; value: SortField }[];
+  onChange: (criteria: SortCriterion[]) => void;
+}
+
+interface SortableItemProps {
+  criterion: SortCriterion;
+  index: number;
+  availableFields: { label: string; value: SortField }[];
+  onUpdate: (index: number, updates: Partial<SortCriterion>) => void;
+  onRemove: (index: number) => void;
+  canRemove: boolean;
+}
+
+/** 可拖拽的排序条件项 */
+function SortableItem({
+  criterion,
+  index,
+  availableFields,
+  onUpdate,
+  onRemove,
+  canRemove,
+}: SortableItemProps) {
+  const t = useT();
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: `criterion-${index}` });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  const directionOptions = [
+    { label: t('Descending'), value: 'desc' },
+    { label: t('Ascending'), value: 'asc' },
+  ];
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        'flex items-center gap-2 p-2 rounded-md border bg-background',
+        isDragging && 'opacity-50 shadow-lg',
+        !criterion.enabled && 'opacity-60',
+      )}
+    >
+      {/* 拖拽手柄 */}
+      <button
+        type="button"
+        className="cursor-grab touch-none"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="h-4 w-4 text-muted-foreground" />
+      </button>
+
+      {/* 启用复选框 */}
+      <Checkbox
+        checked={criterion.enabled}
+        onCheckedChange={(checked) =>
+          onUpdate(index, { enabled: checked as boolean })
+        }
+      />
+
+      {/* 字段选择 */}
+      <div className="flex-1 min-w-0">
+        <Select
+          value={criterion.field}
+          onChange={(value) => onUpdate(index, { field: value as SortField })}
+          options={availableFields}
+        />
+      </div>
+
+      {/* 方向选择 */}
+      <div className="w-24">
+        <Select
+          value={criterion.direction}
+          onChange={(value) =>
+            onUpdate(index, { direction: value as SortDirection })
+          }
+          options={directionOptions}
+        />
+      </div>
+
+      {/* 空值优先 */}
+      <div className="flex items-center gap-1">
+        <Checkbox
+          id={`prefer-empty-${index}`}
+          checked={criterion.preferEmpty}
+          onCheckedChange={(checked) =>
+            onUpdate(index, { preferEmpty: checked as boolean })
+          }
+        />
+        <label
+          htmlFor={`prefer-empty-${index}`}
+          className="text-xs text-muted-foreground whitespace-nowrap cursor-pointer"
+        >
+          {t('Empty first')}
+        </label>
+      </div>
+
+      {/* 删除按钮 */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-7 w-7"
+        disabled={!canRemove}
+        onClick={() => onRemove(index)}
+      >
+        <Trash2 className="h-3 w-3" />
+      </Button>
+    </div>
+  );
+}
+
+export function SortCriteriaList({
+  criteria,
+  availableFields,
+  onChange,
+}: SortCriteriaListProps) {
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (over && active.id !== over.id) {
+        const oldIndex = Number.parseInt(
+          (active.id as string).replace('criterion-', ''),
+          10,
+        );
+        const newIndex = Number.parseInt(
+          (over.id as string).replace('criterion-', ''),
+          10,
+        );
+        onChange(arrayMove(criteria, oldIndex, newIndex));
+      }
+    },
+    [criteria, onChange],
+  );
+
+  const handleUpdate = useCallback(
+    (index: number, updates: Partial<SortCriterion>) => {
+      const newCriteria = [...criteria];
+      newCriteria[index] = { ...newCriteria[index], ...updates };
+      onChange(newCriteria);
+    },
+    [criteria, onChange],
+  );
+
+  const handleRemove = useCallback(
+    (index: number) => {
+      onChange(criteria.filter((_, i) => i !== index));
+    },
+    [criteria, onChange],
+  );
+
+  if (criteria.length === 0) {
+    return (
+      <div className="text-xs text-muted-foreground text-center py-2">
+        No sort criteria
+      </div>
+    );
+  }
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+      <SortableContext
+        items={criteria.map((_, i) => `criterion-${i}`)}
+        strategy={verticalListSortingStrategy}
+      >
+        <div className="space-y-2">
+          {criteria.map((criterion, index) => (
+            <SortableItem
+              key={`criterion-${index}`}
+              criterion={criterion}
+              index={index}
+              availableFields={availableFields}
+              onUpdate={handleUpdate}
+              onRemove={handleRemove}
+              canRemove={criteria.length > 1}
+            />
+          ))}
+        </div>
+      </SortableContext>
+    </DndContext>
+  );
+}

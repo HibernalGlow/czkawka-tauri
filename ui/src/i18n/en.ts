@@ -360,6 +360,33 @@ export const en = {
   Count: 'Count',
   and_others: 'and {{count}} other formats',
   'Size distribution': 'Size distribution',
+
+  // Selection Assistant
+  'Selection Assistant': 'Selection Assistant',
+  Undo: 'Undo',
+  Redo: 'Redo',
+  'Group Selection': 'Group Selection',
+  'Text Selection': 'Text Selection',
+  'Directory Selection': 'Directory Selection',
+  Mode: 'Mode',
+  'Select all except one': 'Select all except one',
+  'Select one': 'Select one',
+  'Sort criteria': 'Sort criteria',
+  'Keep existing selection': 'Keep existing selection',
+  Mark: 'Mark',
+  Descending: 'Descending',
+  Ascending: 'Ascending',
+  'Empty first': 'Empty first',
+  'Full path': 'Full path',
+  Condition: 'Condition',
+  Pattern: 'Pattern',
+  'Invalid regex pattern': 'Invalid regex pattern',
+  'Keep one per directory': 'Keep one per directory',
+  'Select all in directory': 'Select all in directory',
+  'Exclude directory': 'Exclude directory',
+  Directories: 'Directories',
+  Selected: 'Selected',
+  Resolution: 'Resolution',
 };
 
 export type TranslationKeys = keyof typeof en;

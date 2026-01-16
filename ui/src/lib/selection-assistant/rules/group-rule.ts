@@ -1,0 +1,319 @@
+/**
+ * 组选择规则
+ * 在重复文件组内按照多种条件选择文件
+ */
+
+import { match } from 'ts-pattern';
+import type {
+  SelectionRule,
+  RuleContext,
+  RuleResult,
+  ValidationResult,
+  GroupRuleConfig,
+  SortCriterion,
+  SortField,
+  EntryWithRaw,
+} from '../types';
+import type { BaseEntry, RefEntry } from '~/types';
+import { getColumnValue } from '../matchers';
+
+/** 生成唯一 ID */
+let ruleIdCounter = 0;
+const generateId = () => `group-rule-${++ruleIdCounter}`;
+
+/**
+ * 组选择规则类
+ */
+export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
+  id: string;
+  type: 'group' = 'group';
+  config: GroupRuleConfig;
+  enabled: boolean;
+
+  constructor(config: Partial<GroupRuleConfig> = {}, id?: string) {
+    this.id = id || generateId();
+    this.enabled = true;
+    this.config = {
+      mode: config.mode || 'selectAllExceptOne',
+      sortCriteria: config.sortCriteria || [],
+      keepExistingSelection: config.keepExistingSelection || false,
+    };
+  }
+
+  /**
+   * 执行规则
+   */
+  execute<T extends BaseEntry & Partial<RefEntry>>(ctx: RuleContext<T>): RuleResult {
+    const { data, currentSelection, keepExistingSelection, action } = ctx;
+    const keepExisting = this.config.keepExistingSelection || keepExistingSelection;
+
+    try {
+      // 按 groupId 分组
+      const groups = this.groupByGroupId(data);
+      const matchedPaths = new Set<string>();
+
+      for (const group of groups) {
+        if (group.length === 0) continue;
+
+        // 排序组内文件
+        const sorted = this.sortGroup(group);
+        
+        // 根据模式选择文件
+        const selected = this.selectByMode(sorted);
+        for (const path of selected) {
+          matchedPaths.add(path);
+        }
+      }
+
+      // 计算新的选择状态
+      const newSelection = this.applyAction(
+        currentSelection,
+        matchedPaths,
+        action,
+        keepExisting,
+      );
+
+      return {
+        selection: newSelection,
+        affectedCount: this.countAffected(currentSelection, newSelection),
+        success: true,
+      };
+    } catch (error) {
+      return {
+        selection: currentSelection,
+        affectedCount: 0,
+        success: false,
+        error: error instanceof Error ? error.message : '未知错误',
+      };
+    }
+  }
+
+
+  /**
+   * 验证配置
+   */
+  validate(): ValidationResult {
+    const errors: string[] = [];
+
+    if (!['selectAllExceptOne', 'selectOne', 'selectAll'].includes(this.config.mode)) {
+      errors.push('无效的选择模式');
+    }
+
+    for (const criterion of this.config.sortCriteria) {
+      if (!['folderPath', 'fileName', 'fileSize', 'creationDate', 'modifiedDate', 'resolution'].includes(criterion.field)) {
+        errors.push(`无效的排序字段: ${criterion.field}`);
+      }
+      if (!['asc', 'desc'].includes(criterion.direction)) {
+        errors.push(`无效的排序方向: ${criterion.direction}`);
+      }
+    }
+
+    return { valid: errors.length === 0, errors };
+  }
+
+  /**
+   * 获取规则描述
+   */
+  describe(): string {
+    const modeDesc = match(this.config.mode)
+      .with('selectAllExceptOne', () => '每组除了一份文件之外其他所有')
+      .with('selectOne', () => '每组选择一份')
+      .with('selectAll', () => '选择所有')
+      .exhaustive();
+
+    const criteriaDesc = this.config.sortCriteria
+      .filter(c => c.enabled)
+      .map(c => `${c.field} ${c.direction}`)
+      .join(', ');
+
+    return `组选择: ${modeDesc}${criteriaDesc ? ` (排序: ${criteriaDesc})` : ''}`;
+  }
+
+  /**
+   * 预览受影响的文件数
+   */
+  preview<T extends BaseEntry & Partial<RefEntry>>(ctx: RuleContext<T>): number {
+    const result = this.execute(ctx);
+    return result.affectedCount;
+  }
+
+  /**
+   * 按 groupId 分组
+   */
+  private groupByGroupId<T extends BaseEntry & Partial<RefEntry>>(data: T[]): T[][] {
+    const map = new Map<number, T[]>();
+
+    for (const item of data) {
+      const groupId = (item as RefEntry).groupId;
+      if (groupId === undefined) continue;
+
+      if (!map.has(groupId)) {
+        map.set(groupId, []);
+      }
+      map.get(groupId)!.push(item);
+    }
+
+    return Array.from(map.values());
+  }
+
+  /**
+   * 排序组内文件
+   */
+  private sortGroup<T extends BaseEntry & Partial<RefEntry>>(group: T[]): T[] {
+    const enabledCriteria = this.config.sortCriteria.filter(c => c.enabled);
+    
+    if (enabledCriteria.length === 0) {
+      return [...group];
+    }
+
+    return [...group].sort((a, b) => {
+      for (const criterion of enabledCriteria) {
+        const cmp = this.compareByField(a, b, criterion);
+        if (cmp !== 0) return cmp;
+      }
+      return 0;
+    });
+  }
+
+  /**
+   * 按字段比较
+   */
+  private compareByField<T extends BaseEntry & Partial<RefEntry>>(
+    a: T,
+    b: T,
+    criterion: SortCriterion,
+  ): number {
+    const valueA = this.getFieldValue(a, criterion.field);
+    const valueB = this.getFieldValue(b, criterion.field);
+
+    // 空值优先处理
+    if (criterion.preferEmpty) {
+      const aEmpty = valueA === null || valueA === undefined || valueA === '';
+      const bEmpty = valueB === null || valueB === undefined || valueB === '';
+      if (aEmpty && !bEmpty) return -1;
+      if (!aEmpty && bEmpty) return 1;
+    }
+
+    // 比较值
+    let cmp = 0;
+    if (typeof valueA === 'number' && typeof valueB === 'number') {
+      cmp = valueA - valueB;
+    } else {
+      cmp = String(valueA || '').localeCompare(String(valueB || ''));
+    }
+
+    // 应用排序方向
+    return criterion.direction === 'desc' ? -cmp : cmp;
+  }
+
+
+  /**
+   * 获取字段值
+   */
+  private getFieldValue<T extends BaseEntry & Partial<RefEntry>>(
+    item: T,
+    field: SortField,
+  ): string | number | null {
+    const entry = item as EntryWithRaw;
+
+    return match(field)
+      .with('folderPath', () => getColumnValue(item.path, 'folderPath'))
+      .with('fileName', () => getColumnValue(item.path, 'fileName'))
+      .with('fileSize', () => entry.raw?.size ?? null)
+      .with('creationDate', () => entry.raw?.modified_date ?? null) // 使用 modified_date 作为创建日期
+      .with('modifiedDate', () => entry.raw?.modified_date ?? null)
+      .with('resolution', () => {
+        const width = entry.raw?.width;
+        const height = entry.raw?.height;
+        if (typeof width === 'number' && typeof height === 'number') {
+          return width * height;
+        }
+        return null;
+      })
+      .exhaustive();
+  }
+
+  /**
+   * 根据模式选择文件
+   */
+  private selectByMode<T extends BaseEntry>(sorted: T[]): string[] {
+    return match(this.config.mode)
+      .with('selectAllExceptOne', () => {
+        // 选择除了第一个之外的所有文件
+        if (sorted.length <= 1) return [];
+        return sorted.slice(1).map(item => item.path);
+      })
+      .with('selectOne', () => {
+        // 只选择第一个
+        if (sorted.length === 0) return [];
+        return [sorted[0].path];
+      })
+      .with('selectAll', () => {
+        // 选择所有
+        return sorted.map(item => item.path);
+      })
+      .exhaustive();
+  }
+
+  /**
+   * 应用选择动作
+   */
+  private applyAction(
+    current: Set<string>,
+    matched: Set<string>,
+    action: 'mark' | 'unmark',
+    keepExisting: boolean,
+  ): Set<string> {
+    const result = new Set<string>(current);
+
+    if (action === 'mark') {
+      // 标记操作：添加匹配的路径
+      for (const path of matched) {
+        result.add(path);
+      }
+    } else {
+      // 取消标记操作
+      if (keepExisting) {
+        // 保持已选择不变时，只从匹配集合中移除
+        for (const path of matched) {
+          if (!current.has(path)) {
+            result.delete(path);
+          }
+        }
+      } else {
+        // 移除匹配的路径
+        for (const path of matched) {
+          result.delete(path);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * 计算受影响的文件数
+   */
+  private countAffected(before: Set<string>, after: Set<string>): number {
+    let count = 0;
+    
+    // 新增的
+    for (const path of after) {
+      if (!before.has(path)) count++;
+    }
+    
+    // 移除的
+    for (const path of before) {
+      if (!after.has(path)) count++;
+    }
+    
+    return count;
+  }
+}
+
+/**
+ * 创建组选择规则
+ */
+export function createGroupRule(config?: Partial<GroupRuleConfig>): GroupSelectionRule {
+  return new GroupSelectionRule(config);
+}

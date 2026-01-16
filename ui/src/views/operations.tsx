@@ -1,8 +1,9 @@
-import { useAtomValue } from 'jotai';
-import { Info } from 'lucide-react';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { Info, Wand2 } from 'lucide-react';
 import { useState } from 'react';
 import { currentToolAtom, progressAtom } from '~/atom/primitive';
 import { currentToolDataAtom } from '~/atom/tools';
+import { selectionAssistantPanelAtom } from '~/atom/selection-assistant';
 import { TooltipButton } from '~/components';
 import {
   Dialog,
@@ -22,6 +23,7 @@ import { RenameExt } from './rename-ext';
 import { RowSelectionMenu } from './row-selection-menu';
 import { SaveResult } from './save-result';
 import { ScanButton } from './scan-button';
+import { FloatingSelectionAssistant } from './selection-assistant';
 
 function SimilarityQuickTableDialog() {
   const [open, setOpen] = useState(false);
@@ -93,19 +95,33 @@ export function Operations() {
   const progress = useAtomValue(progressAtom);
   const currentToolData = useAtomValue(currentToolDataAtom);
   const currentTool = useAtomValue(currentToolAtom);
+  const setSelectionAssistantPanel = useSetAtom(selectionAssistantPanelAtom);
 
   const disabled = !!progress.tool || !currentToolData.length;
+
+  const openSelectionAssistant = () => {
+    setSelectionAssistantPanel((prev) => ({ ...prev, isOpen: true }));
+  };
 
   return (
     <div className="flex gap-1">
       <ScanButton />
       <RowSelectionMenu disabled={disabled} />
+      <TooltipButton
+        tooltip="Selection Assistant"
+        disabled={disabled}
+        onClick={openSelectionAssistant}
+        size="sm"
+      >
+        <Wand2 className="h-4 w-4" />
+      </TooltipButton>
       <MoveFiles disabled={disabled} />
       <DeleteFiles disabled={disabled} />
       <SaveResult disabled={disabled} />
       {currentTool === Tools.BadExtensions && <RenameExt disabled={disabled} />}
       <FormatAnalysisDialog />
       <SimilarityQuickTableDialog />
+      <FloatingSelectionAssistant />
     </div>
   );
 }
