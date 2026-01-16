@@ -2,7 +2,22 @@ import { open } from '@tauri-apps/plugin-dialog';
 import { openPath, openUrl } from '@tauri-apps/plugin-opener';
 import { motion } from 'framer-motion';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { CircleHelp, Folder, Github, LayoutGrid, Palette, Settings } from 'lucide-react';
+import {
+  CircleHelp,
+  Database,
+  FileJson,
+  Fingerprint,
+  Folder,
+  FolderSearch,
+  Github,
+  History,
+  Image as ImageIcon,
+  LayoutGrid,
+  Link2Off,
+  Palette,
+  Settings,
+  Trash2,
+} from 'lucide-react';
 import { useEffect } from 'react';
 import { initCurrentPresetAtom } from '~/atom/preset';
 import { platformSettingsAtom } from '~/atom/primitive';
@@ -20,6 +35,7 @@ import {
 } from '~/components';
 import { BoxReveal } from '~/components/box-reveal';
 import { Form, FormItem } from '~/components/form';
+import { ToggleBadge } from '~/components/toggle-badge';
 import { ButtonProps } from '~/components/shadcn/button';
 import {
   Dialog,
@@ -241,30 +257,44 @@ function SettingsContent() {
             <InputNumber minValue={16} maxValue={MAXIMUM_FILE_SIZE} />
           </FormItem>
         </div>
-        <FormItem
-          name="recursiveSearch"
-          label={t('Recursive search')}
-          comp="switch"
-        >
-          <Switch />
-        </FormItem>
-        <FormItem name="useCache" label={t('Use cache')} comp="switch">
-          <Switch />
-        </FormItem>
-        <FormItem
-          name="saveAlsoAsJson"
-          label={t('Also save cache as JSON file')}
-          comp="switch"
-        >
-          <Switch />
-        </FormItem>
-        <FormItem
-          name="moveDeletedFilesToTrash"
-          label={t('Move deleted files to trash')}
-          comp="switch"
-        >
-          <Switch />
-        </FormItem>
+        <div className="flex flex-wrap gap-2 py-2">
+          <FormItem
+            name="recursiveSearch"
+            label={t('Recursive search')}
+            comp="badge-switch"
+          >
+            <ToggleBadge className="gap-1.5">
+              <FolderSearch className="h-3.5 w-3.5" />
+              {t('Recursive search')}
+            </ToggleBadge>
+          </FormItem>
+          <FormItem name="useCache" label={t('Use cache')} comp="badge-switch">
+            <ToggleBadge className="gap-1.5">
+              <Database className="h-3.5 w-3.5" />
+              {t('Use cache')}
+            </ToggleBadge>
+          </FormItem>
+          <FormItem
+            name="saveAlsoAsJson"
+            label={t('Also save cache as JSON file')}
+            comp="badge-switch"
+          >
+            <ToggleBadge className="gap-1.5">
+              <FileJson className="h-3.5 w-3.5" />
+              {t('Also save cache as JSON file')}
+            </ToggleBadge>
+          </FormItem>
+          <FormItem
+            name="moveDeletedFilesToTrash"
+            label={t('Move deleted files to trash')}
+            comp="badge-switch"
+          >
+            <ToggleBadge className="gap-1.5">
+              <Trash2 className="h-3.5 w-3.5" />
+              {t('Move deleted files to trash')}
+            </ToggleBadge>
+          </FormItem>
+        </div>
         <FormItem
           name="referencePathKeywords"
           label={t('Reference path keywords')}
@@ -355,79 +385,111 @@ function SettingsContent() {
         >
           <InputNumber minValue={1} />
         </FormItem>
-        <FormItem
-          name="duplicateImagePreview"
-          label={t('Image preview')}
-          comp="switch"
-        >
-          <Switch />
-        </FormItem>
-        <FormItem
-          name="duplicateHideHardLinks"
-          label={t('Hide hard links')}
-          comp="switch"
-        >
-          <Switch />
-        </FormItem>
-        <FormItem
-          name="duplicateUsePrehash"
-          label={t('Use prehash')}
-          comp="switch"
-        >
-          <Switch />
-        </FormItem>
-        <FormItem
-          name="duplicateDeleteOutdatedEntries"
-          label={t('Delete automatically outdated entries')}
-          comp="switch"
-        >
-          <Switch />
-        </FormItem>
+        <div className="flex flex-wrap gap-2 py-2">
+          <FormItem
+            name="duplicateImagePreview"
+            label={t('Image preview')}
+            comp="badge-switch"
+          >
+            <ToggleBadge className="gap-1.5">
+              <ImageIcon className="h-3.5 w-3.5" />
+              {t('Image preview')}
+            </ToggleBadge>
+          </FormItem>
+          <FormItem
+            name="duplicateHideHardLinks"
+            label={t('Hide hard links')}
+            comp="badge-switch"
+          >
+            <ToggleBadge className="gap-1.5">
+              <Link2Off className="h-3.5 w-3.5" />
+              {t('Hide hard links')}
+            </ToggleBadge>
+          </FormItem>
+          <FormItem
+            name="duplicateUsePrehash"
+            label={t('Use prehash')}
+            comp="badge-switch"
+          >
+            <ToggleBadge className="gap-1.5">
+              <Fingerprint className="h-3.5 w-3.5" />
+              {t('Use prehash')}
+            </ToggleBadge>
+          </FormItem>
+          <FormItem
+            name="duplicateDeleteOutdatedEntries"
+            label={t('Delete automatically outdated entries')}
+            comp="badge-switch"
+          >
+            <ToggleBadge className="gap-1.5">
+              <History className="h-3.5 w-3.5" />
+              {t('Delete automatically outdated entries')}
+            </ToggleBadge>
+          </FormItem>
+        </div>
         <GroupTitle>{t('Similar Images')}</GroupTitle>
-        <FormItem
-          name="similarImagesShowImagePreview"
-          label={t('Image preview')}
-          comp="switch"
-        >
-          <Switch />
-        </FormItem>
-        <FormItem
-          name="similarImagesHideHardLinks"
-          label={t('Hide hard links')}
-          comp="switch"
-        >
-          <Switch />
-        </FormItem>
-        <FormItem
-          name="similarImagesDeleteOutdatedEntries"
-          label={t('Delete automatically outdated entries')}
-          comp="switch"
-        >
-          <Switch />
-        </FormItem>
-        <GroupTitle>{t('Similar Videos')}</GroupTitle>
-        <FormItem
-          name="similarVideosHideHardLinks"
-          label={t('Hide hard links')}
-          comp="switch"
-        >
-          <Switch />
-        </FormItem>
-        <FormItem
-          name="similarVideosDeleteOutdatedEntries"
-          label={t('Delete automatically outdated entries')}
-          comp="switch"
-        >
-          <Switch />
-        </FormItem>
-        <GroupTitle>{t('Music Duplicates')}</GroupTitle>
-        <FormItem
-          name="similarMusicDeleteOutdatedEntries"
-          label={t('Delete automatically outdated entries')}
-          comp="switch"
-        >
-          <Switch />
-        </FormItem>
+        <div className="flex flex-wrap gap-2 py-2">
+          <FormItem
+            name="similarImagesShowImagePreview"
+            label={t('Image preview')}
+            comp="badge-switch"
+          >
+            <ToggleBadge className="gap-1.5">
+              <ImageIcon className="h-3.5 w-3.5" />
+              {t('Image preview')}
+            </ToggleBadge>
+          </FormItem>
+          <FormItem
+            name="similarImagesHideHardLinks"
+            label={t('Hide hard links')}
+            comp="badge-switch"
+          >
+            <ToggleBadge className="gap-1.5">
+              <Link2Off className="h-3.5 w-3.5" />
+              {t('Hide hard links')}
+            </ToggleBadge>
+          </FormItem>
+          <FormItem
+            name="similarImagesDeleteOutdatedEntries"
+            label={t('Delete automatically outdated entries')}
+            comp="badge-switch"
+          >
+            <ToggleBadge className="gap-1.5">
+              <History className="h-3.5 w-3.5" />
+              {t('Delete automatically outdated entries')}
+            </ToggleBadge>
+          </FormItem>
+          <FormItem
+            name="similarVideosHideHardLinks"
+            label={t('Hide hard links')}
+            comp="badge-switch"
+          >
+            <ToggleBadge className="gap-1.5">
+              <Link2Off className="h-3.5 w-3.5" />
+              {t('Hide hard links')}
+            </ToggleBadge>
+          </FormItem>
+          <FormItem
+            name="similarVideosDeleteOutdatedEntries"
+            label={t('Delete automatically outdated entries')}
+            comp="badge-switch"
+          >
+            <ToggleBadge className="gap-1.5">
+              <History className="h-3.5 w-3.5" />
+              {t('Delete automatically outdated entries')}
+            </ToggleBadge>
+          </FormItem>
+          <FormItem
+            name="similarMusicDeleteOutdatedEntries"
+            label={t('Delete automatically outdated entries')}
+            comp="badge-switch"
+          >
+            <ToggleBadge className="gap-1.5">
+              <History className="h-3.5 w-3.5" />
+              {t('Delete automatically outdated entries')}
+            </ToggleBadge>
+          </FormItem>
+        </div>
       </Form>
       <GroupTitle>{t('Other')}</GroupTitle>
       <Button variant="secondary" onClick={handleOpenCacheFolder}>

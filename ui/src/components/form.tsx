@@ -44,6 +44,7 @@ type CompType =
   | 'textarea'
   | 'input-number'
   | 'switch'
+  | 'badge-switch'
   | 'slider'
   | 'select'
   | 'checkbox';
@@ -81,6 +82,12 @@ export function FormItem(
           onChange({ [name]: v });
         },
       },
+      'badge-switch': {
+        checked: value[name],
+        onCheckedChange: (v: boolean) => {
+          onChange({ [name]: v });
+        },
+      },
       slider: {
         value: [value[name]],
         onValueChange: (values: number[]) => {
@@ -105,6 +112,14 @@ export function FormItem(
   }, [value, name, comp, onChange]);
 
   if (!label) {
+    return (
+      <Slot id={name} {...slotProps}>
+        {children}
+      </Slot>
+    );
+  }
+
+  if (comp === 'badge-switch') {
     return (
       <Slot id={name} {...slotProps}>
         {children}
