@@ -20,16 +20,18 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Trash2 } from 'lucide-react';
-import { useCallback } from 'react';
+import { GripVertical, Trash2, Filter } from 'lucide-react';
+import { useCallback, useState } from 'react';
 import { Button } from '~/components/shadcn/button';
 import { Checkbox } from '~/components/shadcn/checkbox';
+import { Input } from '~/components/shadcn/input';
 import { Select } from '~/components/one-select';
 import { useT } from '~/hooks';
 import type {
   SortCriterion,
   SortDirection,
   SortField,
+  FilterCondition,
 } from '~/lib/selection-assistant/types';
 import { cn } from '~/utils/cn';
 
@@ -58,6 +60,10 @@ function SortableItem({
   canRemove,
 }: SortableItemProps) {
   const t = useT();
+  const [showFilter, setShowFilter] = useState(
+    criterion.filterCondition && criterion.filterCondition !== 'none'
+  );
+  
   const {
     attributes,
     listeners,
@@ -77,81 +83,135 @@ function SortableItem({
     { label: t('Ascending'), value: 'asc' },
   ];
 
+  const filterConditionOptions: { label: string; value: FilterCondition }[] = [
+    { label: t('No filter'), value: 'none' },
+    { label: t('Contains'), value: 'contains' },
+    { label: t('Not contains'), value: 'notContains' },
+    { label: t('Starts with'), value: 'startsWith' },
+    { label: t('Ends with'), value: 'endsWith' },
+    { label: t('Equals'), value: 'equals' },
+  ];
+
+  const handleToggleFilter = useCallback(() => {
+    const newShowFilter = !showFilter;
+    setShowFilter(newShowFilter);
+    if (!newShowFilter) {
+      onUpdate(index, { filterCondition: 'none', filterValue: '' });
+    }
+  }, [showFilter, index, onUpdate]);
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       className={cn(
-        'flex items-center gap-2 p-2 rounded-md border bg-background',
+        'rounded-md border bg-background',
         isDragging && 'opacity-50 shadow-lg',
         !criterion.enabled && 'opacity-60',
       )}
     >
-      {/* 拖拽手柄 */}
-      <button
-        type="button"
-        className="cursor-grab touch-none"
-        {...attributes}
-        {...listeners}
-      >
-        <GripVertical className="h-4 w-4 text-muted-foreground" />
-      </button>
-
-      {/* 启用复选框 */}
-      <Checkbox
-        checked={criterion.enabled}
-        onCheckedChange={(checked) =>
-          onUpdate(index, { enabled: checked as boolean })
-        }
-      />
-
-      {/* 字段选择 */}
-      <div className="flex-1 min-w-0">
-        <Select
-          value={criterion.field}
-          onChange={(value) => onUpdate(index, { field: value as SortField })}
-          options={availableFields}
-        />
-      </div>
-
-      {/* 方向选择 */}
-      <div className="w-24">
-        <Select
-          value={criterion.direction}
-          onChange={(value) =>
-            onUpdate(index, { direction: value as SortDirection })
-          }
-          options={directionOptions}
-        />
-      </div>
-
-      {/* 空值优先 */}
-      <div className="flex items-center gap-1">
-        <Checkbox
-          id={`prefer-empty-${index}`}
-          checked={criterion.preferEmpty}
-          onCheckedChange={(checked) =>
-            onUpdate(index, { preferEmpty: checked as boolean })
-          }
-        />
-        <label
-          htmlFor={`prefer-empty-${index}`}
-          className="text-xs text-muted-foreground whitespace-nowrap cursor-pointer"
+      {/* 主行 */}
+      <div className="flex items-center gap-2 p-2">
+        {/* 拖拽手柄 */}
+        <button
+          type="button"
+          className="cursor-grab touch-none"
+          {...attributes}
+          {...listeners}
         >
-          {t('Empty first')}
-        </label>
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </button>
+
+        {/* 启用复选框 */}
+        <Checkbox
+          checked={criterion.enabled}
+          onCheckedChange={(checked) =>
+            onUpdate(index, { enabled: checked as boolean })
+          }
+        />
+
+        {/* 字段选择 */}
+        <div className="flex-1 min-w-0">
+          <Select
+            value={criterion.field}
+            onChange={(value) => onUpdate(index, { field: value as SortField })}
+            options={availableFields}
+          />
+        </div>
+
+        {/* 方向选择 */}
+        <div className="w-24">
+          <Select
+            value={criterion.direction}
+            onChange={(value) =>
+              onUpdate(index, { direction: value as SortDirection })
+            }
+            options={directionOptions}
+          />
+        </div>
+
+        {/* 空值优先 */}
+        <div className="flex items-center gap-1">
+          <Checkbox
+            id={`prefer-empty-${index}`}
+            checked={criterion.preferEmpty}
+            onCheckedChange={(checked) =>
+              onUpdate(index, { preferEmpty: checked as boolean })
+            }
+          />
+          <label
+            htmlFor={`prefer-empty-${index}`}
+            className="text-xs text-muted-foreground whitespace-nowrap cursor-pointer"
+          >
+            {t('Empty first')}
+          </label>
+        </div>
+
+        {/* 过滤按钮 */}
+        <Button
+          variant={showFilter ? 'secondary' : 'ghost'}
+          size="icon"
+          className="h-7 w-7"
+          onClick={handleToggleFilter}
+          title={t('Filter')}
+        >
+          <Filter className="h-3 w-3" />
+        </Button>
+
+        {/* 删除按钮 */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7"
+          disabled={!canRemove}
+          onClick={() => onRemove(index)}
+        >
+          <Trash2 className="h-3 w-3" />
+        </Button>
       </div>
 
-      {/* 删除按钮 */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-7 w-7"
-        disabled={!canRemove}
-        onClick={() => onRemove(index)}
-      >
-        <Trash2 className="h-3 w-3" />
-      </Button>
+      {/* 过滤条件行 */}
+      {showFilter && (
+        <div className="flex items-center gap-2 px-2 pb-2 pl-10">
+          <div className="w-32">
+            <Select
+              value={criterion.filterCondition || 'none'}
+              onChange={(value) =>
+                onUpdate(index, { filterCondition: value as FilterCondition })
+              }
+              options={filterConditionOptions}
+            />
+          </div>
+          {criterion.filterCondition && criterion.filterCondition !== 'none' && (
+            <Input
+              className="flex-1 h-8 text-sm"
+              placeholder={t('Filter value')}
+              value={criterion.filterValue || ''}
+              onChange={(e) => onUpdate(index, { filterValue: e.target.value })}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -41,6 +41,12 @@ const toolsWithSizeAndDate = new Set<string>([
 /** 支持分辨率选择的工具 */
 const toolsWithResolution = new Set<string>([Tools.SimilarImages]);
 
+/** 支持哈希值的工具 */
+const toolsWithHash = new Set<string>([
+  Tools.DuplicateFiles,
+  Tools.MusicDuplicates,
+]);
+
 export function GroupSelectionSection() {
   const t = useT();
   const [config, setConfig] = useAtom(groupRuleConfigAtom);
@@ -64,17 +70,27 @@ export function GroupSelectionSection() {
     const fields: { label: string; value: SortField }[] = [
       { label: t('Full path'), value: 'folderPath' },
       { label: t('File name'), value: 'fileName' },
+      { label: t('Disk'), value: 'disk' },
+      { label: t('File type'), value: 'fileType' },
     ];
 
     if (toolsWithSizeAndDate.has(currentTool)) {
       fields.push(
         { label: t('Size'), value: 'fileSize' },
+        { label: t('Creation date'), value: 'creationDate' },
         { label: t('Modified date'), value: 'modifiedDate' },
       );
     }
 
     if (toolsWithResolution.has(currentTool)) {
       fields.push({ label: t('Resolution'), value: 'resolution' });
+    }
+
+    if (toolsWithHash.has(currentTool)) {
+      fields.push(
+        { label: t('Hash'), value: 'hash' },
+        { label: t('Hard links'), value: 'hardLinks' },
+      );
     }
 
     return fields;

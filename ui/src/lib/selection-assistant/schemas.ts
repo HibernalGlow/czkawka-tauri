@@ -14,15 +14,30 @@ export const sortFieldSchema = z.enum([
   'creationDate',
   'modifiedDate',
   'resolution',
+  'disk',
+  'fileType',
+  'hash',
+  'hardLinks',
 ]);
 
 export const sortDirectionSchema = z.enum(['asc', 'desc']);
+
+export const filterConditionSchema = z.enum([
+  'none',
+  'contains',
+  'notContains',
+  'startsWith',
+  'endsWith',
+  'equals',
+]);
 
 export const sortCriterionSchema = z.object({
   field: sortFieldSchema,
   direction: sortDirectionSchema,
   preferEmpty: z.boolean(),
   enabled: z.boolean(),
+  filterCondition: filterConditionSchema.optional(),
+  filterValue: z.string().optional(),
 });
 
 // ============ 组选择规则 Schema ============

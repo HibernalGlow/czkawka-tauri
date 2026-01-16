@@ -79,10 +79,23 @@ export type SortField =
   | 'fileSize' // 文件大小
   | 'creationDate' // 创建日期
   | 'modifiedDate' // 修改日期
-  | 'resolution'; // 分辨率（仅图片）
+  | 'resolution' // 分辨率（仅图片）
+  | 'disk' // 磁盘/驱动器
+  | 'fileType' // 文件类型/扩展名
+  | 'hash' // 哈希值
+  | 'hardLinks'; // 硬链接数
 
 /** 排序方向 */
 export type SortDirection = 'asc' | 'desc';
+
+/** 过滤条件类型（用于排序字段的附加过滤） */
+export type FilterCondition =
+  | 'none' // 无过滤
+  | 'contains' // 包含
+  | 'notContains' // 不包含
+  | 'startsWith' // 起始于
+  | 'endsWith' // 结尾于
+  | 'equals'; // 等于
 
 /** 排序条件 */
 export interface SortCriterion {
@@ -90,6 +103,10 @@ export interface SortCriterion {
   direction: SortDirection;
   preferEmpty: boolean; // 空值优先
   enabled: boolean;
+  /** 过滤条件（可选） */
+  filterCondition?: FilterCondition;
+  /** 过滤值（可选） */
+  filterValue?: string;
 }
 
 /** 组选择规则配置 */
@@ -170,8 +187,11 @@ export interface EntryWithRaw extends BaseEntry, Partial<RefEntry> {
   raw?: {
     size?: number;
     modified_date?: number;
+    created_date?: number;
     width?: number;
     height?: number;
+    hash?: string;
+    hardlinks?: number;
     [key: string]: unknown;
   };
 }

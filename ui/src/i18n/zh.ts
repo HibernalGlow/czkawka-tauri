@@ -379,4 +379,19 @@ export const zh: Record<TranslationKeys, string> = {
   Directories: '目录列表',
   Selected: '已选择',
   Resolution: '分辨率',
+  // 新增排序字段
+  Disk: '磁盘',
+  'File type': '文件类型',
+  'Creation date': '创建日期',
+  Hash: '哈希值',
+  'Hard links': '硬链接',
+  // 过滤条件
+  Filter: '过滤',
+  'No filter': '无过滤',
+  Contains: '包含',
+  'Not contains': '不包含',
+  'Starts with': '起始于',
+  'Ends with': '结尾于',
+  Equals: '等于',
+  'Filter value': '过滤值',
 };

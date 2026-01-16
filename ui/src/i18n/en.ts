@@ -387,6 +387,21 @@ export const en = {
   Directories: 'Directories',
   Selected: 'Selected',
   Resolution: 'Resolution',
+  // New sort fields
+  Disk: 'Disk',
+  'File type': 'File type',
+  'Creation date': 'Creation date',
+  Hash: 'Hash',
+  'Hard links': 'Hard links',
+  // Filter conditions
+  Filter: 'Filter',
+  'No filter': 'No filter',
+  Contains: 'Contains',
+  'Not contains': 'Not contains',
+  'Starts with': 'Starts with',
+  'Ends with': 'Ends with',
+  Equals: 'Equals',
+  'Filter value': 'Filter value',
 };
 
 export type TranslationKeys = keyof typeof en;

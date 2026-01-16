@@ -201,6 +201,26 @@
   - [x] 55 个测试全部通过
   - 如有问题请询问用户
 
+- [x] 21. 增强组选择功能 - 添加更多排序字段和过滤条件
+  - [x] 21.1 扩展 SortField 类型
+    - 添加 disk（磁盘）、fileType（文件类型）、hash（哈希值）、hardLinks（硬链接）字段
+    - 更新 `ui/src/lib/selection-assistant/types.ts`
+  - [x] 21.2 添加 FilterCondition 类型
+    - 支持 none/contains/notContains/startsWith/endsWith/equals 过滤条件
+    - 扩展 SortCriterion 接口添加 filterCondition 和 filterValue 字段
+  - [x] 21.3 更新组选择规则逻辑
+    - 在 `group-rule.ts` 中添加新字段的值获取逻辑
+    - 添加 applyFilter 方法实现过滤条件匹配
+  - [x] 21.4 更新 UI 组件
+    - 在 `sort-criteria-list.tsx` 添加过滤条件下拉框和过滤值输入框
+    - 在 `group-selection-section.tsx` 添加新的排序字段选项
+  - [x] 21.5 更新 Schema 和国际化
+    - 更新 `schemas.ts` 添加新字段和过滤条件的 schema
+    - 更新中英文翻译文件
+  - [x] 21.6 验证
+    - TypeScript 检查通过
+    - 55 个测试全部通过
+
 ## Notes
 
 - 所有任务均为必需，包括属性测试任务

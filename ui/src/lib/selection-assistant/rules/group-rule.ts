@@ -13,6 +13,7 @@ import type {
   SortCriterion,
   SortField,
   EntryWithRaw,
+  FilterCondition,
 } from '../types';
 import type { BaseEntry, RefEntry } from '~/types';
 import { getColumnValue } from '../matchers';
@@ -94,17 +95,27 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
    */
   validate(): ValidationResult {
     const errors: string[] = [];
+    const validFields: SortField[] = [
+      'folderPath', 'fileName', 'fileSize', 'creationDate', 'modifiedDate',
+      'resolution', 'disk', 'fileType', 'hash', 'hardLinks'
+    ];
+    const validFilterConditions: FilterCondition[] = [
+      'none', 'contains', 'notContains', 'startsWith', 'endsWith', 'equals'
+    ];
 
     if (!['selectAllExceptOne', 'selectOne', 'selectAll'].includes(this.config.mode)) {
       errors.push('无效的选择模式');
     }
 
     for (const criterion of this.config.sortCriteria) {
-      if (!['folderPath', 'fileName', 'fileSize', 'creationDate', 'modifiedDate', 'resolution'].includes(criterion.field)) {
+      if (!validFields.includes(criterion.field)) {
         errors.push(`无效的排序字段: ${criterion.field}`);
       }
       if (!['asc', 'desc'].includes(criterion.direction)) {
         errors.push(`无效的排序方向: ${criterion.direction}`);
+      }
+      if (criterion.filterCondition && !validFilterConditions.includes(criterion.filterCondition)) {
+        errors.push(`无效的过滤条件: ${criterion.filterCondition}`);
       }
     }
 
@@ -166,12 +177,49 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
       return [...group];
     }
 
-    return [...group].sort((a, b) => {
+    // 先应用过滤条件
+    let filtered = [...group];
+    for (const criterion of enabledCriteria) {
+      if (criterion.filterCondition && criterion.filterCondition !== 'none' && criterion.filterValue) {
+        filtered = this.applyFilter(filtered, criterion);
+      }
+    }
+
+    // 再排序
+    return filtered.sort((a, b) => {
       for (const criterion of enabledCriteria) {
         const cmp = this.compareByField(a, b, criterion);
         if (cmp !== 0) return cmp;
       }
       return 0;
+    });
+  }
+
+  /**
+   * 应用过滤条件
+   */
+  private applyFilter<T extends BaseEntry & Partial<RefEntry>>(
+    items: T[],
+    criterion: SortCriterion,
+  ): T[] {
+    const { filterCondition, filterValue } = criterion;
+    if (!filterCondition || filterCondition === 'none' || !filterValue) {
+      return items;
+    }
+
+    return items.filter(item => {
+      const value = this.getFieldValue(item, criterion.field);
+      const strValue = String(value ?? '').toLowerCase();
+      const searchValue = filterValue.toLowerCase();
+
+      return match(filterCondition)
+        .with('contains', () => strValue.includes(searchValue))
+        .with('notContains', () => !strValue.includes(searchValue))
+        .with('startsWith', () => strValue.startsWith(searchValue))
+        .with('endsWith', () => strValue.endsWith(searchValue))
+        .with('equals', () => strValue === searchValue)
+        .with('none', () => true)
+        .exhaustive();
     });
   }
 
@@ -220,7 +268,7 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
       .with('folderPath', () => getColumnValue(item.path, 'folderPath'))
       .with('fileName', () => getColumnValue(item.path, 'fileName'))
       .with('fileSize', () => entry.raw?.size ?? null)
-      .with('creationDate', () => entry.raw?.modified_date ?? null) // 使用 modified_date 作为创建日期
+      .with('creationDate', () => entry.raw?.created_date ?? entry.raw?.modified_date ?? null)
       .with('modifiedDate', () => entry.raw?.modified_date ?? null)
       .with('resolution', () => {
         const width = entry.raw?.width;
@@ -230,6 +278,29 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
         }
         return null;
       })
+      .with('disk', () => {
+        // 提取磁盘/驱动器（Windows: C:, D: 等；Unix: /home, /mnt 等）
+        const path = item.path;
+        if (path.match(/^[A-Za-z]:/)) {
+          return path.substring(0, 2).toUpperCase();
+        }
+        // Unix 风格路径，取第一级目录
+        const parts = path.split('/').filter(Boolean);
+        return parts.length > 0 ? `/${parts[0]}` : '/';
+      })
+      .with('fileType', () => {
+        // 提取文件扩展名
+        const fileName = getColumnValue(item.path, 'fileName');
+        if (typeof fileName === 'string') {
+          const lastDot = fileName.lastIndexOf('.');
+          if (lastDot > 0) {
+            return fileName.substring(lastDot + 1).toLowerCase();
+          }
+        }
+        return '';
+      })
+      .with('hash', () => entry.raw?.hash ?? null)
+      .with('hardLinks', () => entry.raw?.hardlinks ?? null)
       .exhaustive();
   }
 
