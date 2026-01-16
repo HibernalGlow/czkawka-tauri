@@ -1,16 +1,15 @@
 /**
  * 操作按钮组件
- * 包含清空选择、反选、移到顶部等全局操作
+ * 包含清空选择、反选等全局操作
  */
 
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { ArrowUpToLine, RotateCcw, ToggleLeft } from 'lucide-react';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { RotateCcw, ToggleLeft } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import {
   clearAllSelectionAtom,
   currentSelectionAtom,
   invertSelectionAtom,
-  moveSelectedToTopAtom,
 } from '~/atom/selection-assistant';
 import { currentToolDataAtom } from '~/atom/tools';
 import { Button } from '~/components/shadcn/button';
@@ -23,7 +22,6 @@ export function ActionButtons() {
   const currentToolData = useAtomValue(currentToolDataAtom);
   const [, clearAll] = [null, useSetAtom(clearAllSelectionAtom)];
   const [, invert] = [null, useSetAtom(invertSelectionAtom)];
-  const [moveToTop, setMoveToTop] = useAtom(moveSelectedToTopAtom);
 
   // 计算选中数量
   const selectedCount = useMemo(() => {
@@ -45,11 +43,6 @@ export function ActionButtons() {
     const allPaths = data.map((item) => item.path);
     invert(allPaths);
   }, [currentToolData, invert]);
-
-  // 切换移到顶部
-  const handleToggleMoveToTop = useCallback(() => {
-    setMoveToTop((prev) => !prev);
-  }, [setMoveToTop]);
 
   return (
     <div className="space-y-2">
@@ -81,18 +74,6 @@ export function ActionButtons() {
           {t('Invert selection')}
         </Button>
       </div>
-
-      {/* 移到顶部按钮 */}
-      <Button
-        variant={moveToTop ? 'default' : 'outline'}
-        size="sm"
-        className="w-full"
-        disabled={selectedCount === 0}
-        onClick={handleToggleMoveToTop}
-      >
-        <ArrowUpToLine className="h-3 w-3 mr-1" />
-        {t('Move to top')}
-      </Button>
     </div>
   );
 }

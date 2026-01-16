@@ -113,30 +113,19 @@ export function FormItem(
   }
 
   return (
-    <div className="flex items-center justify-between gap-4 px-3 py-3 border-b hover:bg-muted/20 transition-colors group">
-      <div className="flex flex-col gap-1 flex-1 min-w-0">
-        <Label
-          className="text-sm font-semibold cursor-pointer select-none"
-          htmlFor={name}
-        >
-          {label}
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-2 min-h-9">
+        <Label className="flex-shrink-0" htmlFor={name}>
+          {label}:
         </Label>
-        {description && (
-          <div className="text-[11px] text-muted-foreground leading-relaxed pr-4">
-            {description}
-          </div>
-        )}
-      </div>
-      <div className="flex items-center gap-3 shrink-0">
         <Slot id={name} {...slotProps}>
           {children}
         </Slot>
-        {suffix && (
-          <div className="text-xs font-mono text-muted-foreground min-w-[3rem] text-right">
-            {suffix}
-          </div>
-        )}
+        {suffix}
       </div>
+      {description && (
+        <div className="text-xs text-muted-foreground pl-2">{description}</div>
+      )}
     </div>
   );
 }
