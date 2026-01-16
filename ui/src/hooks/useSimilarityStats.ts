@@ -18,6 +18,11 @@ export function useSimilarityStats() {
   const currentTool = useAtomValue(currentToolAtom);
 
   return useMemo(() => {
+    // 只有相似图片和相似视频工具才有相似度数据
+    if (currentTool !== Tools.SimilarImages && currentTool !== Tools.SimilarVideos) {
+      return null;
+    }
+
     if (!data || !Array.isArray(data) || data.length === 0) {
       return null;
     }
@@ -31,24 +36,26 @@ export function useSimilarityStats() {
       : 16;
 
     for (const item of data as any[]) {
-      // Skip hidden rows (separators)
-      if (item.hidden) continue;
+      // 跳过隐藏行（分隔符）和参考行（原始图片）
+      if (item.hidden || item.isRef) continue;
       
-      // Try to find similarity in various possible fields
-      // 1. raw.similarity (preferred)
-      // 2. item.similarity
-      // 3. item.Similarity
-      let rawSimValue: any = item.raw?.similarity ?? item.similarity ?? item.Similarity;
+      // 尝试从多个可能的字段获取相似度值
+      // 优先使用 item.similarity（转换后的值），然后是 raw.similarity
+      let rawSimValue: any = item.similarity ?? item.raw?.similarity ?? item.Similarity;
 
-      if (rawSimValue === undefined || rawSimValue === null || rawSimValue === '') {
+      // 空字符串表示相似度为0（完全相同的图片）
+      if (rawSimValue === undefined || rawSimValue === null) {
         continue;
       }
 
       let simValue: number;
-      if (typeof rawSimValue === 'number') {
+      if (rawSimValue === '') {
+        // 空字符串表示相似度为0
+        simValue = 0;
+      } else if (typeof rawSimValue === 'number') {
         simValue = rawSimValue;
       } else {
-        // Parse string: "15 (Diff)" -> 15, "10" -> 10
+        // 解析字符串: "15 (Diff)" -> 15, "10" -> 10
         const match = rawSimValue.toString().match(/\d+/);
         simValue = match ? Number.parseInt(match[0], 10) : Number.NaN;
       }
@@ -65,7 +72,6 @@ export function useSimilarityStats() {
     }
 
     if (!hasSimilarity) {
-      console.log('[SimilarityStats] No similarity data found in', data.length, 'items');
       return null;
     }
 
