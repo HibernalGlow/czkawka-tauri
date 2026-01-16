@@ -4,13 +4,13 @@
  */
 
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+  type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  type DragEndEvent,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -20,18 +20,18 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Trash2, Filter } from 'lucide-react';
+import { Filter, GripVertical, Trash2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
+import { Select } from '~/components/one-select';
 import { Button } from '~/components/shadcn/button';
 import { Checkbox } from '~/components/shadcn/checkbox';
 import { Input } from '~/components/shadcn/input';
-import { Select } from '~/components/one-select';
 import { useT } from '~/hooks';
 import type {
+  FilterCondition,
   SortCriterion,
   SortDirection,
   SortField,
-  FilterCondition,
 } from '~/lib/selection-assistant/types';
 import { cn } from '~/utils/cn';
 
@@ -61,9 +61,9 @@ function SortableItem({
 }: SortableItemProps) {
   const t = useT();
   const [showFilter, setShowFilter] = useState(
-    criterion.filterCondition && criterion.filterCondition !== 'none'
+    criterion.filterCondition && criterion.filterCondition !== 'none',
   );
-  
+
   const {
     attributes,
     listeners,
@@ -202,14 +202,17 @@ function SortableItem({
               options={filterConditionOptions}
             />
           </div>
-          {criterion.filterCondition && criterion.filterCondition !== 'none' && (
-            <Input
-              className="flex-1 h-8 text-sm"
-              placeholder={t('Filter value')}
-              value={criterion.filterValue || ''}
-              onChange={(e) => onUpdate(index, { filterValue: e.target.value })}
-            />
-          )}
+          {criterion.filterCondition &&
+            criterion.filterCondition !== 'none' && (
+              <Input
+                className="flex-1 h-8 text-sm"
+                placeholder={t('Filter value')}
+                value={criterion.filterValue || ''}
+                onChange={(e) =>
+                  onUpdate(index, { filterValue: e.target.value })
+                }
+              />
+            )}
         </div>
       )}
     </div>

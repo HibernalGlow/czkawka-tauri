@@ -3,21 +3,21 @@
  * 支持多个规则的组合执行
  */
 
-import type {
-  SelectionRule,
-  RuleContext,
-  RuleResult,
-  ValidationResult,
-  PipelineConfig,
-  SerializedRule,
-  GroupRuleConfig,
-  TextRuleConfig,
-  DirectoryRuleConfig,
-} from './types';
 import type { BaseEntry, RefEntry } from '~/types';
+import { DirectorySelectionRule } from './rules/directory-rule';
 import { GroupSelectionRule } from './rules/group-rule';
 import { TextSelectionRule } from './rules/text-rule';
-import { DirectorySelectionRule } from './rules/directory-rule';
+import type {
+  DirectoryRuleConfig,
+  GroupRuleConfig,
+  PipelineConfig,
+  RuleContext,
+  RuleResult,
+  SelectionRule,
+  SerializedRule,
+  TextRuleConfig,
+  ValidationResult,
+} from './types';
 
 /** 生成唯一 ID */
 let pipelineIdCounter = 0;
@@ -47,7 +47,7 @@ export class RulePipeline {
    * 移除规则
    */
   removeRule(ruleId: string): void {
-    this.rules = this.rules.filter(r => r.id !== ruleId);
+    this.rules = this.rules.filter((r) => r.id !== ruleId);
   }
 
   /**
@@ -65,7 +65,7 @@ export class RulePipeline {
    * 启用/禁用规则
    */
   enableRule(ruleId: string, enabled: boolean): void {
-    const rule = this.rules.find(r => r.id === ruleId);
+    const rule = this.rules.find((r) => r.id === ruleId);
     if (rule) {
       rule.enabled = enabled;
     }
@@ -82,17 +82,18 @@ export class RulePipeline {
    * 获取启用的规则
    */
   getEnabledRules(): SelectionRule[] {
-    return this.rules.filter(r => r.enabled);
+    return this.rules.filter((r) => r.enabled);
   }
-
 
   /**
    * 执行管道
    * 按顺序执行所有启用的规则
    */
-  execute<T extends BaseEntry & Partial<RefEntry>>(ctx: RuleContext<T>): RuleResult {
+  execute<T extends BaseEntry & Partial<RefEntry>>(
+    ctx: RuleContext<T>,
+  ): RuleResult {
     const enabledRules = this.getEnabledRules();
-    
+
     if (enabledRules.length === 0) {
       return {
         selection: ctx.currentSelection,
@@ -110,7 +111,9 @@ export class RulePipeline {
       const validation = rule.validate();
       if (!validation.valid) {
         // 跳过无效规则
-        errors.push(`规则 ${rule.id} 验证失败: ${validation.errors.join(', ')}`);
+        errors.push(
+          `规则 ${rule.id} 验证失败: ${validation.errors.join(', ')}`,
+        );
         continue;
       }
 
@@ -145,7 +148,7 @@ export class RulePipeline {
     for (const rule of this.rules) {
       const result = rule.validate();
       if (!result.valid) {
-        errors.push(...result.errors.map(e => `[${rule.id}] ${e}`));
+        errors.push(...result.errors.map((e) => `[${rule.id}] ${e}`));
       }
     }
 
@@ -155,7 +158,9 @@ export class RulePipeline {
   /**
    * 预览受影响的文件数
    */
-  preview<T extends BaseEntry & Partial<RefEntry>>(ctx: RuleContext<T>): number {
+  preview<T extends BaseEntry & Partial<RefEntry>>(
+    ctx: RuleContext<T>,
+  ): number {
     const result = this.execute(ctx);
     return result.affectedCount;
   }
@@ -166,10 +171,13 @@ export class RulePipeline {
   toJSON(): PipelineConfig {
     return {
       name: this.name,
-      rules: this.rules.map(rule => ({
+      rules: this.rules.map((rule) => ({
         id: rule.id,
         type: rule.type,
-        config: rule.config as GroupRuleConfig | TextRuleConfig | DirectoryRuleConfig,
+        config: rule.config as
+          | GroupRuleConfig
+          | TextRuleConfig
+          | DirectoryRuleConfig,
         enabled: rule.enabled,
       })),
     };
@@ -194,14 +202,25 @@ export class RulePipeline {
   /**
    * 从配置创建规则
    */
-  private static createRuleFromConfig(config: SerializedRule): SelectionRule | null {
+  private static createRuleFromConfig(
+    config: SerializedRule,
+  ): SelectionRule | null {
     switch (config.type) {
       case 'group':
-        return new GroupSelectionRule(config.config as GroupRuleConfig, config.id);
+        return new GroupSelectionRule(
+          config.config as GroupRuleConfig,
+          config.id,
+        );
       case 'text':
-        return new TextSelectionRule(config.config as TextRuleConfig, config.id);
+        return new TextSelectionRule(
+          config.config as TextRuleConfig,
+          config.id,
+        );
       case 'directory':
-        return new DirectorySelectionRule(config.config as DirectoryRuleConfig, config.id);
+        return new DirectorySelectionRule(
+          config.config as DirectoryRuleConfig,
+          config.id,
+        );
       default:
         return null;
     }

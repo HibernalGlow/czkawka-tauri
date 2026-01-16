@@ -4,22 +4,30 @@
  * Validates: Requirements 3.5
  */
 
-import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
-import { TextSelectionRule, createTextRule } from '../rules/text-rule';
-import type { RuleContext } from '../types';
+import { describe, expect, it } from 'vitest';
 import type { BaseEntry, RefEntry } from '~/types';
+import { createTextRule, TextSelectionRule } from '../rules/text-rule';
+import type { RuleContext } from '../types';
 
 // 生成测试数据的 arbitrary
 const alphanumChars = 'abcdefghijklmnopqrstuvwxyz0123456789';
 const lowerChars = 'abcdefghijklmnopqrstuvwxyz';
 
 const fileEntryArb = fc.record({
-  path: fc.array(
-    fc.string({ minLength: 1, maxLength: 10, unit: fc.constantFrom(...alphanumChars) }),
-    { minLength: 2, maxLength: 4 },
-  ).map(parts => parts.join('/')),
-  groupId: fc.option(fc.integer({ min: 1, max: 10 })).map(v => v ?? undefined),
+  path: fc
+    .array(
+      fc.string({
+        minLength: 1,
+        maxLength: 10,
+        unit: fc.constantFrom(...alphanumChars),
+      }),
+      { minLength: 2, maxLength: 4 },
+    )
+    .map((parts) => parts.join('/')),
+  groupId: fc
+    .option(fc.integer({ min: 1, max: 10 }))
+    .map((v) => v ?? undefined),
   isRef: fc.boolean(),
   hidden: fc.constant(false),
 });
@@ -34,7 +42,11 @@ describe('TextSelectionRule 属性测试', () => {
         fc.property(
           dataArb,
           fc.array(fc.nat({ max: 29 }), { minLength: 0, maxLength: 10 }),
-          fc.string({ minLength: 1, maxLength: 5, unit: fc.constantFrom(...lowerChars) }),
+          fc.string({
+            minLength: 1,
+            maxLength: 5,
+            unit: fc.constantFrom(...lowerChars),
+          }),
           (data, selectedIndices, pattern) => {
             // 创建初始选择
             const initialSelection = new Set<string>();
@@ -93,13 +105,16 @@ describe('TextSelectionRule 属性测试', () => {
       );
     });
 
-
     it('unmark 动作后：新状态 = S - M', () => {
       fc.assert(
         fc.property(
           dataArb,
           fc.array(fc.nat({ max: 29 }), { minLength: 0, maxLength: 15 }),
-          fc.string({ minLength: 1, maxLength: 5, unit: fc.constantFrom(...lowerChars) }),
+          fc.string({
+            minLength: 1,
+            maxLength: 5,
+            unit: fc.constantFrom(...lowerChars),
+          }),
           (data, selectedIndices, pattern) => {
             // 创建初始选择（选择更多以便测试 unmark）
             const initialSelection = new Set<string>();

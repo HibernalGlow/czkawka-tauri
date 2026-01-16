@@ -171,7 +171,6 @@ export function VideoPlayerDialog({
           onMouseMove={handleMouseMove}
           onMouseLeave={() => isPlaying && setShowControls(false)}
         >
-
           {/* Video Container */}
           <div className="flex-1 relative min-h-0 bg-black overflow-hidden select-none">
             {videoUrl ? (
@@ -197,7 +196,9 @@ export function VideoPlayerDialog({
           <div
             className={cn(
               'absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-4 transition-all duration-300 z-10',
-              showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
+              showControls
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 translate-y-2 pointer-events-none',
             )}
             onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}

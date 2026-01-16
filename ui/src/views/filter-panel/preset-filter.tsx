@@ -4,11 +4,17 @@
  */
 
 import { useAtom } from 'jotai';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/shadcn/select';
-import { Label } from '~/components/shadcn/label';
 import { filterStateAtom } from '~/atom/filter-panel';
-import { applyPreset, presetConfigs } from '~/lib/filter-panel/presets';
+import { Label } from '~/components/shadcn/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/shadcn/select';
 import { useT } from '~/hooks';
+import { applyPreset, presetConfigs } from '~/lib/filter-panel/presets';
 import type { FilterPreset } from '~/lib/filter-panel/types';
 
 export function PresetFilter() {
@@ -28,9 +34,18 @@ export function PresetFilter() {
   // 预设选项
   const presetOptions: { value: FilterPreset; label: string }[] = [
     { value: 'none', label: t('NoPreset' as any) || 'No Preset' },
-    { value: 'largeFilesFirst', label: t('LargeFilesFirst' as any) || 'Large Files First' },
-    { value: 'smallFilesFirst', label: t('SmallFilesFirst' as any) || 'Small Files First' },
-    { value: 'recentlyModified', label: t('RecentlyModified' as any) || 'Recently Modified' },
+    {
+      value: 'largeFilesFirst',
+      label: t('LargeFilesFirst' as any) || 'Large Files First',
+    },
+    {
+      value: 'smallFilesFirst',
+      label: t('SmallFilesFirst' as any) || 'Small Files First',
+    },
+    {
+      value: 'recentlyModified',
+      label: t('RecentlyModified' as any) || 'Recently Modified',
+    },
     { value: 'oldFiles', label: t('OldFiles' as any) || 'Old Files' },
   ];
 

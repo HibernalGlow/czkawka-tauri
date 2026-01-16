@@ -3,10 +3,10 @@
  * 导出所有选择助手相关组件
  */
 
-export { SelectionAssistantPanel } from './selection-assistant-panel';
-export { GroupSelectionSection } from './group-selection-section';
-export { TextSelectionSection } from './text-selection-section';
-export { DirectorySelectionSection } from './directory-selection-section';
 export { ActionButtons } from './action-buttons';
-export { SortCriteriaList } from './sort-criteria-list';
+export { DirectorySelectionSection } from './directory-selection-section';
 export { FloatingSelectionAssistant } from './floating-selection-assistant';
+export { GroupSelectionSection } from './group-selection-section';
+export { SelectionAssistantPanel } from './selection-assistant-panel';
+export { SortCriteriaList } from './sort-criteria-list';
+export { TextSelectionSection } from './text-selection-section';

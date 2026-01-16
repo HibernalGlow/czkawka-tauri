@@ -1,21 +1,17 @@
 /**
  * 清除和刷新属性测试
  * Reset and Refresh Property Tests
- * 
+ *
  * **Property 9: 清除过滤器恢复默认状态**
  * **Property 11: 刷新过滤器幂等性**
  * **Validates: Requirements 8.2, 11.2**
  */
 
-import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
-import {
-  resetToDefault,
-  refreshFilters,
-  applyFilters,
-} from '../filter-engine';
+import { describe, expect, it } from 'vitest';
+import { applyFilters, refreshFilters, resetToDefault } from '../filter-engine';
 import { defaultFilterState } from '../presets';
-import type { FilterState, FilterableEntry, FilterContext } from '../types';
+import type { FilterableEntry, FilterContext, FilterState } from '../types';
 
 describe('Reset and Refresh - Property Tests', () => {
   // 生成测试数据
@@ -30,7 +26,10 @@ describe('Reset and Refresh - Property Tests', () => {
     }),
   });
 
-  const fileEntriesArb = fc.array(fileEntryArb, { minLength: 1, maxLength: 30 });
+  const fileEntriesArb = fc.array(fileEntryArb, {
+    minLength: 1,
+    maxLength: 30,
+  });
 
   /**
    * Property 9: 清除过滤器恢复默认状态
@@ -39,7 +38,7 @@ describe('Reset and Refresh - Property Tests', () => {
   describe('Property 9: Reset to Default State', () => {
     it('should return default filter state', () => {
       const result = resetToDefault();
-      
+
       // 验证所有过滤器都被禁用
       expect(result.markStatus.enabled).toBe(false);
       expect(result.markStatus.options).toEqual([]);
@@ -59,7 +58,7 @@ describe('Reset and Refresh - Property Tests', () => {
     it('should return a new object each time', () => {
       const result1 = resetToDefault();
       const result2 = resetToDefault();
-      
+
       expect(result1).not.toBe(result2);
       expect(result1).toEqual(result2);
     });
@@ -72,58 +71,52 @@ describe('Reset and Refresh - Property Tests', () => {
   describe('Property 11: Refresh Idempotency', () => {
     it('should produce same result as applyFilters', () => {
       fc.assert(
-        fc.property(
-          fileEntriesArb,
-          (data) => {
-            const selection = new Set<string>();
-            const filterState: FilterState = {
-              ...defaultFilterState,
-              fileSize: { enabled: true, min: 0, max: 1e9 },
-            };
+        fc.property(fileEntriesArb, (data) => {
+          const selection = new Set<string>();
+          const filterState: FilterState = {
+            ...defaultFilterState,
+            fileSize: { enabled: true, min: 0, max: 1e9 },
+          };
 
-            const ctx: FilterContext<FilterableEntry> = {
-              data,
-              selection,
-              filterState,
-            };
+          const ctx: FilterContext<FilterableEntry> = {
+            data,
+            selection,
+            filterState,
+          };
 
-            const applyResult = applyFilters(ctx);
-            const refreshResult = refreshFilters(ctx);
+          const applyResult = applyFilters(ctx);
+          const refreshResult = refreshFilters(ctx);
 
-            expect(refreshResult.filteredData).toEqual(applyResult.filteredData);
-            expect(refreshResult.stats).toEqual(applyResult.stats);
-          }
-        ),
-        { numRuns: 100 }
+          expect(refreshResult.filteredData).toEqual(applyResult.filteredData);
+          expect(refreshResult.stats).toEqual(applyResult.stats);
+        }),
+        { numRuns: 100 },
       );
     });
 
     it('should be idempotent - multiple refreshes produce same result', () => {
       fc.assert(
-        fc.property(
-          fileEntriesArb,
-          (data) => {
-            const selection = new Set<string>();
-            const filterState: FilterState = {
-              ...defaultFilterState,
-              groupCount: { enabled: true, min: 1, max: 50 },
-            };
+        fc.property(fileEntriesArb, (data) => {
+          const selection = new Set<string>();
+          const filterState: FilterState = {
+            ...defaultFilterState,
+            groupCount: { enabled: true, min: 1, max: 50 },
+          };
 
-            const ctx: FilterContext<FilterableEntry> = {
-              data,
-              selection,
-              filterState,
-            };
+          const ctx: FilterContext<FilterableEntry> = {
+            data,
+            selection,
+            filterState,
+          };
 
-            const result1 = refreshFilters(ctx);
-            const result2 = refreshFilters(ctx);
-            const result3 = refreshFilters(ctx);
+          const result1 = refreshFilters(ctx);
+          const result2 = refreshFilters(ctx);
+          const result3 = refreshFilters(ctx);
 
-            expect(result1.filteredData).toEqual(result2.filteredData);
-            expect(result2.filteredData).toEqual(result3.filteredData);
-          }
-        ),
-        { numRuns: 100 }
+          expect(result1.filteredData).toEqual(result2.filteredData);
+          expect(result2.filteredData).toEqual(result3.filteredData);
+        }),
+        { numRuns: 100 },
       );
     });
   });

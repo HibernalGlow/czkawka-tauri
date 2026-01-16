@@ -1,10 +1,10 @@
 import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
-import { currentToolDataAtom } from '~/atom/tools';
 import { currentToolAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
-import { getSimilarityLevel, SimilarityLevel } from '~/utils/similarity-utils';
+import { currentToolDataAtom } from '~/atom/tools';
 import { Tools } from '~/consts';
+import { getSimilarityLevel, SimilarityLevel } from '~/utils/similarity-utils';
 
 export interface SimilarityStat {
   level: SimilarityLevel;
@@ -19,7 +19,10 @@ export function useSimilarityStats() {
 
   return useMemo(() => {
     // 只有相似图片和相似视频工具才有相似度数据
-    if (currentTool !== Tools.SimilarImages && currentTool !== Tools.SimilarVideos) {
+    if (
+      currentTool !== Tools.SimilarImages &&
+      currentTool !== Tools.SimilarVideos
+    ) {
       return null;
     }
 
@@ -31,17 +34,19 @@ export function useSimilarityStats() {
     let total = 0;
     let hasSimilarity = false;
 
-    const hashSize = currentTool === Tools.SimilarImages 
-      ? Number.parseInt(settings.similarImagesSubHashSize || '16', 10)
-      : 16;
+    const hashSize =
+      currentTool === Tools.SimilarImages
+        ? Number.parseInt(settings.similarImagesSubHashSize || '16', 10)
+        : 16;
 
     for (const item of data as any[]) {
       // 跳过隐藏行（分隔符）和参考行（原始图片）
       if (item.hidden || item.isRef) continue;
-      
+
       // 尝试从多个可能的字段获取相似度值
       // 优先使用 item.similarity（转换后的值），然后是 raw.similarity
-      let rawSimValue: any = item.similarity ?? item.raw?.similarity ?? item.Similarity;
+      let rawSimValue: any =
+        item.similarity ?? item.raw?.similarity ?? item.Similarity;
 
       // 空字符串表示相似度为0（完全相同的图片）
       if (rawSimValue === undefined || rawSimValue === null) {

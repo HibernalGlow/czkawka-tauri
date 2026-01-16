@@ -28,7 +28,8 @@ export function useFormatStats() {
       // Extract extension
       const path = item.path || '';
       const match = path.match(/\.([^.]+)$/);
-      const ext = (match ? match[1].toLowerCase() : 'unknown').trim() || 'unknown';
+      const ext =
+        (match ? match[1].toLowerCase() : 'unknown').trim() || 'unknown';
 
       // Get size
       let size = 0;

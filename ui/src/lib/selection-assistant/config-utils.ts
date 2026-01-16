@@ -5,10 +5,10 @@
 
 import { importConfigSchema } from './schemas';
 import type {
+  DirectoryRuleConfig,
   ExportConfig,
   GroupRuleConfig,
   TextRuleConfig,
-  DirectoryRuleConfig,
 } from './types';
 
 /** 当前配置版本 */

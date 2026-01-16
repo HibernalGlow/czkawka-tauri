@@ -55,19 +55,19 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '~/components/shadcn/tabs';
 import { Tools } from '~/consts';
 import { useBoolean, useT } from '~/hooks';
+import { useFormatStats } from '~/hooks/useFormatStats';
+import { useSimilarityStats } from '~/hooks/useSimilarityStats';
 import type { DirsType, FolderStat } from '~/types';
 import { cn } from '~/utils/cn';
 import { getRowSelectionKeys, splitStr } from '~/utils/common';
-import { FileFilter } from './file-filter';
-import { Operations } from './operations';
-import { ToolSettings } from './tool-settings';
-import { SelectionAssistantPanel } from './selection-assistant/selection-assistant-panel';
-import { FilterPanel } from './filter-panel';
-import { FormatDonutChartCard } from './cards/format-donut-chart-card';
 import { FormatBarChartCard } from './cards/format-bar-chart-card';
+import { FormatDonutChartCard } from './cards/format-donut-chart-card';
 import { SimilarityDistributionCard } from './cards/similarity-distribution-card';
-import { useFormatStats } from '~/hooks/useFormatStats';
-import { useSimilarityStats } from '~/hooks/useSimilarityStats';
+import { FileFilter } from './file-filter';
+import { FilterPanel } from './filter-panel';
+import { Operations } from './operations';
+import { SelectionAssistantPanel } from './selection-assistant/selection-assistant-panel';
+import { ToolSettings } from './tool-settings';
 
 const DisplayType = {
   Dirs: 'dirs',
@@ -755,7 +755,7 @@ function AssistantPanel() {
  */
 function SelectionAssistantCard() {
   const t = useT();
-  
+
   return (
     <div className="h-full flex flex-col border rounded-md overflow-hidden">
       <div className="bg-muted/30 p-2 border-b">
@@ -776,7 +776,7 @@ function SelectionAssistantCard() {
  */
 function FilterCard() {
   const t = useT();
-  
+
   return (
     <div className="h-full flex flex-col border rounded-md overflow-hidden">
       <div className="bg-muted/30 p-2 border-b">
@@ -799,7 +799,9 @@ function AnalysisCard() {
   const t = useT();
   const stats = useFormatStats();
   const similarityStats = useSimilarityStats();
-  const hasData = (stats && stats.length > 0) || (similarityStats && similarityStats.length > 0);
+  const hasData =
+    (stats && stats.length > 0) ||
+    (similarityStats && similarityStats.length > 0);
 
   return (
     <div className="h-full flex flex-col border rounded-md overflow-hidden">

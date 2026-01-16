@@ -6,15 +6,19 @@
 import { useAtom, useAtomValue } from 'jotai';
 import { Settings } from 'lucide-react';
 import { useState } from 'react';
-import { Checkbox } from '~/components/shadcn/checkbox';
-import { Label } from '~/components/shadcn/label';
-import { Button } from '~/components/shadcn/button';
-import { Popover, PopoverContent, PopoverTrigger } from '~/components/shadcn/popover';
-import { Slider } from '~/components/shadcn/slider';
 import { filterStateAtom } from '~/atom/filter-panel';
 import { currentToolAtom } from '~/atom/primitive';
-import { useT } from '~/hooks';
+import { Button } from '~/components/shadcn/button';
+import { Checkbox } from '~/components/shadcn/checkbox';
+import { Label } from '~/components/shadcn/label';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '~/components/shadcn/popover';
+import { Slider } from '~/components/shadcn/slider';
 import { Tools } from '~/consts';
+import { useT } from '~/hooks';
 
 export function SimilarityFilter() {
   const t = useT();
@@ -24,7 +28,10 @@ export function SimilarityFilter() {
   const [open, setOpen] = useState(false);
 
   // 只在相似图片/视频工具中显示
-  if (currentTool !== Tools.SimilarImages && currentTool !== Tools.SimilarVideos) {
+  if (
+    currentTool !== Tools.SimilarImages &&
+    currentTool !== Tools.SimilarVideos
+  ) {
     return null;
   }
 
@@ -56,7 +63,7 @@ export function SimilarityFilter() {
           {label}
         </Label>
       </div>
-      
+
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="ghost" size="icon" className="h-6 w-6">
@@ -67,8 +74,12 @@ export function SimilarityFilter() {
           <div className="space-y-4">
             <div className="space-y-2">
               <div className="flex justify-between text-xs">
-                <span>{t('Min' as any) || 'Min'}: {similarity.min}%</span>
-                <span>{t('Max' as any) || 'Max'}: {similarity.max}%</span>
+                <span>
+                  {t('Min' as any) || 'Min'}: {similarity.min}%
+                </span>
+                <span>
+                  {t('Max' as any) || 'Max'}: {similarity.max}%
+                </span>
               </div>
               <Slider
                 value={[similarity.min, similarity.max]}

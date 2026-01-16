@@ -29,7 +29,13 @@ export function FloatingSelectionAssistant() {
       position:
         newMode === 'floating' && !prev.position
           ? {
-              x: Math.max(0, Math.min(window.innerWidth / 2 - size.width / 2, window.innerWidth - size.width - 20)),
+              x: Math.max(
+                0,
+                Math.min(
+                  window.innerWidth / 2 - size.width / 2,
+                  window.innerWidth - size.width - 20,
+                ),
+              ),
               y: 100,
             }
           : prev.position,

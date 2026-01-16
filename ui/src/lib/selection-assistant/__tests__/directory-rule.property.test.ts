@@ -4,21 +4,30 @@
  * Validates: Requirements 4.1, 4.2, 4.3, 4.4, 4.5
  */
 
-import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
-import { DirectorySelectionRule, createDirectoryRule } from '../rules/directory-rule';
-import type { RuleContext } from '../types';
+import { describe, expect, it } from 'vitest';
 import type { BaseEntry, RefEntry } from '~/types';
 import { getDirectory } from '../matchers';
+import {
+  createDirectoryRule,
+  DirectorySelectionRule,
+} from '../rules/directory-rule';
+import type { RuleContext } from '../types';
 
 // 生成测试数据的 arbitrary
 const alphanumChars = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
 const fileEntryArb = fc.record({
-  path: fc.array(
-    fc.string({ minLength: 1, maxLength: 8, unit: fc.constantFrom(...alphanumChars) }),
-    { minLength: 2, maxLength: 4 },
-  ).map(parts => parts.join('/')),
+  path: fc
+    .array(
+      fc.string({
+        minLength: 1,
+        maxLength: 8,
+        unit: fc.constantFrom(...alphanumChars),
+      }),
+      { minLength: 2, maxLength: 4 },
+    )
+    .map((parts) => parts.join('/')),
   groupId: fc.integer({ min: 1, max: 5 }),
   isRef: fc.boolean(),
   hidden: fc.constant(false),
@@ -47,7 +56,7 @@ describe('DirectorySelectionRule 属性测试', () => {
           for (const item of data) {
             const groupId = (item as RefEntry).groupId || 0;
             const dir = getDirectory(item.path);
-            
+
             if (!groups.has(groupId)) {
               groups.set(groupId, new Map());
             }
@@ -70,14 +79,18 @@ describe('DirectorySelectionRule 属性测试', () => {
       fc.assert(
         fc.property(
           groupedDataArb,
-          fc.string({ minLength: 1, maxLength: 8, unit: fc.constantFrom(...alphanumChars) }),
+          fc.string({
+            minLength: 1,
+            maxLength: 8,
+            unit: fc.constantFrom(...alphanumChars),
+          }),
           (data, dirName) => {
             // 使用数据中实际存在的目录
             const existingDirs = new Set<string>();
             for (const item of data) {
               existingDirs.add(getDirectory(item.path));
             }
-            
+
             const targetDir = Array.from(existingDirs)[0] || dirName;
 
             const rule = createDirectoryRule({
@@ -112,7 +125,6 @@ describe('DirectorySelectionRule 属性测试', () => {
       );
     });
 
-
     it('excludeDirectory: 取消选中指定目录下的所有文件', () => {
       fc.assert(
         fc.property(groupedDataArb, (data) => {
@@ -121,12 +133,12 @@ describe('DirectorySelectionRule 属性测试', () => {
           for (const item of data) {
             existingDirs.add(getDirectory(item.path));
           }
-          
+
           const targetDir = Array.from(existingDirs)[0];
           if (!targetDir) return true;
 
           // 先选中所有文件
-          const initialSelection = new Set(data.map(item => item.path));
+          const initialSelection = new Set(data.map((item) => item.path));
 
           const rule = createDirectoryRule({
             mode: 'excludeDirectory',

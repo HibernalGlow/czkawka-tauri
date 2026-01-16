@@ -4,11 +4,11 @@
  * Validates: Requirements 5.2, 5.3
  */
 
-import { describe, it } from 'vitest';
-import * as fc from 'fast-check';
-import { createStore, atom } from 'jotai';
-import { withHistory, UNDO, REDO } from 'jotai-history';
 import type { RowSelectionState } from '@tanstack/react-table';
+import * as fc from 'fast-check';
+import { atom, createStore } from 'jotai';
+import { REDO, UNDO, withHistory } from 'jotai-history';
+import { describe, it } from 'vitest';
 
 describe('历史管理属性测试', () => {
   // Property 12: 撤销/重做往返一致性
@@ -16,8 +16,14 @@ describe('历史管理属性测试', () => {
     it('执行操作后撤销应该恢复到之前的状态', () => {
       fc.assert(
         fc.property(
-          fc.array(fc.string({ minLength: 1, maxLength: 20 }), { minLength: 1, maxLength: 10 }),
-          fc.array(fc.string({ minLength: 1, maxLength: 20 }), { minLength: 1, maxLength: 10 }),
+          fc.array(fc.string({ minLength: 1, maxLength: 20 }), {
+            minLength: 1,
+            maxLength: 10,
+          }),
+          fc.array(fc.string({ minLength: 1, maxLength: 20 }), {
+            minLength: 1,
+            maxLength: 10,
+          }),
           (paths1, paths2) => {
             // 每次迭代创建新的 store 和 atoms
             const store = createStore();
@@ -58,8 +64,14 @@ describe('历史管理属性测试', () => {
     it('撤销后重做应该恢复到撤销前的状态', () => {
       fc.assert(
         fc.property(
-          fc.array(fc.string({ minLength: 1, maxLength: 20 }), { minLength: 1, maxLength: 10 }),
-          fc.array(fc.string({ minLength: 1, maxLength: 20 }), { minLength: 1, maxLength: 10 }),
+          fc.array(fc.string({ minLength: 1, maxLength: 20 }), {
+            minLength: 1,
+            maxLength: 10,
+          }),
+          fc.array(fc.string({ minLength: 1, maxLength: 20 }), {
+            minLength: 1,
+            maxLength: 10,
+          }),
           (paths1, paths2) => {
             const store = createStore();
             const baseAtom = atom<RowSelectionState>({});

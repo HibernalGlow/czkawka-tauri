@@ -3,15 +3,15 @@
  * 基于文件路径/名称的文本匹配进行选择
  */
 
+import type { BaseEntry, RefEntry } from '~/types';
+import { getColumnValue, isValidRegex, matchText } from '../matchers';
 import type {
-  SelectionRule,
   RuleContext,
   RuleResult,
-  ValidationResult,
+  SelectionRule,
   TextRuleConfig,
+  ValidationResult,
 } from '../types';
-import type { BaseEntry, RefEntry } from '~/types';
-import { matchText, getColumnValue, isValidRegex } from '../matchers';
 
 /** 生成唯一 ID */
 let ruleIdCounter = 0;
@@ -43,9 +43,12 @@ export class TextSelectionRule implements SelectionRule<TextRuleConfig> {
   /**
    * 执行规则
    */
-  execute<T extends BaseEntry & Partial<RefEntry>>(ctx: RuleContext<T>): RuleResult {
+  execute<T extends BaseEntry & Partial<RefEntry>>(
+    ctx: RuleContext<T>,
+  ): RuleResult {
     const { data, currentSelection, keepExistingSelection, action } = ctx;
-    const keepExisting = this.config.keepExistingSelection || keepExistingSelection;
+    const keepExisting =
+      this.config.keepExistingSelection || keepExistingSelection;
 
     try {
       // 验证配置
@@ -63,10 +66,12 @@ export class TextSelectionRule implements SelectionRule<TextRuleConfig> {
       const matchedPaths = new Set<string>();
       for (const item of data) {
         const value = getColumnValue(item.path, this.config.column);
-        
+
         // 如果启用了"匹配整列"，则使用 equals 条件
-        const effectiveCondition = this.config.matchWholeColumn ? 'equals' : this.config.condition;
-        
+        const effectiveCondition = this.config.matchWholeColumn
+          ? 'equals'
+          : this.config.condition;
+
         const isMatch = matchText(
           value,
           this.config.pattern,
@@ -103,7 +108,6 @@ export class TextSelectionRule implements SelectionRule<TextRuleConfig> {
     }
   }
 
-
   /**
    * 验证配置
    */
@@ -118,7 +122,11 @@ export class TextSelectionRule implements SelectionRule<TextRuleConfig> {
       errors.push('无效的匹配列');
     }
 
-    if (!['contains', 'notContains', 'equals', 'startsWith', 'endsWith'].includes(this.config.condition)) {
+    if (
+      !['contains', 'notContains', 'equals', 'startsWith', 'endsWith'].includes(
+        this.config.condition,
+      )
+    ) {
       errors.push('无效的匹配条件');
     }
 
@@ -148,9 +156,9 @@ export class TextSelectionRule implements SelectionRule<TextRuleConfig> {
     };
 
     const col = columnDesc[this.config.column] || this.config.column;
-    const cond = this.config.matchWholeColumn 
-      ? '等于' 
-      : (conditionDesc[this.config.condition] || this.config.condition);
+    const cond = this.config.matchWholeColumn
+      ? '等于'
+      : conditionDesc[this.config.condition] || this.config.condition;
     const regex = this.config.useRegex ? ' (正则)' : '';
     const caseSens = this.config.caseSensitive ? ' (大小写敏感)' : '';
     const wholeCol = this.config.matchWholeColumn ? ' (整列)' : '';
@@ -161,7 +169,9 @@ export class TextSelectionRule implements SelectionRule<TextRuleConfig> {
   /**
    * 预览受影响的文件数
    */
-  preview<T extends BaseEntry & Partial<RefEntry>>(ctx: RuleContext<T>): number {
+  preview<T extends BaseEntry & Partial<RefEntry>>(
+    ctx: RuleContext<T>,
+  ): number {
     const result = this.execute(ctx);
     return result.affectedCount;
   }
@@ -204,15 +214,15 @@ export class TextSelectionRule implements SelectionRule<TextRuleConfig> {
    */
   private countAffected(before: Set<string>, after: Set<string>): number {
     let count = 0;
-    
+
     for (const path of after) {
       if (!before.has(path)) count++;
     }
-    
+
     for (const path of before) {
       if (!after.has(path)) count++;
     }
-    
+
     return count;
   }
 }
@@ -220,6 +230,8 @@ export class TextSelectionRule implements SelectionRule<TextRuleConfig> {
 /**
  * 创建文本选择规则
  */
-export function createTextRule(config?: Partial<TextRuleConfig>): TextSelectionRule {
+export function createTextRule(
+  config?: Partial<TextRuleConfig>,
+): TextSelectionRule {
   return new TextSelectionRule(config);
 }

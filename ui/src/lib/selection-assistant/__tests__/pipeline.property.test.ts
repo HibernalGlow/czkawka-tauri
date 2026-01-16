@@ -7,22 +7,28 @@
  * Validates: Requirements 1.3, 1.4, 6.2, 6.3, 6.5, 6.6
  */
 
-import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
-import { RulePipeline, createPipeline } from '../pipeline';
+import { describe, expect, it } from 'vitest';
+import type { BaseEntry, RefEntry } from '~/types';
+import { createPipeline, RulePipeline } from '../pipeline';
 import { createGroupRule } from '../rules/group-rule';
 import { createTextRule } from '../rules/text-rule';
 import type { RuleContext } from '../types';
-import type { BaseEntry, RefEntry } from '~/types';
 
 // 生成测试数据
 const alphanumChars = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
 const fileEntryArb = fc.record({
-  path: fc.array(
-    fc.string({ minLength: 1, maxLength: 8, unit: fc.constantFrom(...alphanumChars) }),
-    { minLength: 2, maxLength: 4 },
-  ).map(parts => parts.join('/')),
+  path: fc
+    .array(
+      fc.string({
+        minLength: 1,
+        maxLength: 8,
+        unit: fc.constantFrom(...alphanumChars),
+      }),
+      { minLength: 2, maxLength: 4 },
+    )
+    .map((parts) => parts.join('/')),
   groupId: fc.integer({ min: 1, max: 5 }),
   isRef: fc.boolean(),
   hidden: fc.constant(false),
@@ -45,7 +51,11 @@ describe('RulePipeline 属性测试', () => {
           const pipelineWithout = createPipeline();
 
           const rule1 = createGroupRule({ mode: 'selectOne' });
-          const rule2 = createTextRule({ pattern: 'test', column: 'fullPath', condition: 'contains' });
+          const rule2 = createTextRule({
+            pattern: 'test',
+            column: 'fullPath',
+            condition: 'contains',
+          });
           rule2.enabled = false; // 禁用
 
           pipelineWithDisabled.addRule(rule1);
@@ -73,18 +83,19 @@ describe('RulePipeline 属性测试', () => {
     });
   });
 
-
   // Property 16: 管道配置序列化往返
   describe('Property 16: 管道配置序列化往返', () => {
     it('序列化后反序列化应该产生等价的管道', () => {
       const pipeline = createPipeline('测试管道');
-      
+
       pipeline.addRule(createGroupRule({ mode: 'selectAllExceptOne' }));
-      pipeline.addRule(createTextRule({ 
-        pattern: 'test', 
-        column: 'fileName', 
-        condition: 'contains' 
-      }));
+      pipeline.addRule(
+        createTextRule({
+          pattern: 'test',
+          column: 'fileName',
+          condition: 'contains',
+        }),
+      );
 
       const json = pipeline.toJSON();
       const restored = RulePipeline.fromJSON(json);
@@ -92,10 +103,10 @@ describe('RulePipeline 属性测试', () => {
 
       // 验证名称相同
       expect(restoredJson.name).toBe(json.name);
-      
+
       // 验证规则数量相同
       expect(restoredJson.rules.length).toBe(json.rules.length);
-      
+
       // 验证规则类型相同
       for (let i = 0; i < json.rules.length; i++) {
         expect(restoredJson.rules[i].type).toBe(json.rules[i].type);
@@ -136,12 +147,18 @@ describe('RulePipeline 属性测试', () => {
       fc.assert(
         fc.property(dataArb, (data) => {
           const pipeline = createPipeline();
-          
+
           // 添加一个有效规则
           pipeline.addRule(createGroupRule({ mode: 'selectOne' }));
-          
+
           // 添加一个无效规则（空模式）
-          pipeline.addRule(createTextRule({ pattern: '', column: 'fullPath', condition: 'contains' }));
+          pipeline.addRule(
+            createTextRule({
+              pattern: '',
+              column: 'fullPath',
+              condition: 'contains',
+            }),
+          );
 
           const ctx: RuleContext<BaseEntry & Partial<RefEntry>> = {
             data,
@@ -180,10 +197,10 @@ describe('RulePipeline 基本功能', () => {
   it('addRule 和 removeRule 应该正确工作', () => {
     const pipeline = createPipeline();
     const rule = createGroupRule();
-    
+
     pipeline.addRule(rule);
     expect(pipeline.getRules().length).toBe(1);
-    
+
     pipeline.removeRule(rule.id);
     expect(pipeline.getRules().length).toBe(0);
   });
@@ -192,12 +209,12 @@ describe('RulePipeline 基本功能', () => {
     const pipeline = createPipeline();
     const rule1 = createGroupRule({ mode: 'selectOne' });
     const rule2 = createGroupRule({ mode: 'selectAllExceptOne' });
-    
+
     pipeline.addRule(rule1);
     pipeline.addRule(rule2);
-    
+
     pipeline.reorderRules(0, 1);
-    
+
     const rules = pipeline.getRules();
     expect(rules[0].id).toBe(rule2.id);
     expect(rules[1].id).toBe(rule1.id);
@@ -206,13 +223,13 @@ describe('RulePipeline 基本功能', () => {
   it('enableRule 应该正确启用/禁用规则', () => {
     const pipeline = createPipeline();
     const rule = createGroupRule();
-    
+
     pipeline.addRule(rule);
     expect(pipeline.getEnabledRules().length).toBe(1);
-    
+
     pipeline.enableRule(rule.id, false);
     expect(pipeline.getEnabledRules().length).toBe(0);
-    
+
     pipeline.enableRule(rule.id, true);
     expect(pipeline.getEnabledRules().length).toBe(1);
   });

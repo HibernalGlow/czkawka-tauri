@@ -3,7 +3,7 @@
  * Filter Presets Definition
  */
 
-import type { FilterState, FilterPreset } from './types';
+import type { FilterPreset, FilterState } from './types';
 
 /** 默认过滤器状态 */
 export const defaultFilterState: FilterState = {
@@ -60,7 +60,7 @@ export const defaultFilterState: FilterState = {
 /** 预设配置映射 */
 export const presetConfigs: Record<FilterPreset, Partial<FilterState>> = {
   none: {},
-  
+
   // 大文件优先 - 过滤出大于 100MB 的文件
   largeFilesFirst: {
     fileSize: {
@@ -70,7 +70,7 @@ export const presetConfigs: Record<FilterPreset, Partial<FilterState>> = {
       unit: 'MB',
     },
   },
-  
+
   // 小文件优先 - 过滤出小于 1MB 的文件
   smallFilesFirst: {
     fileSize: {
@@ -80,7 +80,7 @@ export const presetConfigs: Record<FilterPreset, Partial<FilterState>> = {
       unit: 'KB',
     },
   },
-  
+
   // 最近修改 - 过滤出最近 30 天修改的文件
   recentlyModified: {
     modifiedDate: {
@@ -88,7 +88,7 @@ export const presetConfigs: Record<FilterPreset, Partial<FilterState>> = {
       preset: 'last30days',
     },
   },
-  
+
   // 旧文件 - 过滤出超过 1 年未修改的文件
   oldFiles: {
     modifiedDate: {
@@ -108,7 +108,7 @@ export const presetConfigs: Record<FilterPreset, Partial<FilterState>> = {
  */
 export function applyPreset(
   currentState: FilterState,
-  preset: FilterPreset
+  preset: FilterPreset,
 ): FilterState {
   if (preset === 'none') {
     return { ...defaultFilterState, preset: 'none' };

@@ -7,27 +7,27 @@ import type { BaseEntry, RefEntry } from '~/types';
 
 /** 过滤器类别 */
 export type FilterCategory =
-  | 'markStatus'      // 标记状态
-  | 'groupCount'      // 组别文件数量
-  | 'groupSize'       // 组别大小
-  | 'fileSize'        // 文件大小
-  | 'extension'       // 扩展名
-  | 'modifiedDate'    // 修改日期
-  | 'path'            // 路径
-  | 'similarity'      // 相似度
-  | 'resolution'      // 分辨率
-  | 'selection'       // 已选择
-  | 'preset';         // 预设
+  | 'markStatus' // 标记状态
+  | 'groupCount' // 组别文件数量
+  | 'groupSize' // 组别大小
+  | 'fileSize' // 文件大小
+  | 'extension' // 扩展名
+  | 'modifiedDate' // 修改日期
+  | 'path' // 路径
+  | 'similarity' // 相似度
+  | 'resolution' // 分辨率
+  | 'selection' // 已选择
+  | 'preset'; // 预设
 
 /** 标记状态选项 */
 export type MarkStatusOption =
-  | 'marked'              // 已标记
-  | 'unmarked'            // 未标记
-  | 'groupHasSomeMarked'  // 存在部分标记项目的组别
-  | 'groupAllUnmarked'    // 所有项目均无标记的组别
-  | 'groupSomeNotAll'     // 存在部分但非全部标记的组别
-  | 'groupAllMarked'      // 所有项目均被标记的组别
-  | 'protected';          // 已保护
+  | 'marked' // 已标记
+  | 'unmarked' // 未标记
+  | 'groupHasSomeMarked' // 存在部分标记项目的组别
+  | 'groupAllUnmarked' // 所有项目均无标记的组别
+  | 'groupSomeNotAll' // 存在部分但非全部标记的组别
+  | 'groupAllMarked' // 所有项目均被标记的组别
+  | 'protected'; // 已保护
 
 /** 大小单位 */
 export type SizeUnit = 'B' | 'KB' | 'MB' | 'GB' | 'TB';
@@ -41,18 +41,27 @@ export interface RangeFilterConfig {
 }
 
 /** 日期范围预设 */
-export type DatePreset = 'today' | 'last7days' | 'last30days' | 'lastYear' | 'custom';
+export type DatePreset =
+  | 'today'
+  | 'last7days'
+  | 'last30days'
+  | 'lastYear'
+  | 'custom';
 
 /** 日期过滤器配置 */
 export interface DateFilterConfig {
   enabled: boolean;
   preset: DatePreset;
-  startDate?: number;  // timestamp
-  endDate?: number;    // timestamp
+  startDate?: number; // timestamp
+  endDate?: number; // timestamp
 }
 
 /** 路径匹配模式 */
-export type PathMatchMode = 'contains' | 'notContains' | 'startsWith' | 'endsWith';
+export type PathMatchMode =
+  | 'contains'
+  | 'notContains'
+  | 'startsWith'
+  | 'endsWith';
 
 /** 路径过滤器配置 */
 export interface PathFilterConfig {
@@ -65,8 +74,8 @@ export interface PathFilterConfig {
 /** 相似度过滤器配置 */
 export interface SimilarityFilterConfig {
   enabled: boolean;
-  min: number;  // 0-100
-  max: number;  // 0-100
+  min: number; // 0-100
+  max: number; // 0-100
 }
 
 /** 宽高比类型 */
@@ -164,7 +173,11 @@ export interface FilterResult<T> {
 }
 
 /** 组标记状态 */
-export type GroupMarkStatus = 'allMarked' | 'allUnmarked' | 'someMarked' | 'someNotAll';
+export type GroupMarkStatus =
+  | 'allMarked'
+  | 'allUnmarked'
+  | 'someMarked'
+  | 'someNotAll';
 
 /** 带大小信息的条目 */
 export interface EntryWithSize extends BaseEntry, Partial<RefEntry> {
@@ -190,15 +203,16 @@ export interface EntryWithResolution extends BaseEntry, Partial<RefEntry> {
 }
 
 /** 通用过滤条目类型 */
-export type FilterableEntry = BaseEntry & Partial<RefEntry> & {
-  size?: string;
-  modifiedDate?: string;
-  similarity?: string;
-  dimensions?: string;
-  raw?: {
-    size?: number;
-    modified_date?: number;
-    width?: number;
-    height?: number;
+export type FilterableEntry = BaseEntry &
+  Partial<RefEntry> & {
+    size?: string;
+    modifiedDate?: string;
+    similarity?: string;
+    dimensions?: string;
+    raw?: {
+      size?: number;
+      modified_date?: number;
+      width?: number;
+      height?: number;
+    };
   };
-};

@@ -77,7 +77,6 @@ export const textRuleConfigSchema = z.object({
   keepExistingSelection: z.boolean(),
 });
 
-
 // ============ 目录选择规则 Schema ============
 
 export const directoryModeSchema = z.enum([
@@ -126,6 +125,8 @@ export const pipelineConfigSchema = z.object({
 export type SortCriterionInput = z.infer<typeof sortCriterionSchema>;
 export type GroupRuleConfigInput = z.infer<typeof groupRuleConfigSchema>;
 export type TextRuleConfigInput = z.infer<typeof textRuleConfigSchema>;
-export type DirectoryRuleConfigInput = z.infer<typeof directoryRuleConfigSchema>;
+export type DirectoryRuleConfigInput = z.infer<
+  typeof directoryRuleConfigSchema
+>;
 export type ImportConfigInput = z.infer<typeof importConfigSchema>;
 export type PipelineConfigInput = z.infer<typeof pipelineConfigSchema>;

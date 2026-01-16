@@ -6,12 +6,22 @@
 import { useAtom } from 'jotai';
 import { Settings } from 'lucide-react';
 import { useState } from 'react';
+import { filterStateAtom } from '~/atom/filter-panel';
+import { Button } from '~/components/shadcn/button';
 import { Checkbox } from '~/components/shadcn/checkbox';
 import { Label } from '~/components/shadcn/label';
-import { Button } from '~/components/shadcn/button';
-import { Popover, PopoverContent, PopoverTrigger } from '~/components/shadcn/popover';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/shadcn/select';
-import { filterStateAtom } from '~/atom/filter-panel';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '~/components/shadcn/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/shadcn/select';
 import { useT } from '~/hooks';
 import type { DatePreset } from '~/lib/filter-panel/types';
 
@@ -43,10 +53,13 @@ export function DateFilter() {
     }));
   };
 
-  const currentPreset = DATE_PRESETS.find((p) => p.value === modifiedDate.preset);
-  const label = modifiedDate.enabled && currentPreset
-    ? `${t('Modified date' as any) || 'Modified date'}: ${t(currentPreset.label as any) || currentPreset.label}`
-    : t('Date filter' as any) || 'Date filter';
+  const currentPreset = DATE_PRESETS.find(
+    (p) => p.value === modifiedDate.preset,
+  );
+  const label =
+    modifiedDate.enabled && currentPreset
+      ? `${t('Modified date' as any) || 'Modified date'}: ${t(currentPreset.label as any) || currentPreset.label}`
+      : t('Date filter' as any) || 'Date filter';
 
   return (
     <div className="flex items-center justify-between">
@@ -60,7 +73,7 @@ export function DateFilter() {
           {label}
         </Label>
       </div>
-      
+
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="ghost" size="icon" className="h-6 w-6">
@@ -70,8 +83,13 @@ export function DateFilter() {
         <PopoverContent className="w-64 p-3">
           <div className="space-y-3">
             <div className="space-y-1">
-              <Label className="text-xs">{t('Date range' as any) || 'Date range'}</Label>
-              <Select value={modifiedDate.preset} onValueChange={(v) => handlePresetChange(v as DatePreset)}>
+              <Label className="text-xs">
+                {t('Date range' as any) || 'Date range'}
+              </Label>
+              <Select
+                value={modifiedDate.preset}
+                onValueChange={(v) => handlePresetChange(v as DatePreset)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

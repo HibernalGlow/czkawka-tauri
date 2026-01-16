@@ -6,13 +6,17 @@
 import { useAtom } from 'jotai';
 import { Settings } from 'lucide-react';
 import { useState } from 'react';
-import { Checkbox } from '~/components/shadcn/checkbox';
-import { Label } from '~/components/shadcn/label';
-import { Button } from '~/components/shadcn/button';
-import { Popover, PopoverContent, PopoverTrigger } from '~/components/shadcn/popover';
-import { Input } from '~/components/shadcn/input';
-import { Badge } from '~/components/shadcn/badge';
 import { filterStateAtom } from '~/atom/filter-panel';
+import { Badge } from '~/components/shadcn/badge';
+import { Button } from '~/components/shadcn/button';
+import { Checkbox } from '~/components/shadcn/checkbox';
+import { Input } from '~/components/shadcn/input';
+import { Label } from '~/components/shadcn/label';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '~/components/shadcn/popover';
 import { useT } from '~/hooks';
 import { EXTENSION_PRESETS } from '~/lib/filter-panel/utils';
 
@@ -65,9 +69,10 @@ export function ExtensionFilter() {
     }));
   };
 
-  const label = extension.extensions.length > 0
-    ? `${t('Extensions' as any) || 'Extensions'}: ${extension.extensions.slice(0, 3).join(', ')}${extension.extensions.length > 3 ? '...' : ''}`
-    : t('Extension filter' as any) || 'Extension filter';
+  const label =
+    extension.extensions.length > 0
+      ? `${t('Extensions' as any) || 'Extensions'}: ${extension.extensions.slice(0, 3).join(', ')}${extension.extensions.length > 3 ? '...' : ''}`
+      : t('Extension filter' as any) || 'Extension filter';
 
   return (
     <div className="flex items-center justify-between">
@@ -81,7 +86,7 @@ export function ExtensionFilter() {
           {label}
         </Label>
       </div>
-      
+
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="ghost" size="icon" className="h-6 w-6">
@@ -91,7 +96,9 @@ export function ExtensionFilter() {
         <PopoverContent className="w-80 p-3">
           <div className="space-y-3">
             <div className="space-y-1">
-              <Label className="text-xs">{t('Add extension' as any) || 'Add extension'}</Label>
+              <Label className="text-xs">
+                {t('Add extension' as any) || 'Add extension'}
+              </Label>
               <div className="flex gap-2">
                 <Input
                   value={inputValue}
@@ -105,28 +112,48 @@ export function ExtensionFilter() {
                 </Button>
               </div>
             </div>
-            
+
             <div className="space-y-1">
-              <Label className="text-xs">{t('Presets' as any) || 'Presets'}</Label>
+              <Label className="text-xs">
+                {t('Presets' as any) || 'Presets'}
+              </Label>
               <div className="flex flex-wrap gap-1">
-                <Button variant="outline" size="sm" onClick={() => handlePresetClick(EXTENSION_PRESETS.images)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePresetClick(EXTENSION_PRESETS.images)}
+                >
                   {t('Images' as any) || 'Images'}
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => handlePresetClick(EXTENSION_PRESETS.videos)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePresetClick(EXTENSION_PRESETS.videos)}
+                >
                   {t('Videos' as any) || 'Videos'}
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => handlePresetClick(EXTENSION_PRESETS.audio)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePresetClick(EXTENSION_PRESETS.audio)}
+                >
                   {t('Audio' as any) || 'Audio'}
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => handlePresetClick(EXTENSION_PRESETS.documents)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePresetClick(EXTENSION_PRESETS.documents)}
+                >
                   {t('Documents' as any) || 'Documents'}
                 </Button>
               </div>
             </div>
-            
+
             {extension.extensions.length > 0 && (
               <div className="space-y-1">
-                <Label className="text-xs">{t('Selected' as any) || 'Selected'}</Label>
+                <Label className="text-xs">
+                  {t('Selected' as any) || 'Selected'}
+                </Label>
                 <div className="flex flex-wrap gap-1">
                   {extension.extensions.map((ext) => (
                     <Badge

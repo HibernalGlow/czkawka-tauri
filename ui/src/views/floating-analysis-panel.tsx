@@ -3,15 +3,20 @@
  * 使用统一的 FloatingPanel 和 GlassCard 组件
  */
 import { useAtom } from 'jotai';
-import { BarChart3, PieChart, Layers } from 'lucide-react';
+import { BarChart3, Layers, PieChart } from 'lucide-react';
 import { analysisPanelAtom } from '~/atom/primitive';
 import { FloatingPanel } from '~/components/cards/floating-panel';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/shadcn/tabs';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '~/components/shadcn/tabs';
 import { useT } from '~/hooks';
 import { useFormatStats } from '~/hooks/useFormatStats';
 import { useSimilarityStats } from '~/hooks/useSimilarityStats';
-import { FormatDonutChartCard } from './cards/format-donut-chart-card';
 import { FormatBarChartCard } from './cards/format-bar-chart-card';
+import { FormatDonutChartCard } from './cards/format-donut-chart-card';
 import { SimilarityDistributionCard } from './cards/similarity-distribution-card';
 
 export function FloatingAnalysisPanel() {
@@ -32,7 +37,13 @@ export function FloatingAnalysisPanel() {
       position:
         newMode === 'floating' && !prev.position
           ? {
-              x: Math.max(0, Math.min(window.innerWidth / 2 - size.width / 2, window.innerWidth - size.width - 20)),
+              x: Math.max(
+                0,
+                Math.min(
+                  window.innerWidth / 2 - size.width / 2,
+                  window.innerWidth - size.width - 20,
+                ),
+              ),
               y: 100,
             }
           : prev.position,
@@ -47,7 +58,9 @@ export function FloatingAnalysisPanel() {
     setPanelState((prev) => ({ ...prev, size: newSize }));
   };
 
-  const hasData = (stats && stats.length > 0) || (similarityStats && similarityStats.length > 0);
+  const hasData =
+    (stats && stats.length > 0) ||
+    (similarityStats && similarityStats.length > 0);
 
   return (
     <FloatingPanel

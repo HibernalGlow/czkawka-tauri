@@ -8,34 +8,46 @@
  * Validates: Requirements 2.1, 2.2, 2.3, 2.5, 2.6, 2.7, 2.8
  */
 
-import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
-import { GroupSelectionRule, createGroupRule } from '../rules/group-rule';
-import type { RuleContext, EntryWithRaw } from '../types';
+import { describe, expect, it } from 'vitest';
+import { createGroupRule, GroupSelectionRule } from '../rules/group-rule';
+import type { EntryWithRaw, RuleContext } from '../types';
 
 // 生成测试数据的 arbitrary
 const alphanumChars = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
 const fileEntryArb = fc.record({
-  path: fc.array(
-    fc.string({ minLength: 1, maxLength: 10, unit: fc.constantFrom(...alphanumChars) }),
-    { minLength: 2, maxLength: 4 },
-  ).map(parts => parts.join('/')),
+  path: fc
+    .array(
+      fc.string({
+        minLength: 1,
+        maxLength: 10,
+        unit: fc.constantFrom(...alphanumChars),
+      }),
+      { minLength: 2, maxLength: 4 },
+    )
+    .map((parts) => parts.join('/')),
   groupId: fc.integer({ min: 1, max: 10 }),
   isRef: fc.boolean(),
   hidden: fc.constant(false),
   raw: fc.record({
     size: fc.integer({ min: 0, max: 1000000 }),
     modified_date: fc.integer({ min: 0, max: Date.now() }),
-    width: fc.option(fc.integer({ min: 100, max: 4000 })).map(v => v ?? undefined),
-    height: fc.option(fc.integer({ min: 100, max: 4000 })).map(v => v ?? undefined),
+    width: fc
+      .option(fc.integer({ min: 100, max: 4000 }))
+      .map((v) => v ?? undefined),
+    height: fc
+      .option(fc.integer({ min: 100, max: 4000 }))
+      .map((v) => v ?? undefined),
   }),
 });
 
 const groupedDataArb = fc.array(fileEntryArb, { minLength: 2, maxLength: 30 });
 
 // 辅助函数：按 groupId 分组
-function groupByGroupId<T extends { groupId?: number }>(data: T[]): Map<number, T[]> {
+function groupByGroupId<T extends { groupId?: number }>(
+  data: T[],
+): Map<number, T[]> {
   const map = new Map<number, T[]>();
   for (const item of data) {
     if (item.groupId === undefined) continue;
@@ -67,8 +79,10 @@ describe('GroupSelectionRule 属性测试', () => {
           // 验证每组选中数量
           for (const [, group] of groups) {
             if (group.length <= 1) continue;
-            
-            const selectedInGroup = group.filter(item => result.selection.has(item.path));
+
+            const selectedInGroup = group.filter((item) =>
+              result.selection.has(item.path),
+            );
             // 应该选中 group.length - 1 个
             expect(selectedInGroup.length).toBe(group.length - 1);
           }
@@ -78,7 +92,6 @@ describe('GroupSelectionRule 属性测试', () => {
         { numRuns: 100 },
       );
     });
-
 
     it('selectOne: 每组选中数量 = 1', () => {
       fc.assert(
@@ -97,8 +110,10 @@ describe('GroupSelectionRule 属性测试', () => {
           // 验证每组选中数量
           for (const [, group] of groups) {
             if (group.length === 0) continue;
-            
-            const selectedInGroup = group.filter(item => result.selection.has(item.path));
+
+            const selectedInGroup = group.filter((item) =>
+              result.selection.has(item.path),
+            );
             expect(selectedInGroup.length).toBe(1);
           }
 
@@ -130,7 +145,9 @@ describe('GroupSelectionRule 属性测试', () => {
     it('selectAllExceptOneMatchingSet: 除一个匹配集外的所有', () => {
       fc.assert(
         fc.property(groupedDataArb, (data) => {
-          const rule = createGroupRule({ mode: 'selectAllExceptOneMatchingSet' });
+          const rule = createGroupRule({
+            mode: 'selectAllExceptOneMatchingSet',
+          });
           const ctx: RuleContext<EntryWithRaw> = {
             data,
             currentSelection: new Set(),
@@ -154,11 +171,25 @@ describe('GroupSelectionRule 属性测试', () => {
         fc.property(groupedDataArb, (data) => {
           const ruleAsc = createGroupRule({
             mode: 'selectOne',
-            sortCriteria: [{ field: 'fileSize', direction: 'asc', preferEmpty: false, enabled: true }],
+            sortCriteria: [
+              {
+                field: 'fileSize',
+                direction: 'asc',
+                preferEmpty: false,
+                enabled: true,
+              },
+            ],
           });
           const ruleDesc = createGroupRule({
             mode: 'selectOne',
-            sortCriteria: [{ field: 'fileSize', direction: 'desc', preferEmpty: false, enabled: true }],
+            sortCriteria: [
+              {
+                field: 'fileSize',
+                direction: 'desc',
+                preferEmpty: false,
+                enabled: true,
+              },
+            ],
           });
 
           const ctx: RuleContext<EntryWithRaw> = {
@@ -231,7 +262,12 @@ describe('GroupSelectionRule 验证', () => {
     const rule = createGroupRule({
       mode: 'selectAllExceptOne',
       sortCriteria: [
-        { field: 'fileSize', direction: 'asc', preferEmpty: false, enabled: true },
+        {
+          field: 'fileSize',
+          direction: 'asc',
+          preferEmpty: false,
+          enabled: true,
+        },
       ],
     });
 

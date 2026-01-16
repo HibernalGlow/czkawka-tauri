@@ -3,8 +3,8 @@
  * 显示相似度分布的条形图
  */
 import { motion } from 'framer-motion';
-import { useSimilarityStats } from '~/hooks/useSimilarityStats';
 import { useT } from '~/hooks/use-t';
+import { useSimilarityStats } from '~/hooks/useSimilarityStats';
 import { getSimilarityLevelText } from '~/utils/similarity-utils';
 
 const SIMILARITY_COLORS: Record<string, string> = {
@@ -42,12 +42,16 @@ export function SimilarityDistributionCard() {
               <span className="font-medium">
                 {t(getSimilarityLevelText(stat.level) as any)} ({stat.count})
               </span>
-              <span className="text-muted-foreground">{stat.percent.toFixed(1)}%</span>
+              <span className="text-muted-foreground">
+                {stat.percent.toFixed(1)}%
+              </span>
             </div>
             <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
               <motion.div
                 className="h-full"
-                style={{ backgroundColor: SIMILARITY_COLORS[stat.level] || '#6b7280' }}
+                style={{
+                  backgroundColor: SIMILARITY_COLORS[stat.level] || '#6b7280',
+                }}
                 initial={{ width: 0 }}
                 animate={{ width: `${stat.percent}%` }}
                 transition={{ duration: 0.8, delay: 0.1 + i * 0.05 }}

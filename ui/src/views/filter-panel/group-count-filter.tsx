@@ -5,14 +5,18 @@
 
 import { useAtom } from 'jotai';
 import { Settings } from 'lucide-react';
-import { Checkbox } from '~/components/shadcn/checkbox';
-import { Label } from '~/components/shadcn/label';
-import { Button } from '~/components/shadcn/button';
-import { Popover, PopoverContent, PopoverTrigger } from '~/components/shadcn/popover';
-import { Input } from '~/components/shadcn/input';
-import { filterStateAtom } from '~/atom/filter-panel';
-import { useT } from '~/hooks';
 import { useState } from 'react';
+import { filterStateAtom } from '~/atom/filter-panel';
+import { Button } from '~/components/shadcn/button';
+import { Checkbox } from '~/components/shadcn/checkbox';
+import { Input } from '~/components/shadcn/input';
+import { Label } from '~/components/shadcn/label';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '~/components/shadcn/popover';
+import { useT } from '~/hooks';
 
 export function GroupCountFilter() {
   const t = useT();
@@ -53,7 +57,7 @@ export function GroupCountFilter() {
           {label}
         </Label>
       </div>
-      
+
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="ghost" size="icon" className="h-6 w-6">
@@ -63,7 +67,9 @@ export function GroupCountFilter() {
         <PopoverContent className="w-64 p-3">
           <div className="space-y-3">
             <div className="space-y-1">
-              <Label className="text-xs">{t('Min files' as any) || 'Min files'}</Label>
+              <Label className="text-xs">
+                {t('Min files' as any) || 'Min files'}
+              </Label>
               <Input
                 type="number"
                 value={tempMin}
@@ -72,7 +78,9 @@ export function GroupCountFilter() {
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{t('Max files' as any) || 'Max files'}</Label>
+              <Label className="text-xs">
+                {t('Max files' as any) || 'Max files'}
+              </Label>
               <Input
                 type="number"
                 value={tempMax}
@@ -81,7 +89,11 @@ export function GroupCountFilter() {
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" size="sm" onClick={() => setOpen(false)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setOpen(false)}
+              >
                 {t('Cancel' as any) || 'Cancel'}
               </Button>
               <Button size="sm" onClick={handleApply}>

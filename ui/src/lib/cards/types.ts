@@ -71,7 +71,10 @@ export const DEFAULT_GLASS_CONFIG: GlassEffectConfig = {
 };
 
 // 模糊强度映射
-export const BLUR_INTENSITY_MAP: Record<GlassEffectConfig['blurIntensity'], string> = {
+export const BLUR_INTENSITY_MAP: Record<
+  GlassEffectConfig['blurIntensity'],
+  string
+> = {
   sm: 'backdrop-blur-sm',
   md: 'backdrop-blur-md',
   lg: 'backdrop-blur-lg',

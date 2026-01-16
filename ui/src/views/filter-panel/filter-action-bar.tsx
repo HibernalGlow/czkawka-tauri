@@ -5,10 +5,14 @@
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { RefreshCw, X } from 'lucide-react';
+import {
+  activeFilterCountAtom,
+  filterStateAtom,
+  isFilterActiveAtom,
+} from '~/atom/filter-panel';
 import { Button } from '~/components/shadcn/button';
-import { filterStateAtom, isFilterActiveAtom, activeFilterCountAtom } from '~/atom/filter-panel';
-import { defaultFilterState } from '~/lib/filter-panel/presets';
 import { useT } from '~/hooks';
+import { defaultFilterState } from '~/lib/filter-panel/presets';
 
 export function FilterActionBar() {
   const t = useT();
@@ -39,7 +43,7 @@ export function FilterActionBar() {
           <RefreshCw className="h-3.5 w-3.5 mr-1" />
           {t('Refresh' as any) || 'Refresh'}
         </Button>
-        
+
         <Button
           variant="outline"
           size="sm"
@@ -51,7 +55,7 @@ export function FilterActionBar() {
           {t('ClearFilters' as any) || 'Clear'}
         </Button>
       </div>
-      
+
       {isFilterActive && (
         <span className="text-xs text-muted-foreground">
           {activeFilterCount} {t('ActiveFilters' as any) || 'active'}

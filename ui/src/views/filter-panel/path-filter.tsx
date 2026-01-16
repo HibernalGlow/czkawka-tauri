@@ -6,13 +6,23 @@
 import { useAtom } from 'jotai';
 import { Settings } from 'lucide-react';
 import { useState } from 'react';
-import { Checkbox } from '~/components/shadcn/checkbox';
-import { Label } from '~/components/shadcn/label';
-import { Button } from '~/components/shadcn/button';
-import { Popover, PopoverContent, PopoverTrigger } from '~/components/shadcn/popover';
-import { Input } from '~/components/shadcn/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/shadcn/select';
 import { filterStateAtom } from '~/atom/filter-panel';
+import { Button } from '~/components/shadcn/button';
+import { Checkbox } from '~/components/shadcn/checkbox';
+import { Input } from '~/components/shadcn/input';
+import { Label } from '~/components/shadcn/label';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '~/components/shadcn/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/shadcn/select';
 import { useT } from '~/hooks';
 import type { PathMatchMode } from '~/lib/filter-panel/types';
 
@@ -70,11 +80,14 @@ export function PathFilter() {
           checked={path.enabled}
           onCheckedChange={(checked) => handleEnabledChange(checked === true)}
         />
-        <Label htmlFor="path-filter" className="text-sm cursor-pointer truncate max-w-[200px]">
+        <Label
+          htmlFor="path-filter"
+          className="text-sm cursor-pointer truncate max-w-[200px]"
+        >
           {label}
         </Label>
       </div>
-      
+
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="ghost" size="icon" className="h-6 w-6">
@@ -84,8 +97,13 @@ export function PathFilter() {
         <PopoverContent className="w-72 p-3">
           <div className="space-y-3">
             <div className="space-y-1">
-              <Label className="text-xs">{t('Match mode' as any) || 'Match mode'}</Label>
-              <Select value={path.mode} onValueChange={(v) => handleModeChange(v as PathMatchMode)}>
+              <Label className="text-xs">
+                {t('Match mode' as any) || 'Match mode'}
+              </Label>
+              <Select
+                value={path.mode}
+                onValueChange={(v) => handleModeChange(v as PathMatchMode)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -99,18 +117,24 @@ export function PathFilter() {
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{t('Pattern' as any) || 'Pattern'}</Label>
+              <Label className="text-xs">
+                {t('Pattern' as any) || 'Pattern'}
+              </Label>
               <Input
                 value={path.pattern}
                 onChange={(e) => handlePatternChange(e.target.value)}
-                placeholder={t('Enter path pattern' as any) || 'Enter path pattern'}
+                placeholder={
+                  t('Enter path pattern' as any) || 'Enter path pattern'
+                }
               />
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="path-case-sensitive"
                 checked={path.caseSensitive}
-                onCheckedChange={(checked) => handleCaseSensitiveChange(checked === true)}
+                onCheckedChange={(checked) =>
+                  handleCaseSensitiveChange(checked === true)
+                }
               />
               <Label htmlFor="path-case-sensitive" className="text-xs">
                 {t('CaseSensitive' as any) || 'Case Sensitive'}

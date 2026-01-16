@@ -7,10 +7,10 @@ import { Zap } from 'lucide-react';
 import { currentToolAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
 import { Button } from '~/components/shadcn/button';
-import { Switch } from '~/components/shadcn/switch';
 import { Label } from '~/components/shadcn/label';
-import { useT } from '~/hooks';
+import { Switch } from '~/components/shadcn/switch';
 import { Tools } from '~/consts';
+import { useT } from '~/hooks';
 
 export function QuickFilterCard() {
   const t = useT();
@@ -26,18 +26,30 @@ export function QuickFilterCard() {
 
   const handlePresetClick = (similarity: number) => {
     if (currentTool === Tools.SimilarImages) {
-      setSettings((prev) => ({ ...prev, similarImagesSubSimilarity: similarity }));
+      setSettings((prev) => ({
+        ...prev,
+        similarImagesSubSimilarity: similarity,
+      }));
     } else if (currentTool === Tools.SimilarVideos) {
       const videoSimilarity = Math.min(similarity, 20);
-      setSettings((prev) => ({ ...prev, similarVideosSubSimilarity: videoSimilarity }));
+      setSettings((prev) => ({
+        ...prev,
+        similarVideosSubSimilarity: videoSimilarity,
+      }));
     }
   };
 
   const handleIgnoreSameSizeChange = (checked: boolean) => {
     if (currentTool === Tools.SimilarImages) {
-      setSettings((prev) => ({ ...prev, similarImagesSubIgnoreSameSize: checked }));
+      setSettings((prev) => ({
+        ...prev,
+        similarImagesSubIgnoreSameSize: checked,
+      }));
     } else if (currentTool === Tools.SimilarVideos) {
-      setSettings((prev) => ({ ...prev, similarVideosSubIgnoreSameSize: checked }));
+      setSettings((prev) => ({
+        ...prev,
+        similarVideosSubIgnoreSameSize: checked,
+      }));
     }
   };
 
@@ -52,7 +64,10 @@ export function QuickFilterCard() {
   };
 
   // 只在相似图片/视频工具中显示
-  if (currentTool !== Tools.SimilarImages && currentTool !== Tools.SimilarVideos) {
+  if (
+    currentTool !== Tools.SimilarImages &&
+    currentTool !== Tools.SimilarVideos
+  ) {
     return (
       <div className="p-2 text-sm text-muted-foreground text-center">
         Not available for this tool

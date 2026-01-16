@@ -2,8 +2,8 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { Info, Wand2 } from 'lucide-react';
 import { useState } from 'react';
 import { currentToolAtom, progressAtom } from '~/atom/primitive';
-import { currentToolDataAtom } from '~/atom/tools';
 import { selectionAssistantPanelAtom } from '~/atom/selection-assistant';
+import { currentToolDataAtom } from '~/atom/tools';
 import { TooltipButton } from '~/components';
 import {
   Dialog,

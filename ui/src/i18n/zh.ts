@@ -362,7 +362,7 @@ export const zh: Record<TranslationKeys, string> = {
   'Selection Assistant': '选择助手',
   'Filter active': '过滤器已激活',
   'Selection will only affect filtered items': '选择操作仅影响过滤后的项目',
-  
+
   // 卡片面板管理
   'Card panels': '卡片面板',
   'Card panel manager': '卡片面板管理',
@@ -418,7 +418,7 @@ export const zh: Record<TranslationKeys, string> = {
   'No filter': '无过滤',
   'Not contains': '不包含',
   'Filter value': '过滤值',
-  'Original': '参考/相同',
+  Original: '参考/相同',
 
   // Filter Panel - 过滤器面板
   'Mark Status': '标记状态',
@@ -472,7 +472,7 @@ export const zh: Record<TranslationKeys, string> = {
   NotContains: '不包含',
   StartsWith: '开头是',
   EndsWith: '结尾是',
-  
+
   // 新增缺失的翻译
   Group: '组',
   from: '从',
@@ -496,7 +496,7 @@ export const zh: Record<TranslationKeys, string> = {
   Custom: '自定义',
   'Match mode': '匹配模式',
   'Enter path pattern': '输入路径模式',
-  
+
   // 相似图片视图
   'Similar images list': '相似图片列表',
   'Folder statistics': '文件夹统计',

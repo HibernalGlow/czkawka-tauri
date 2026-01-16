@@ -3,13 +3,13 @@ import { invoke } from '@tauri-apps/api/core';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { ExternalLink } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { sidebarVideoPreviewAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
 import {
   currentToolDataAtom,
   currentToolFilterAtom,
   currentToolRowSelectionAtom,
 } from '~/atom/tools';
-import { sidebarVideoPreviewAtom } from '~/atom/primitive';
 import {
   DataTable,
   FilterStateUpdater,

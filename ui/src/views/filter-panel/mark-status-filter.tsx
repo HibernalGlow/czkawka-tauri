@@ -4,9 +4,9 @@
  */
 
 import { useAtom } from 'jotai';
+import { filterStateAtom } from '~/atom/filter-panel';
 import { Checkbox } from '~/components/shadcn/checkbox';
 import { Label } from '~/components/shadcn/label';
-import { filterStateAtom } from '~/atom/filter-panel';
 import { useT } from '~/hooks';
 import type { MarkStatusOption } from '~/lib/filter-panel/types';
 
@@ -30,7 +30,7 @@ export function MarkStatusFilter() {
       const newOptions = checked
         ? [...prev.markStatus.options, option]
         : prev.markStatus.options.filter((o) => o !== option);
-      
+
       return {
         ...prev,
         markStatus: {

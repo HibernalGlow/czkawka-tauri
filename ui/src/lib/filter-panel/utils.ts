@@ -5,10 +5,10 @@
 
 import type { BaseEntry, RefEntry } from '~/types';
 import type {
-  SizeUnit,
-  PathMatchMode,
-  GroupMarkStatus,
   FilterableEntry,
+  GroupMarkStatus,
+  PathMatchMode,
+  SizeUnit,
 } from './types';
 
 /** 大小单位乘数 */
@@ -27,7 +27,7 @@ const SIZE_MULTIPLIERS: Record<SizeUnit, number> = {
  */
 export function parseSizeToBytes(sizeStr: string): number {
   if (!sizeStr || typeof sizeStr !== 'string') return 0;
-  
+
   const match = sizeStr.trim().match(/^([\d.]+)\s*([KMGTPE]?B?)$/i);
   if (!match) return 0;
 
@@ -75,7 +75,7 @@ export function formatBytes(bytes: number, targetUnit?: SizeUnit): string {
 export function convertSize(
   value: number,
   fromUnit: SizeUnit,
-  toUnit: SizeUnit
+  toUnit: SizeUnit,
 ): number {
   const bytes = value * SIZE_MULTIPLIERS[fromUnit];
   return bytes / SIZE_MULTIPLIERS[toUnit];
@@ -106,7 +106,7 @@ export function matchPath(
   path: string,
   pattern: string,
   mode: PathMatchMode,
-  caseSensitive: boolean
+  caseSensitive: boolean,
 ): boolean {
   if (!path || !pattern) return false;
 
@@ -135,11 +135,10 @@ export function matchPath(
  */
 export function getGroupFileCount<T extends BaseEntry & Partial<RefEntry>>(
   data: T[],
-  groupId: number
+  groupId: number,
 ): number {
-  return data.filter(
-    (item) => 'groupId' in item && item.groupId === groupId
-  ).length;
+  return data.filter((item) => 'groupId' in item && item.groupId === groupId)
+    .length;
 }
 
 /**
@@ -150,7 +149,7 @@ export function getGroupFileCount<T extends BaseEntry & Partial<RefEntry>>(
  */
 export function getGroupTotalSize<T extends FilterableEntry>(
   data: T[],
-  groupId: number
+  groupId: number,
 ): number {
   return data
     .filter((item) => 'groupId' in item && item.groupId === groupId)
@@ -170,16 +169,16 @@ export function getGroupTotalSize<T extends FilterableEntry>(
 export function getGroupMarkStatus<T extends BaseEntry & Partial<RefEntry>>(
   data: T[],
   groupId: number,
-  selection: Set<string>
+  selection: Set<string>,
 ): GroupMarkStatus {
   const groupItems = data.filter(
-    (item) => 'groupId' in item && item.groupId === groupId
+    (item) => 'groupId' in item && item.groupId === groupId,
   );
-  
+
   if (groupItems.length === 0) return 'allUnmarked';
 
   const markedCount = groupItems.filter((item) =>
-    selection.has(item.path)
+    selection.has(item.path),
   ).length;
 
   if (markedCount === 0) return 'allUnmarked';
@@ -194,7 +193,7 @@ export function getGroupMarkStatus<T extends BaseEntry & Partial<RefEntry>>(
  * @returns 组ID集合
  */
 export function getUniqueGroupIds<T extends BaseEntry & Partial<RefEntry>>(
-  data: T[]
+  data: T[],
 ): Set<number> {
   const groupIds = new Set<number>();
   for (const item of data) {
@@ -246,7 +245,7 @@ export function getItemSimilarity(item: FilterableEntry): number {
  * @returns { width, height } 或 null
  */
 export function getItemResolution(
-  item: FilterableEntry
+  item: FilterableEntry,
 ): { width: number; height: number } | null {
   if (item.raw?.width !== undefined && item.raw?.height !== undefined) {
     return { width: item.raw.width, height: item.raw.height };
@@ -273,7 +272,7 @@ export function getItemResolution(
 export function matchAspectRatio(
   width: number,
   height: number,
-  aspectRatio: '16:9' | '4:3' | '1:1' | 'any'
+  aspectRatio: '16:9' | '4:3' | '1:1' | 'any',
 ): boolean {
   if (aspectRatio === 'any') return true;
   if (height === 0) return false;
@@ -303,7 +302,7 @@ export function matchAspectRatio(
 export function getDateRange(
   preset: 'today' | 'last7days' | 'last30days' | 'lastYear' | 'custom',
   customStart?: number,
-  customEnd?: number
+  customEnd?: number,
 ): { start: number; end: number } {
   const now = Date.now();
   const dayMs = 24 * 60 * 60 * 1000;

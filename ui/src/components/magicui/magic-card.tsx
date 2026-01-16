@@ -2,7 +2,7 @@
  * MagicCard - 鼠标跟随光效卡片组件
  * 参考 magicui 实现，提供鼠标悬停时的渐变光效
  */
-import { useRef, useState, type ReactNode, type CSSProperties } from 'react';
+import { type CSSProperties, type ReactNode, useRef, useState } from 'react';
 import { cn } from '~/utils/cn';
 
 interface MagicCardProps {

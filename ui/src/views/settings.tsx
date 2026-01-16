@@ -35,7 +35,6 @@ import {
 } from '~/components';
 import { BoxReveal } from '~/components/box-reveal';
 import { Form, FormItem } from '~/components/form';
-import { ToggleBadge } from '~/components/toggle-badge';
 import { ButtonProps } from '~/components/shadcn/button';
 import {
   Dialog,
@@ -52,6 +51,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '~/components/shadcn/tabs';
+import { ToggleBadge } from '~/components/toggle-badge';
 import { MAXIMUM_FILE_SIZE } from '~/consts';
 import { useBoolean, useT } from '~/hooks';
 import { eventPreventDefault } from '~/utils/event';

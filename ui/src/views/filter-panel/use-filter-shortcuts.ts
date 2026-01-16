@@ -3,9 +3,9 @@
  * 提供键盘快捷键支持
  */
 
-import { useEffect, useCallback } from 'react';
 import { useSetAtom } from 'jotai';
-import { filterStateAtom, filterPanelExpandedAtom } from '~/atom/filter-panel';
+import { useCallback, useEffect } from 'react';
+import { filterPanelExpandedAtom, filterStateAtom } from '~/atom/filter-panel';
 import { defaultFilterState } from '~/lib/filter-panel/presets';
 
 interface UseFilterShortcutsOptions {
@@ -80,7 +80,11 @@ export function useFilterShortcuts(options: UseFilterShortcutsOptions = {}) {
       }
 
       // Ctrl+Shift+F: 切换面板展开
-      if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'F') {
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        event.shiftKey &&
+        event.key === 'F'
+      ) {
         togglePanel();
         event.preventDefault();
         return;

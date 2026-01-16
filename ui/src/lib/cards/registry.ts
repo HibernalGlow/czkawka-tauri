@@ -3,23 +3,23 @@
  * 统一定义所有卡片的元数据，支持动态发现和跨面板移动
  */
 import {
+  ArrowUpDown,
+  BarChart3,
+  Filter,
+  Folder,
+  FolderTree,
   Image,
-  Video,
   Info,
   Layers,
-  Type,
-  FolderTree,
-  ArrowUpDown,
-  Filter,
-  Percent,
-  Zap,
-  PieChart,
-  BarChart3,
-  Sliders,
-  Settings2,
-  Folder,
-  ScrollText,
   LayoutGrid,
+  Percent,
+  PieChart,
+  ScrollText,
+  Settings2,
+  Sliders,
+  Type,
+  Video,
+  Zap,
 } from 'lucide-react';
 import type { CardDefinition, PanelId } from './types';
 

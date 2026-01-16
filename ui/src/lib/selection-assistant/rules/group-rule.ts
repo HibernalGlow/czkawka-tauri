@@ -4,19 +4,19 @@
  */
 
 import { match } from 'ts-pattern';
-import type {
-  SelectionRule,
-  RuleContext,
-  RuleResult,
-  ValidationResult,
-  GroupRuleConfig,
-  SortCriterion,
-  SortField,
-  EntryWithRaw,
-  FilterCondition,
-} from '../types';
 import type { BaseEntry, RefEntry } from '~/types';
 import { getColumnValue } from '../matchers';
+import type {
+  EntryWithRaw,
+  FilterCondition,
+  GroupRuleConfig,
+  RuleContext,
+  RuleResult,
+  SelectionRule,
+  SortCriterion,
+  SortField,
+  ValidationResult,
+} from '../types';
 
 /** 生成唯一 ID */
 let ruleIdCounter = 0;
@@ -44,9 +44,12 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
   /**
    * 执行规则
    */
-  execute<T extends BaseEntry & Partial<RefEntry>>(ctx: RuleContext<T>): RuleResult {
+  execute<T extends BaseEntry & Partial<RefEntry>>(
+    ctx: RuleContext<T>,
+  ): RuleResult {
     const { data, currentSelection, keepExistingSelection, action } = ctx;
-    const keepExisting = this.config.keepExistingSelection || keepExistingSelection;
+    const keepExisting =
+      this.config.keepExistingSelection || keepExistingSelection;
 
     try {
       // 按 groupId 分组
@@ -58,7 +61,7 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
 
         // 排序组内文件
         const sorted = this.sortGroup(group);
-        
+
         // 根据模式选择文件
         const selected = this.selectByMode(sorted);
         for (const path of selected) {
@@ -89,22 +92,36 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
     }
   }
 
-
   /**
    * 验证配置
    */
   validate(): ValidationResult {
     const errors: string[] = [];
     const validFields: SortField[] = [
-      'folderPath', 'fileName', 'fileSize', 'creationDate', 'modifiedDate',
-      'resolution', 'disk', 'fileType', 'hash', 'hardLinks'
+      'folderPath',
+      'fileName',
+      'fileSize',
+      'creationDate',
+      'modifiedDate',
+      'resolution',
+      'disk',
+      'fileType',
+      'hash',
+      'hardLinks',
     ];
     const validFilterConditions: FilterCondition[] = [
-      'none', 'contains', 'notContains', 'startsWith', 'endsWith', 'equals'
+      'none',
+      'contains',
+      'notContains',
+      'startsWith',
+      'endsWith',
+      'equals',
     ];
     const validModes = [
-      'selectAllExceptOne', 'selectOne', 
-      'selectAllExceptOnePerFolder', 'selectAllExceptOneMatchingSet'
+      'selectAllExceptOne',
+      'selectOne',
+      'selectAllExceptOnePerFolder',
+      'selectAllExceptOneMatchingSet',
     ];
 
     if (!validModes.includes(this.config.mode)) {
@@ -118,7 +135,10 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
       if (!['asc', 'desc'].includes(criterion.direction)) {
         errors.push(`无效的排序方向: ${criterion.direction}`);
       }
-      if (criterion.filterCondition && !validFilterConditions.includes(criterion.filterCondition)) {
+      if (
+        criterion.filterCondition &&
+        !validFilterConditions.includes(criterion.filterCondition)
+      ) {
         errors.push(`无效的过滤条件: ${criterion.filterCondition}`);
       }
     }
@@ -133,13 +153,19 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
     const modeDesc = match(this.config.mode)
       .with('selectAllExceptOne', () => '每组除了一份文件之外其他所有')
       .with('selectOne', () => '每组中仅一份文件')
-      .with('selectAllExceptOnePerFolder', () => '同一组且同一文件夹中除了一份之外其他所有')
-      .with('selectAllExceptOneMatchingSet', () => '每组中除了一个匹配集之外其他所有')
+      .with(
+        'selectAllExceptOnePerFolder',
+        () => '同一组且同一文件夹中除了一份之外其他所有',
+      )
+      .with(
+        'selectAllExceptOneMatchingSet',
+        () => '每组中除了一个匹配集之外其他所有',
+      )
       .exhaustive();
 
     const criteriaDesc = this.config.sortCriteria
-      .filter(c => c.enabled)
-      .map(c => `${c.field} ${c.direction}`)
+      .filter((c) => c.enabled)
+      .map((c) => `${c.field} ${c.direction}`)
       .join(', ');
 
     return `组选择: ${modeDesc}${criteriaDesc ? ` (排序: ${criteriaDesc})` : ''}`;
@@ -148,7 +174,9 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
   /**
    * 预览受影响的文件数
    */
-  preview<T extends BaseEntry & Partial<RefEntry>>(ctx: RuleContext<T>): number {
+  preview<T extends BaseEntry & Partial<RefEntry>>(
+    ctx: RuleContext<T>,
+  ): number {
     const result = this.execute(ctx);
     return result.affectedCount;
   }
@@ -156,7 +184,9 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
   /**
    * 按 groupId 分组
    */
-  private groupByGroupId<T extends BaseEntry & Partial<RefEntry>>(data: T[]): T[][] {
+  private groupByGroupId<T extends BaseEntry & Partial<RefEntry>>(
+    data: T[],
+  ): T[][] {
     const map = new Map<number, T[]>();
 
     for (const item of data) {
@@ -176,8 +206,8 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
    * 排序组内文件
    */
   private sortGroup<T extends BaseEntry & Partial<RefEntry>>(group: T[]): T[] {
-    const enabledCriteria = this.config.sortCriteria.filter(c => c.enabled);
-    
+    const enabledCriteria = this.config.sortCriteria.filter((c) => c.enabled);
+
     if (enabledCriteria.length === 0) {
       return [...group];
     }
@@ -185,7 +215,11 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
     // 先应用过滤条件
     let filtered = [...group];
     for (const criterion of enabledCriteria) {
-      if (criterion.filterCondition && criterion.filterCondition !== 'none' && criterion.filterValue) {
+      if (
+        criterion.filterCondition &&
+        criterion.filterCondition !== 'none' &&
+        criterion.filterValue
+      ) {
         filtered = this.applyFilter(filtered, criterion);
       }
     }
@@ -212,7 +246,7 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
       return items;
     }
 
-    return items.filter(item => {
+    return items.filter((item) => {
       const value = this.getFieldValue(item, criterion.field);
       const strValue = String(value ?? '').toLowerCase();
       const searchValue = filterValue.toLowerCase();
@@ -259,7 +293,6 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
     return criterion.direction === 'desc' ? -cmp : cmp;
   }
 
-
   /**
    * 获取字段值
    */
@@ -273,7 +306,10 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
       .with('folderPath', () => getColumnValue(item.path, 'folderPath'))
       .with('fileName', () => getColumnValue(item.path, 'fileName'))
       .with('fileSize', () => entry.raw?.size ?? null)
-      .with('creationDate', () => entry.raw?.created_date ?? entry.raw?.modified_date ?? null)
+      .with(
+        'creationDate',
+        () => entry.raw?.created_date ?? entry.raw?.modified_date ?? null,
+      )
       .with('modifiedDate', () => entry.raw?.modified_date ?? null)
       .with('resolution', () => {
         const width = entry.raw?.width;
@@ -312,12 +348,14 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
   /**
    * 根据模式选择文件
    */
-  private selectByMode<T extends BaseEntry & Partial<RefEntry>>(sorted: T[]): string[] {
+  private selectByMode<T extends BaseEntry & Partial<RefEntry>>(
+    sorted: T[],
+  ): string[] {
     return match(this.config.mode)
       .with('selectAllExceptOne', () => {
         // 每组除了一份文件之外其他所有（保留排序后的第一个）
         if (sorted.length <= 1) return [];
-        return sorted.slice(1).map(item => item.path);
+        return sorted.slice(1).map((item) => item.path);
       })
       .with('selectOne', () => {
         // 每组中仅一份文件（选择排序后的第一个）
@@ -335,7 +373,7 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
           }
           byFolder.get(folder)!.push(item);
         }
-        
+
         const selected: string[] = [];
         for (const folderItems of byFolder.values()) {
           // 每个文件夹保留第一个，选择其余的
@@ -351,13 +389,15 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
         // 每组中除了一个匹配集之外其他所有
         // 按排序条件的第一个字段值分组，每个匹配集保留一个
         if (sorted.length <= 1) return [];
-        
-        const enabledCriteria = this.config.sortCriteria.filter(c => c.enabled);
+
+        const enabledCriteria = this.config.sortCriteria.filter(
+          (c) => c.enabled,
+        );
         if (enabledCriteria.length === 0) {
           // 没有排序条件时，退化为 selectAllExceptOne
-          return sorted.slice(1).map(item => item.path);
+          return sorted.slice(1).map((item) => item.path);
         }
-        
+
         // 按第一个排序字段的值分组
         const firstField = enabledCriteria[0].field;
         const byFieldValue = new Map<string | number | null, T[]>();
@@ -369,14 +409,14 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
           }
           byFieldValue.get(key as string | number | null)!.push(item);
         }
-        
+
         // 保留第一个匹配集，选择其他所有匹配集的文件
         const matchingSets = Array.from(byFieldValue.values());
         if (matchingSets.length <= 1) {
           // 只有一个匹配集，退化为 selectAllExceptOne
-          return sorted.slice(1).map(item => item.path);
+          return sorted.slice(1).map((item) => item.path);
         }
-        
+
         // 保留第一个匹配集，选择其余匹配集的所有文件
         const selected: string[] = [];
         for (let i = 1; i < matchingSets.length; i++) {
@@ -430,17 +470,17 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
    */
   private countAffected(before: Set<string>, after: Set<string>): number {
     let count = 0;
-    
+
     // 新增的
     for (const path of after) {
       if (!before.has(path)) count++;
     }
-    
+
     // 移除的
     for (const path of before) {
       if (!after.has(path)) count++;
     }
-    
+
     return count;
   }
 }
@@ -448,6 +488,8 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
 /**
  * 创建组选择规则
  */
-export function createGroupRule(config?: Partial<GroupRuleConfig>): GroupSelectionRule {
+export function createGroupRule(
+  config?: Partial<GroupRuleConfig>,
+): GroupSelectionRule {
   return new GroupSelectionRule(config);
 }

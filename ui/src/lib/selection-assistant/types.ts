@@ -13,7 +13,9 @@ export type SelectionAction = 'mark' | 'unmark';
 export type RuleType = 'group' | 'text' | 'directory';
 
 /** 规则执行上下文 */
-export interface RuleContext<T extends BaseEntry & Partial<RefEntry> = BaseEntry & Partial<RefEntry>> {
+export interface RuleContext<
+  T extends BaseEntry & Partial<RefEntry> = BaseEntry & Partial<RefEntry>,
+> {
   /** 当前数据列表 */
   data: T[];
   /** 当前选择状态 */
@@ -55,7 +57,9 @@ export interface SelectionRule<TConfig = unknown> {
   /** 是否启用 */
   enabled: boolean;
   /** 执行规则 */
-  execute<T extends BaseEntry & Partial<RefEntry>>(ctx: RuleContext<T>): RuleResult;
+  execute<T extends BaseEntry & Partial<RefEntry>>(
+    ctx: RuleContext<T>,
+  ): RuleResult;
   /** 验证配置 */
   validate(): ValidationResult;
   /** 获取规则描述 */

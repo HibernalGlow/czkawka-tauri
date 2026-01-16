@@ -3,23 +3,26 @@
  * 实现按目录选择文件的功能
  */
 
+import { open } from '@tauri-apps/plugin-dialog';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { Check, FolderOpen, Plus, Trash2 } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
-import { open } from '@tauri-apps/plugin-dialog';
 import {
   currentSelectionAtom,
   directoryRuleConfigAtom,
 } from '~/atom/selection-assistant';
 import { currentToolDataAtom, currentToolRowSelectionAtom } from '~/atom/tools';
+import { Select } from '~/components/one-select';
 import { Button } from '~/components/shadcn/button';
 import { Checkbox } from '~/components/shadcn/checkbox';
 import { Label } from '~/components/shadcn/label';
-import { Select } from '~/components/one-select';
 import { ScrollArea } from '~/components/shadcn/scroll-area';
 import { useT } from '~/hooks';
 import { DirectorySelectionRule } from '~/lib/selection-assistant/rules/directory-rule';
-import type { DirectoryMode, SelectionAction } from '~/lib/selection-assistant/types';
+import type {
+  DirectoryMode,
+  SelectionAction,
+} from '~/lib/selection-assistant/types';
 import type { BaseEntry, RefEntry } from '~/types';
 
 export function DirectorySelectionSection() {
@@ -99,34 +102,38 @@ export function DirectorySelectionSection() {
   }, [setConfig]);
 
   // 执行选择
-  const executeSelection = useCallback((action: SelectionAction) => {
-    const rule = new DirectorySelectionRule(config);
-    const data = currentToolData as (BaseEntry & RefEntry & { raw: Record<string, unknown> })[];
-    
-    // 构建当前选择集合
-    const currentSet = new Set<string>();
-    for (const key of Object.keys(currentSelection)) {
-      if (currentSelection[key]) {
-        currentSet.add(key);
-      }
-    }
+  const executeSelection = useCallback(
+    (action: SelectionAction) => {
+      const rule = new DirectorySelectionRule(config);
+      const data = currentToolData as (BaseEntry &
+        RefEntry & { raw: Record<string, unknown> })[];
 
-    const context = {
-      data,
-      currentSelection: currentSet,
-      keepExistingSelection: config.keepExistingSelection,
-      action,
-    };
-    
-    const result = rule.execute(context);
-    
-    // 转换 Set 为 Record
-    const newSelection: Record<string, boolean> = {};
-    for (const path of result.selection) {
-      newSelection[path] = true;
-    }
-    setSelection(newSelection);
-  }, [config, currentToolData, currentSelection, setSelection]);
+      // 构建当前选择集合
+      const currentSet = new Set<string>();
+      for (const key of Object.keys(currentSelection)) {
+        if (currentSelection[key]) {
+          currentSet.add(key);
+        }
+      }
+
+      const context = {
+        data,
+        currentSelection: currentSet,
+        keepExistingSelection: config.keepExistingSelection,
+        action,
+      };
+
+      const result = rule.execute(context);
+
+      // 转换 Set 为 Record
+      const newSelection: Record<string, boolean> = {};
+      for (const path of result.selection) {
+        newSelection[path] = true;
+      }
+      setSelection(newSelection);
+    },
+    [config, currentToolData, currentSelection, setSelection],
+  );
 
   // 执行标记
   const handleMark = useCallback(() => {

@@ -7,14 +7,14 @@
 import type { RowSelectionState } from '@tanstack/react-table';
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import { withHistory, UNDO, REDO, RESET } from 'jotai-history';
+import { REDO, RESET, UNDO, withHistory } from 'jotai-history';
+import { currentToolRowSelectionAtom } from '~/atom/tools';
 import type {
-  GroupRuleConfig,
-  TextRuleConfig,
   DirectoryRuleConfig,
   ExportConfig,
+  GroupRuleConfig,
+  TextRuleConfig,
 } from '~/lib/selection-assistant/types';
-import { currentToolRowSelectionAtom } from '~/atom/tools';
 
 // ============ 默认配置 ============
 
@@ -22,7 +22,12 @@ import { currentToolRowSelectionAtom } from '~/atom/tools';
 export const defaultGroupRuleConfig: GroupRuleConfig = {
   mode: 'selectAllExceptOne',
   sortCriteria: [
-    { field: 'modifiedDate', direction: 'desc', preferEmpty: false, enabled: true },
+    {
+      field: 'modifiedDate',
+      direction: 'desc',
+      preferEmpty: false,
+      enabled: true,
+    },
   ],
   keepExistingSelection: false,
 };
@@ -106,19 +111,20 @@ const defaultPanelState: SelectionAssistantPanelState = {
   size: { width: 360, height: 520 },
 };
 
-export const selectionAssistantPanelAtom = atomWithStorage<SelectionAssistantPanelState>(
-  'selection-assistant-panel',
-  defaultPanelState,
-  undefined,
-  { getOnInit: true },
-);
+export const selectionAssistantPanelAtom =
+  atomWithStorage<SelectionAssistantPanelState>(
+    'selection-assistant-panel',
+    defaultPanelState,
+    undefined,
+    { getOnInit: true },
+  );
 
 // ============ 选择状态历史管理 ============
 
 /** 历史记录限制 */
 const HISTORY_LIMIT = 50;
 
-/** 
+/**
  * 基础选择状态 atom
  * 直接使用表格的选择状态，确保同步
  */
@@ -130,7 +136,10 @@ export const baseSelectionAtom = atom(
 );
 
 /** 带历史记录的选择状态 atom */
-export const selectionHistoryAtom = withHistory(baseSelectionAtom, HISTORY_LIMIT);
+export const selectionHistoryAtom = withHistory(
+  baseSelectionAtom,
+  HISTORY_LIMIT,
+);
 
 // ============ 派生 Atoms ============
 
@@ -185,13 +194,13 @@ export const invertSelectionAtom = atom(
   (get, set, allPaths: string[]) => {
     const current = get(currentSelectionAtom);
     const newSelection: RowSelectionState = {};
-    
+
     for (const path of allPaths) {
       if (!current[path]) {
         newSelection[path] = true;
       }
     }
-    
+
     set(currentToolRowSelectionAtom, newSelection);
   },
 );

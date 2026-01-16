@@ -4,8 +4,8 @@
  */
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import type { CardConfig, CardConfigState, PanelId } from '~/lib/cards/types';
 import { cardRegistry, getDefaultCardsForPanel } from '~/lib/cards/registry';
+import type { CardConfig, CardConfigState, PanelId } from '~/lib/cards/types';
 
 // 生成默认配置
 function generateDefaultConfig(): CardConfigState {
@@ -42,7 +42,7 @@ const defaultConfig = generateDefaultConfig();
 // 持久化的卡片配置 atom
 export const cardConfigAtom = atomWithStorage<CardConfigState>(
   'czkawka-card-config',
-  defaultConfig
+  defaultConfig,
 );
 
 // 获取指定面板的卡片列表
@@ -55,7 +55,11 @@ export const getPanelCardsAtom = (panelId: PanelId) =>
 // 设置卡片可见性
 export const setCardVisibleAtom = atom(
   null,
-  (get, set, params: { panelId: PanelId; cardId: string; visible: boolean }) => {
+  (
+    get,
+    set,
+    params: { panelId: PanelId; cardId: string; visible: boolean },
+  ) => {
     const { panelId, cardId, visible } = params;
     const state = get(cardConfigAtom);
     const cards = [...(state.configs[panelId] || [])];
@@ -67,13 +71,17 @@ export const setCardVisibleAtom = atom(
         configs: { ...state.configs, [panelId]: cards },
       });
     }
-  }
+  },
 );
 
 // 设置卡片展开状态
 export const setCardExpandedAtom = atom(
   null,
-  (get, set, params: { panelId: PanelId; cardId: string; expanded: boolean }) => {
+  (
+    get,
+    set,
+    params: { panelId: PanelId; cardId: string; expanded: boolean },
+  ) => {
     const { panelId, cardId, expanded } = params;
     const state = get(cardConfigAtom);
     const cards = [...(state.configs[panelId] || [])];
@@ -85,13 +93,17 @@ export const setCardExpandedAtom = atom(
         configs: { ...state.configs, [panelId]: cards },
       });
     }
-  }
+  },
 );
 
 // 设置卡片高度
 export const setCardHeightAtom = atom(
   null,
-  (get, set, params: { panelId: PanelId; cardId: string; height: number | undefined }) => {
+  (
+    get,
+    set,
+    params: { panelId: PanelId; cardId: string; height: number | undefined },
+  ) => {
     const { panelId, cardId, height } = params;
     const state = get(cardConfigAtom);
     const cards = [...(state.configs[panelId] || [])];
@@ -103,34 +115,38 @@ export const setCardHeightAtom = atom(
         configs: { ...state.configs, [panelId]: cards },
       });
     }
-  }
+  },
 );
 
 // 移动卡片（在同一面板内调整顺序）
 export const moveCardAtom = atom(
   null,
-  (get, set, params: { panelId: PanelId; cardId: string; newOrder: number }) => {
+  (
+    get,
+    set,
+    params: { panelId: PanelId; cardId: string; newOrder: number },
+  ) => {
     const { panelId, cardId, newOrder } = params;
     const state = get(cardConfigAtom);
     const cards = [...(state.configs[panelId] || [])];
     const currentIndex = cards.findIndex((c) => c.id === cardId);
-    
+
     if (currentIndex === -1 || newOrder < 0 || newOrder >= cards.length) return;
-    
+
     // 移动卡片
     const [card] = cards.splice(currentIndex, 1);
     cards.splice(newOrder, 0, card);
-    
+
     // 更新所有卡片的 order
     cards.forEach((c, i) => {
       c.order = i;
     });
-    
+
     set(cardConfigAtom, {
       ...state,
       configs: { ...state.configs, [panelId]: cards },
     });
-  }
+  },
 );
 
 // 移动卡片到不同面板
@@ -139,11 +155,11 @@ export const moveCardToPanelAtom = atom(
   (get, set, params: { cardId: string; targetPanelId: PanelId }) => {
     const { cardId, targetPanelId } = params;
     const state = get(cardConfigAtom);
-    
+
     // 找到卡片当前所在面板
     let sourcePanelId: PanelId | null = null;
     let cardConfig: CardConfig | null = null;
-    
+
     for (const [panelId, cards] of Object.entries(state.configs)) {
       const card = cards.find((c) => c.id === cardId);
       if (card) {
@@ -152,15 +168,18 @@ export const moveCardToPanelAtom = atom(
         break;
       }
     }
-    
-    if (!sourcePanelId || !cardConfig || sourcePanelId === targetPanelId) return;
-    
+
+    if (!sourcePanelId || !cardConfig || sourcePanelId === targetPanelId)
+      return;
+
     // 从源面板移除
-    const sourceCards = state.configs[sourcePanelId].filter((c) => c.id !== cardId);
+    const sourceCards = state.configs[sourcePanelId].filter(
+      (c) => c.id !== cardId,
+    );
     sourceCards.forEach((c, i) => {
       c.order = i;
     });
-    
+
     // 添加到目标面板
     const targetCards = [...state.configs[targetPanelId]];
     const newCard: CardConfig = {
@@ -169,7 +188,7 @@ export const moveCardToPanelAtom = atom(
       order: targetCards.length,
     };
     targetCards.push(newCard);
-    
+
     set(cardConfigAtom, {
       ...state,
       configs: {
@@ -178,7 +197,7 @@ export const moveCardToPanelAtom = atom(
         [targetPanelId]: targetCards,
       },
     });
-  }
+  },
 );
 
 // 重置配置
@@ -193,19 +212,19 @@ export const reorderCardsAtom = atom(
     const { panelId, cardIds } = params;
     const state = get(cardConfigAtom);
     const cards = state.configs[panelId] || [];
-    
+
     // 根据新顺序重排卡片
-    const cardMap = new Map(cards.map(c => [c.id, c]));
+    const cardMap = new Map(cards.map((c) => [c.id, c]));
     const reorderedCards = cardIds
-      .map(id => cardMap.get(id))
+      .map((id) => cardMap.get(id))
       .filter((c): c is CardConfig => c !== undefined)
       .map((c, i) => ({ ...c, order: i }));
-    
+
     set(cardConfigAtom, {
       ...state,
       configs: { ...state.configs, [panelId]: reorderedCards },
     });
-  }
+  },
 );
 
 // 辅助函数：获取面板卡片

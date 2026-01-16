@@ -13,7 +13,7 @@ import type { BaseEntry } from '~/types';
  */
 export function selectAllFiltered<T extends BaseEntry>(
   filteredData: T[],
-  currentSelection: Set<string>
+  currentSelection: Set<string>,
 ): Set<string> {
   const newSelection = new Set(currentSelection);
   for (const item of filteredData) {
@@ -30,11 +30,11 @@ export function selectAllFiltered<T extends BaseEntry>(
  */
 export function invertSelectionFiltered<T extends BaseEntry>(
   filteredData: T[],
-  currentSelection: Set<string>
+  currentSelection: Set<string>,
 ): Set<string> {
   const newSelection = new Set(currentSelection);
   const filteredPaths = new Set(filteredData.map((item) => item.path));
-  
+
   for (const path of filteredPaths) {
     if (newSelection.has(path)) {
       newSelection.delete(path);
@@ -53,7 +53,7 @@ export function invertSelectionFiltered<T extends BaseEntry>(
  */
 export function deselectAllFiltered<T extends BaseEntry>(
   filteredData: T[],
-  currentSelection: Set<string>
+  currentSelection: Set<string>,
 ): Set<string> {
   const newSelection = new Set(currentSelection);
   for (const item of filteredData) {
@@ -70,7 +70,7 @@ export function deselectAllFiltered<T extends BaseEntry>(
  */
 export function getSelectedInFiltered<T extends BaseEntry>(
   filteredData: T[],
-  currentSelection: Set<string>
+  currentSelection: Set<string>,
 ): T[] {
   return filteredData.filter((item) => currentSelection.has(item.path));
 }
@@ -83,10 +83,10 @@ export function getSelectedInFiltered<T extends BaseEntry>(
  */
 export function getFilteredSelectionStats<T extends BaseEntry>(
   filteredData: T[],
-  currentSelection: Set<string>
+  currentSelection: Set<string>,
 ): { total: number; selected: number } {
   const selected = filteredData.filter((item) =>
-    currentSelection.has(item.path)
+    currentSelection.has(item.path),
   ).length;
   return {
     total: filteredData.length,
@@ -102,7 +102,7 @@ export function getFilteredSelectionStats<T extends BaseEntry>(
  */
 export function isAllFilteredSelected<T extends BaseEntry>(
   filteredData: T[],
-  currentSelection: Set<string>
+  currentSelection: Set<string>,
 ): boolean {
   if (filteredData.length === 0) return false;
   return filteredData.every((item) => currentSelection.has(item.path));
@@ -116,7 +116,7 @@ export function isAllFilteredSelected<T extends BaseEntry>(
  */
 export function isAnyFilteredSelected<T extends BaseEntry>(
   filteredData: T[],
-  currentSelection: Set<string>
+  currentSelection: Set<string>,
 ): boolean {
   return filteredData.some((item) => currentSelection.has(item.path));
 }

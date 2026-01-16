@@ -4,9 +4,9 @@
  */
 
 import { useAtom, useAtomValue } from 'jotai';
+import { filterStateAtom, isFilterActiveAtom } from '~/atom/filter-panel';
 import { Checkbox } from '~/components/shadcn/checkbox';
 import { Label } from '~/components/shadcn/label';
-import { filterStateAtom, isFilterActiveAtom } from '~/atom/filter-panel';
 import { useT } from '~/hooks';
 
 export function ShowAllInGroupToggle() {
@@ -30,11 +30,12 @@ export function ShowAllInGroupToggle() {
         onCheckedChange={(checked) => handleChange(checked === true)}
         disabled={!isFilterActive}
       />
-      <Label 
-        htmlFor="show-all-in-group" 
+      <Label
+        htmlFor="show-all-in-group"
         className={`text-sm cursor-pointer ${!isFilterActive ? 'text-muted-foreground' : ''}`}
       >
-        {t('ShowAllInFilteredGroups' as any) || 'Show all files in filtered groups'}
+        {t('ShowAllInFilteredGroups' as any) ||
+          'Show all files in filtered groups'}
       </Label>
     </div>
   );

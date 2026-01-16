@@ -369,16 +369,19 @@ export const en = {
   // Selection Assistant
   'Selection Assistant': 'Selection Assistant',
   'Filter active': 'Filter active',
-  'Selection will only affect filtered items': 'Selection will only affect filtered items',
-  
+  'Selection will only affect filtered items':
+    'Selection will only affect filtered items',
+
   // Card Panel Manager
   'Card panels': 'Card Panels',
   'Card panel manager': 'Card Panel Manager',
-  'Configure card visibility and order': 'Configure card visibility and order for each panel',
+  'Configure card visibility and order':
+    'Configure card visibility and order for each panel',
   'Search cards': 'Search cards...',
   'Assign to panel': 'Assign to panel',
   'No cards found': 'No cards found',
-  'Select a panel to enable drag sorting': 'Select a panel tab to enable drag sorting',
+  'Select a panel to enable drag sorting':
+    'Select a panel tab to enable drag sorting',
   Hide: 'Hide',
   Show: 'Show',
   'Bottom Bar': 'Bottom Bar',
@@ -426,8 +429,8 @@ export const en = {
   'No filter': 'No filter',
   'Not contains': 'Not contains',
   'Filter value': 'Filter value',
-  'Original': 'Original',
-  
+  Original: 'Original',
+
   // Filter Panel - 过滤器面板
   'Mark Status': 'Mark Status',
   Marked: 'Marked',
@@ -480,7 +483,7 @@ export const en = {
   NotContains: 'Not Contains',
   StartsWith: 'Starts With',
   EndsWith: 'Ends With',
-  
+
   // 新增缺失的翻译
   Group: 'Group',
   from: 'from',
@@ -504,7 +507,7 @@ export const en = {
   Custom: 'Custom',
   'Match mode': 'Match mode',
   'Enter path pattern': 'Enter path pattern',
-  
+
   // Similar images view
   'Similar images list': 'Similar images list',
   'Folder statistics': 'Folder statistics',

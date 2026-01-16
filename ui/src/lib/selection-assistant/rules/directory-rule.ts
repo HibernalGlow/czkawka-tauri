@@ -4,15 +4,15 @@
  */
 
 import { match } from 'ts-pattern';
-import type {
-  SelectionRule,
-  RuleContext,
-  RuleResult,
-  ValidationResult,
-  DirectoryRuleConfig,
-} from '../types';
 import type { BaseEntry, RefEntry } from '~/types';
 import { getDirectory, isInDirectory } from '../matchers';
+import type {
+  DirectoryRuleConfig,
+  RuleContext,
+  RuleResult,
+  SelectionRule,
+  ValidationResult,
+} from '../types';
 
 /** 生成唯一 ID */
 let ruleIdCounter = 0;
@@ -21,7 +21,9 @@ const generateId = () => `directory-rule-${++ruleIdCounter}`;
 /**
  * 目录选择规则类
  */
-export class DirectorySelectionRule implements SelectionRule<DirectoryRuleConfig> {
+export class DirectorySelectionRule
+  implements SelectionRule<DirectoryRuleConfig>
+{
   id: string;
   type: 'directory' = 'directory';
   config: DirectoryRuleConfig;
@@ -40,14 +42,21 @@ export class DirectorySelectionRule implements SelectionRule<DirectoryRuleConfig
   /**
    * 执行规则
    */
-  execute<T extends BaseEntry & Partial<RefEntry>>(ctx: RuleContext<T>): RuleResult {
+  execute<T extends BaseEntry & Partial<RefEntry>>(
+    ctx: RuleContext<T>,
+  ): RuleResult {
     const { data, currentSelection, keepExistingSelection, action } = ctx;
-    const keepExisting = this.config.keepExistingSelection || keepExistingSelection;
+    const keepExisting =
+      this.config.keepExistingSelection || keepExistingSelection;
 
     try {
       const matchedPaths = match(this.config.mode)
-        .with('keepOnePerDirectory', () => this.executeKeepOnePerDirectory(data))
-        .with('selectAllInDirectory', () => this.executeSelectAllInDirectory(data))
+        .with('keepOnePerDirectory', () =>
+          this.executeKeepOnePerDirectory(data),
+        )
+        .with('selectAllInDirectory', () =>
+          this.executeSelectAllInDirectory(data),
+        )
         .with('excludeDirectory', () => this.executeExcludeDirectory(data))
         .exhaustive();
 
@@ -81,7 +90,7 @@ export class DirectorySelectionRule implements SelectionRule<DirectoryRuleConfig
     data: T[],
   ): Set<string> {
     const result = new Set<string>();
-    
+
     // 按 groupId 分组
     const groups = this.groupByGroupId(data);
 
@@ -100,7 +109,7 @@ export class DirectorySelectionRule implements SelectionRule<DirectoryRuleConfig
       if (byDirectory.size === 1) {
         const items = Array.from(byDirectory.values())[0];
         // 优先选择非参考文件
-        const nonRef = items.filter(item => !(item as RefEntry).isRef);
+        const nonRef = items.filter((item) => !(item as RefEntry).isRef);
         const toSelect = nonRef.length > 0 ? nonRef : items;
         for (const item of toSelect) {
           result.add(item.path);
@@ -120,11 +129,12 @@ export class DirectorySelectionRule implements SelectionRule<DirectoryRuleConfig
     return result;
   }
 
-
   /**
    * 选择指定目录中的所有文件
    */
-  private executeSelectAllInDirectory<T extends BaseEntry>(data: T[]): Set<string> {
+  private executeSelectAllInDirectory<T extends BaseEntry>(
+    data: T[],
+  ): Set<string> {
     const result = new Set<string>();
 
     for (const item of data) {
@@ -164,7 +174,9 @@ export class DirectorySelectionRule implements SelectionRule<DirectoryRuleConfig
   /**
    * 按 groupId 分组
    */
-  private groupByGroupId<T extends BaseEntry & Partial<RefEntry>>(data: T[]): T[][] {
+  private groupByGroupId<T extends BaseEntry & Partial<RefEntry>>(
+    data: T[],
+  ): T[][] {
     const map = new Map<number, T[]>();
 
     for (const item of data) {
@@ -190,12 +202,21 @@ export class DirectorySelectionRule implements SelectionRule<DirectoryRuleConfig
   validate(): ValidationResult {
     const errors: string[] = [];
 
-    if (!['keepOnePerDirectory', 'selectAllInDirectory', 'excludeDirectory'].includes(this.config.mode)) {
+    if (
+      ![
+        'keepOnePerDirectory',
+        'selectAllInDirectory',
+        'excludeDirectory',
+      ].includes(this.config.mode)
+    ) {
       errors.push('无效的目录选择模式');
     }
 
-    if ((this.config.mode === 'selectAllInDirectory' || this.config.mode === 'excludeDirectory') 
-        && this.config.directories.length === 0) {
+    if (
+      (this.config.mode === 'selectAllInDirectory' ||
+        this.config.mode === 'excludeDirectory') &&
+      this.config.directories.length === 0
+    ) {
       errors.push('请指定至少一个目录');
     }
 
@@ -212,9 +233,10 @@ export class DirectorySelectionRule implements SelectionRule<DirectoryRuleConfig
       .with('excludeDirectory', () => '排除目录')
       .exhaustive();
 
-    const dirsDesc = this.config.directories.length > 0
-      ? ` (${this.config.directories.slice(0, 2).join(', ')}${this.config.directories.length > 2 ? '...' : ''})`
-      : '';
+    const dirsDesc =
+      this.config.directories.length > 0
+        ? ` (${this.config.directories.slice(0, 2).join(', ')}${this.config.directories.length > 2 ? '...' : ''})`
+        : '';
 
     return `目录选择: ${modeDesc}${dirsDesc}`;
   }
@@ -222,7 +244,9 @@ export class DirectorySelectionRule implements SelectionRule<DirectoryRuleConfig
   /**
    * 预览受影响的文件数
    */
-  preview<T extends BaseEntry & Partial<RefEntry>>(ctx: RuleContext<T>): number {
+  preview<T extends BaseEntry & Partial<RefEntry>>(
+    ctx: RuleContext<T>,
+  ): number {
     const result = this.execute(ctx);
     return result.affectedCount;
   }
@@ -271,6 +295,8 @@ export class DirectorySelectionRule implements SelectionRule<DirectoryRuleConfig
 /**
  * 创建目录选择规则
  */
-export function createDirectoryRule(config?: Partial<DirectoryRuleConfig>): DirectorySelectionRule {
+export function createDirectoryRule(
+  config?: Partial<DirectoryRuleConfig>,
+): DirectorySelectionRule {
   return new DirectorySelectionRule(config);
 }

@@ -5,13 +5,13 @@
 import { useAtom, useAtomValue } from 'jotai';
 import { Plus } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
-import { groupRuleConfigAtom } from '~/atom/selection-assistant';
 import { currentToolAtom } from '~/atom/primitive';
+import { groupRuleConfigAtom } from '~/atom/selection-assistant';
 import { Button } from '~/components/shadcn/button';
-import { useT } from '~/hooks';
-import { SortCriteriaList } from '~/views/selection-assistant/sort-criteria-list';
-import type { SortCriterion, SortField } from '~/lib/selection-assistant/types';
 import { Tools } from '~/consts';
+import { useT } from '~/hooks';
+import type { SortCriterion, SortField } from '~/lib/selection-assistant/types';
+import { SortCriteriaList } from '~/views/selection-assistant/sort-criteria-list';
 
 /** 支持大小和日期选择的工具 */
 const toolsWithSizeAndDate = new Set<string>([
@@ -96,7 +96,8 @@ export function SortCriteriaCard() {
     }
   }, [config.sortCriteria, availableSortFields, setConfig]);
 
-  const canAddCriterion = config.sortCriteria.length < availableSortFields.length;
+  const canAddCriterion =
+    config.sortCriteria.length < availableSortFields.length;
 
   return (
     <div className="p-2 space-y-2">

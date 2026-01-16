@@ -4,25 +4,25 @@
  */
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { Check, AlertCircle } from 'lucide-react';
+import { AlertCircle, Check } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import {
   currentSelectionAtom,
   textRuleConfigAtom,
 } from '~/atom/selection-assistant';
 import { currentToolDataAtom, currentToolRowSelectionAtom } from '~/atom/tools';
+import { Select } from '~/components/one-select';
 import { Button } from '~/components/shadcn/button';
 import { Checkbox } from '~/components/shadcn/checkbox';
 import { Input } from '~/components/shadcn/input';
 import { Label } from '~/components/shadcn/label';
-import { Select } from '~/components/one-select';
 import { useT } from '~/hooks';
-import { TextSelectionRule } from '~/lib/selection-assistant/rules/text-rule';
 import { isValidRegex } from '~/lib/selection-assistant/matchers';
+import { TextSelectionRule } from '~/lib/selection-assistant/rules/text-rule';
 import type {
-  TextColumn,
   MatchCondition,
   SelectionAction,
+  TextColumn,
 } from '~/lib/selection-assistant/types';
 import type { BaseEntry, RefEntry } from '~/types';
 
@@ -67,7 +67,10 @@ export function TextSelectionSection() {
   // 更新条件
   const handleConditionChange = useCallback(
     (condition: string) => {
-      setConfig((prev) => ({ ...prev, condition: condition as MatchCondition }));
+      setConfig((prev) => ({
+        ...prev,
+        condition: condition as MatchCondition,
+      }));
     },
     [setConfig],
   );
@@ -131,37 +134,40 @@ export function TextSelectionSection() {
   );
 
   // 执行选择
-  const executeSelection = useCallback((action: SelectionAction) => {
-    if (!config.pattern.trim()) return;
-    if (config.useRegex && !isValidRegex(config.pattern)) return;
+  const executeSelection = useCallback(
+    (action: SelectionAction) => {
+      if (!config.pattern.trim()) return;
+      if (config.useRegex && !isValidRegex(config.pattern)) return;
 
-    const rule = new TextSelectionRule(config);
-    const data = currentToolData as (BaseEntry & Partial<RefEntry>)[];
-    
-    // 构建当前选择集合
-    const currentSet = new Set<string>();
-    for (const key of Object.keys(currentSelection)) {
-      if (currentSelection[key]) {
-        currentSet.add(key);
+      const rule = new TextSelectionRule(config);
+      const data = currentToolData as (BaseEntry & Partial<RefEntry>)[];
+
+      // 构建当前选择集合
+      const currentSet = new Set<string>();
+      for (const key of Object.keys(currentSelection)) {
+        if (currentSelection[key]) {
+          currentSet.add(key);
+        }
       }
-    }
 
-    const context = {
-      data,
-      currentSelection: currentSet,
-      keepExistingSelection: config.keepExistingSelection,
-      action,
-    };
-    
-    const result = rule.execute(context);
-    
-    // 转换 Set 为 Record
-    const newSelection: Record<string, boolean> = {};
-    for (const path of result.selection) {
-      newSelection[path] = true;
-    }
-    setSelection(newSelection);
-  }, [config, currentToolData, currentSelection, setSelection]);
+      const context = {
+        data,
+        currentSelection: currentSet,
+        keepExistingSelection: config.keepExistingSelection,
+        action,
+      };
+
+      const result = rule.execute(context);
+
+      // 转换 Set 为 Record
+      const newSelection: Record<string, boolean> = {};
+      for (const path of result.selection) {
+        newSelection[path] = true;
+      }
+      setSelection(newSelection);
+    },
+    [config, currentToolData, currentSelection, setSelection],
+  );
 
   // 执行标记
   const handleMark = useCallback(() => {
@@ -215,9 +221,7 @@ export function TextSelectionSection() {
             <AlertCircle className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-destructive" />
           )}
         </div>
-        {regexError && (
-          <p className="text-xs text-destructive">{regexError}</p>
-        )}
+        {regexError && <p className="text-xs text-destructive">{regexError}</p>}
       </div>
 
       {/* 选项 */}
@@ -228,7 +232,10 @@ export function TextSelectionSection() {
             checked={config.matchWholeColumn}
             onCheckedChange={handleMatchWholeColumnChange}
           />
-          <Label htmlFor="match-whole-column" className="text-xs cursor-pointer">
+          <Label
+            htmlFor="match-whole-column"
+            className="text-xs cursor-pointer"
+          >
             {t('Match whole column')}
           </Label>
         </div>
@@ -261,7 +268,10 @@ export function TextSelectionSection() {
             checked={config.keepExistingSelection}
             onCheckedChange={handleKeepExistingChange}
           />
-          <Label htmlFor="keep-existing-text" className="text-xs cursor-pointer">
+          <Label
+            htmlFor="keep-existing-text"
+            className="text-xs cursor-pointer"
+          >
             {t('Keep existing selection')}
           </Label>
         </div>

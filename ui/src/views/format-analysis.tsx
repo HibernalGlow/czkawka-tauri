@@ -4,11 +4,11 @@
  */
 import { useSetAtom } from 'jotai';
 import { PieChart } from 'lucide-react';
-import { TooltipButton } from '~/components';
 import { analysisPanelAtom } from '~/atom/primitive';
+import { TooltipButton } from '~/components';
+import { useT } from '~/hooks/use-t';
 import { useFormatStats } from '~/hooks/useFormatStats';
 import { useSimilarityStats } from '~/hooks/useSimilarityStats';
-import { useT } from '~/hooks/use-t';
 
 export function FormatAnalysisDialog() {
   const setAnalysisPanel = useSetAtom(analysisPanelAtom);
@@ -16,8 +16,10 @@ export function FormatAnalysisDialog() {
   const similarityStats = useSimilarityStats();
   const t = useT();
 
-  const hasData = (stats && stats.length > 0) || (similarityStats && similarityStats.length > 0);
-  
+  const hasData =
+    (stats && stats.length > 0) ||
+    (similarityStats && similarityStats.length > 0);
+
   if (!hasData) return null;
 
   const handleOpen = () => {

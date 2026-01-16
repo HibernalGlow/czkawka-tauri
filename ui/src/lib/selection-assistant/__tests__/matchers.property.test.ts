@@ -6,9 +6,9 @@
  * Validates: Requirements 3.2, 3.3, 3.4
  */
 
-import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
-import { matchText, getColumnValue, isValidRegex } from '../matchers';
+import { describe, expect, it } from 'vitest';
+import { getColumnValue, isValidRegex, matchText } from '../matchers';
 
 describe('matchText 属性测试', () => {
   // Property 7: 文本匹配条件正确性
@@ -58,7 +58,6 @@ describe('matchText 属性测试', () => {
       );
     });
 
-
     it('startsWith: 应该与 String.startsWith 行为一致', () => {
       fc.assert(
         fc.property(
@@ -95,7 +94,11 @@ describe('matchText 属性测试', () => {
     it('有效正则表达式应该与 RegExp.test 行为一致', () => {
       // 使用简单的正则模式避免生成无效正则
       const alphanumChars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-      const simplePatternArb = fc.string({ minLength: 1, maxLength: 10, unit: fc.constantFrom(...alphanumChars) });
+      const simplePatternArb = fc.string({
+        minLength: 1,
+        maxLength: 10,
+        unit: fc.constantFrom(...alphanumChars),
+      });
 
       fc.assert(
         fc.property(
@@ -125,20 +128,17 @@ describe('matchText 属性测试', () => {
   describe('Property 9: 大小写敏感性', () => {
     it('caseSensitive=true 时应该区分大小写', () => {
       fc.assert(
-        fc.property(
-          fc.string({ minLength: 1, maxLength: 50 }),
-          (text) => {
-            const upper = text.toUpperCase();
-            const lower = text.toLowerCase();
-            
-            // 如果大小写不同，敏感模式下应该不匹配
-            if (upper !== lower) {
-              const result = matchText(upper, lower, 'equals', true, false);
-              return result === false;
-            }
-            return true;
-          },
-        ),
+        fc.property(fc.string({ minLength: 1, maxLength: 50 }), (text) => {
+          const upper = text.toUpperCase();
+          const lower = text.toLowerCase();
+
+          // 如果大小写不同，敏感模式下应该不匹配
+          if (upper !== lower) {
+            const result = matchText(upper, lower, 'equals', true, false);
+            return result === false;
+          }
+          return true;
+        }),
         { numRuns: 100 },
       );
     });
@@ -147,11 +147,15 @@ describe('matchText 属性测试', () => {
       const lowerChars = 'abcdefghijklmnopqrstuvwxyz';
       fc.assert(
         fc.property(
-          fc.string({ minLength: 1, maxLength: 50, unit: fc.constantFrom(...lowerChars) }),
+          fc.string({
+            minLength: 1,
+            maxLength: 50,
+            unit: fc.constantFrom(...lowerChars),
+          }),
           (text) => {
             const upper = text.toUpperCase();
             const lower = text.toLowerCase();
-            
+
             // 不敏感模式下，大小写不同也应该匹配
             const result = matchText(upper, lower, 'equals', false, false);
             return result === true;
@@ -168,21 +172,24 @@ describe('getColumnValue 属性测试', () => {
 
   it('fullPath 应该返回完整路径', () => {
     fc.assert(
-      fc.property(
-        fc.string({ minLength: 1, maxLength: 100 }),
-        (path) => {
-          return getColumnValue(path, 'fullPath') === path;
-        },
-      ),
+      fc.property(fc.string({ minLength: 1, maxLength: 100 }), (path) => {
+        return getColumnValue(path, 'fullPath') === path;
+      }),
       { numRuns: 100 },
     );
   });
 
   it('fileName 应该返回最后一个分隔符后的内容', () => {
-    const pathArb = fc.array(
-      fc.string({ minLength: 1, maxLength: 10, unit: fc.constantFrom(...alphanumChars) }),
-      { minLength: 2, maxLength: 5 },
-    ).map(parts => parts.join('/'));
+    const pathArb = fc
+      .array(
+        fc.string({
+          minLength: 1,
+          maxLength: 10,
+          unit: fc.constantFrom(...alphanumChars),
+        }),
+        { minLength: 2, maxLength: 5 },
+      )
+      .map((parts) => parts.join('/'));
 
     fc.assert(
       fc.property(pathArb, (path) => {
@@ -195,10 +202,16 @@ describe('getColumnValue 属性测试', () => {
   });
 
   it('folderPath 应该返回最后一个分隔符前的内容', () => {
-    const pathArb = fc.array(
-      fc.string({ minLength: 1, maxLength: 10, unit: fc.constantFrom(...alphanumChars) }),
-      { minLength: 2, maxLength: 5 },
-    ).map(parts => parts.join('/'));
+    const pathArb = fc
+      .array(
+        fc.string({
+          minLength: 1,
+          maxLength: 10,
+          unit: fc.constantFrom(...alphanumChars),
+        }),
+        { minLength: 2, maxLength: 5 },
+      )
+      .map((parts) => parts.join('/'));
 
     fc.assert(
       fc.property(pathArb, (path) => {

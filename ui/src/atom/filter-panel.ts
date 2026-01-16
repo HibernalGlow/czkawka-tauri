@@ -5,14 +5,17 @@
 
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import type { FilterState, FilterStats } from '~/lib/filter-panel/types';
+import {
+  countActiveFilters,
+  isAnyFilterActive,
+} from '~/lib/filter-panel/filter-engine';
 import { defaultFilterState } from '~/lib/filter-panel/presets';
-import { countActiveFilters, isAnyFilterActive } from '~/lib/filter-panel/filter-engine';
+import type { FilterState, FilterStats } from '~/lib/filter-panel/types';
 
 /** 过滤器状态 atom（持久化到 localStorage） */
 export const filterStateAtom = atomWithStorage<FilterState>(
   'filter-panel-state',
-  defaultFilterState
+  defaultFilterState,
 );
 
 /** 过滤器统计 atom */
@@ -47,11 +50,11 @@ export const filteredDataAtom = atom<unknown[]>([]);
 /** 过滤面板是否展开 atom */
 export const filterPanelExpandedAtom = atomWithStorage<boolean>(
   'filter-panel-expanded',
-  true
+  true,
 );
 
 /** 当前展开的过滤器类别 atom */
 export const expandedFilterCategoriesAtom = atomWithStorage<string[]>(
   'filter-panel-expanded-categories',
-  ['markStatus', 'groupFilters', 'fileFilters']
+  ['markStatus', 'groupFilters', 'fileFilters'],
 );

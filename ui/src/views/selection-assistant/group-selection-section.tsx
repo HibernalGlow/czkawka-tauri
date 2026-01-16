@@ -8,26 +8,30 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { AlertTriangle, Check, Plus } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import {
+  activeFilterCountAtom,
+  filteredDataAtom,
+  isFilterActiveAtom,
+} from '~/atom/filter-panel';
+import { currentToolAtom } from '~/atom/primitive';
+import {
   currentSelectionAtom,
   groupRuleConfigAtom,
 } from '~/atom/selection-assistant';
-import { currentToolAtom } from '~/atom/primitive';
 import { currentToolDataAtom, currentToolRowSelectionAtom } from '~/atom/tools';
-import { filteredDataAtom, isFilterActiveAtom, activeFilterCountAtom } from '~/atom/filter-panel';
+import { Select } from '~/components/one-select';
 import { Button } from '~/components/shadcn/button';
 import { Checkbox } from '~/components/shadcn/checkbox';
 import { Label } from '~/components/shadcn/label';
-import { Select } from '~/components/one-select';
+import { Tools } from '~/consts';
 import { useT } from '~/hooks';
 import { GroupSelectionRule } from '~/lib/selection-assistant/rules/group-rule';
 import type {
   GroupSelectionMode,
+  SelectionAction,
   SortCriterion,
   SortField,
-  SelectionAction,
 } from '~/lib/selection-assistant/types';
 import type { BaseEntry, RefEntry } from '~/types';
-import { Tools } from '~/consts';
 import { SortCriteriaList } from './sort-criteria-list';
 
 /** 支持大小和日期选择的工具 */
@@ -54,7 +58,7 @@ export function GroupSelectionSection() {
   const currentToolData = useAtomValue(currentToolDataAtom);
   const currentSelection = useAtomValue(currentSelectionAtom);
   const setSelection = useSetAtom(currentToolRowSelectionAtom);
-  
+
   // 过滤器相关状态
   const isFilterActive = useAtomValue(isFilterActiveAtom);
   const activeFilterCount = useAtomValue(activeFilterCountAtom);
@@ -63,9 +67,11 @@ export function GroupSelectionSection() {
   // 根据过滤器状态选择使用的数据
   const effectiveData = useMemo(() => {
     if (isFilterActive && filteredData.length > 0) {
-      return filteredData as (BaseEntry & RefEntry & { raw: Record<string, unknown> })[];
+      return filteredData as (BaseEntry &
+        RefEntry & { raw: Record<string, unknown> })[];
     }
-    return currentToolData as (BaseEntry & RefEntry & { raw: Record<string, unknown> })[];
+    return currentToolData as (BaseEntry &
+      RefEntry & { raw: Record<string, unknown> })[];
   }, [isFilterActive, filteredData, currentToolData]);
 
   // 模式选项
@@ -73,8 +79,14 @@ export function GroupSelectionSection() {
     () => [
       { label: t('Select all except one'), value: 'selectAllExceptOne' },
       { label: t('Select one'), value: 'selectOne' },
-      { label: t('All but one per folder'), value: 'selectAllExceptOnePerFolder' },
-      { label: t('All but one matching set'), value: 'selectAllExceptOneMatchingSet' },
+      {
+        label: t('All but one per folder'),
+        value: 'selectAllExceptOnePerFolder',
+      },
+      {
+        label: t('All but one matching set'),
+        value: 'selectAllExceptOneMatchingSet',
+      },
     ],
     [t],
   );
@@ -157,35 +169,38 @@ export function GroupSelectionSection() {
   }, [config.sortCriteria, availableSortFields, setConfig]);
 
   // 执行选择
-  const executeSelection = useCallback((action: SelectionAction) => {
-    const rule = new GroupSelectionRule(config);
-    // 使用过滤后的数据（如果过滤器激活）
-    const data = effectiveData;
-    
-    // 构建当前选择集合
-    const currentSet = new Set<string>();
-    for (const key of Object.keys(currentSelection)) {
-      if (currentSelection[key]) {
-        currentSet.add(key);
-      }
-    }
+  const executeSelection = useCallback(
+    (action: SelectionAction) => {
+      const rule = new GroupSelectionRule(config);
+      // 使用过滤后的数据（如果过滤器激活）
+      const data = effectiveData;
 
-    const context = {
-      data,
-      currentSelection: currentSet,
-      keepExistingSelection: config.keepExistingSelection,
-      action,
-    };
-    
-    const result = rule.execute(context);
-    
-    // 转换 Set 为 Record
-    const newSelection: Record<string, boolean> = {};
-    for (const path of result.selection) {
-      newSelection[path] = true;
-    }
-    setSelection(newSelection);
-  }, [config, effectiveData, currentSelection, setSelection]);
+      // 构建当前选择集合
+      const currentSet = new Set<string>();
+      for (const key of Object.keys(currentSelection)) {
+        if (currentSelection[key]) {
+          currentSet.add(key);
+        }
+      }
+
+      const context = {
+        data,
+        currentSelection: currentSet,
+        keepExistingSelection: config.keepExistingSelection,
+        action,
+      };
+
+      const result = rule.execute(context);
+
+      // 转换 Set 为 Record
+      const newSelection: Record<string, boolean> = {};
+      for (const path of result.selection) {
+        newSelection[path] = true;
+      }
+      setSelection(newSelection);
+    },
+    [config, effectiveData, currentSelection, setSelection],
+  );
 
   // 执行标记
   const handleMark = useCallback(() => {
@@ -207,7 +222,8 @@ export function GroupSelectionSection() {
         <div className="flex items-center gap-2 p-2 text-xs bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-md border border-amber-500/20">
           <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
           <span>
-            {t('Filter active')} ({activeFilterCount}) - {t('Selection will only affect filtered items')}
+            {t('Filter active')} ({activeFilterCount}) -{' '}
+            {t('Selection will only affect filtered items')}
           </span>
         </div>
       )}

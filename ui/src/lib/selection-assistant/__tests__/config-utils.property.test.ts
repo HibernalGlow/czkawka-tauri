@@ -6,27 +6,39 @@
  * Validates: Requirements 8.1, 8.2, 8.3, 8.4, 8.5
  */
 
-import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
+import { describe, expect, it } from 'vitest';
 import {
+  CONFIG_VERSION,
   exportConfig,
   importConfig,
   isVersionCompatible,
   mergeConfigs,
-  CONFIG_VERSION,
 } from '../config-utils';
 import type {
+  DirectoryRuleConfig,
   GroupRuleConfig,
   TextRuleConfig,
-  DirectoryRuleConfig,
 } from '../types';
 
 // 生成有效配置的 arbitrary
 const groupRuleConfigArb: fc.Arbitrary<GroupRuleConfig> = fc.record({
-  mode: fc.constantFrom('selectAllExceptOne', 'selectOne', 'selectAllExceptOnePerFolder', 'selectAllExceptOneMatchingSet'),
+  mode: fc.constantFrom(
+    'selectAllExceptOne',
+    'selectOne',
+    'selectAllExceptOnePerFolder',
+    'selectAllExceptOneMatchingSet',
+  ),
   sortCriteria: fc.array(
     fc.record({
-      field: fc.constantFrom('folderPath', 'fileName', 'fileSize', 'creationDate', 'modifiedDate', 'resolution'),
+      field: fc.constantFrom(
+        'folderPath',
+        'fileName',
+        'fileSize',
+        'creationDate',
+        'modifiedDate',
+        'resolution',
+      ),
       direction: fc.constantFrom('asc', 'desc'),
       preferEmpty: fc.boolean(),
       enabled: fc.boolean(),
@@ -38,7 +50,13 @@ const groupRuleConfigArb: fc.Arbitrary<GroupRuleConfig> = fc.record({
 
 const textRuleConfigArb: fc.Arbitrary<TextRuleConfig> = fc.record({
   column: fc.constantFrom('folderPath', 'fileName', 'fullPath'),
-  condition: fc.constantFrom('contains', 'notContains', 'equals', 'startsWith', 'endsWith'),
+  condition: fc.constantFrom(
+    'contains',
+    'notContains',
+    'equals',
+    'startsWith',
+    'endsWith',
+  ),
   pattern: fc.string({ minLength: 0, maxLength: 50 }),
   useRegex: fc.boolean(),
   caseSensitive: fc.boolean(),
@@ -47,8 +65,15 @@ const textRuleConfigArb: fc.Arbitrary<TextRuleConfig> = fc.record({
 }) as fc.Arbitrary<TextRuleConfig>;
 
 const directoryRuleConfigArb: fc.Arbitrary<DirectoryRuleConfig> = fc.record({
-  mode: fc.constantFrom('keepOnePerDirectory', 'selectAllInDirectory', 'excludeDirectory'),
-  directories: fc.array(fc.string({ minLength: 1, maxLength: 100 }), { minLength: 0, maxLength: 10 }),
+  mode: fc.constantFrom(
+    'keepOnePerDirectory',
+    'selectAllInDirectory',
+    'excludeDirectory',
+  ),
+  directories: fc.array(fc.string({ minLength: 1, maxLength: 100 }), {
+    minLength: 0,
+    maxLength: 10,
+  }),
   keepExistingSelection: fc.boolean(),
 }) as fc.Arbitrary<DirectoryRuleConfig>;
 
@@ -72,7 +97,8 @@ describe('配置导入/导出属性测试', () => {
             } = {};
             if (config.groupRule) cleanConfig.groupRule = config.groupRule;
             if (config.textRule) cleanConfig.textRule = config.textRule;
-            if (config.directoryRule) cleanConfig.directoryRule = config.directoryRule;
+            if (config.directoryRule)
+              cleanConfig.directoryRule = config.directoryRule;
 
             // 导出
             const exportResult = exportConfig(cleanConfig);
@@ -87,17 +113,26 @@ describe('配置导入/导出属性测试', () => {
 
             // 验证配置内容
             if (cleanConfig.groupRule) {
-              if (JSON.stringify(importResult.config.groupRule) !== JSON.stringify(cleanConfig.groupRule)) {
+              if (
+                JSON.stringify(importResult.config.groupRule) !==
+                JSON.stringify(cleanConfig.groupRule)
+              ) {
                 return false;
               }
             }
             if (cleanConfig.textRule) {
-              if (JSON.stringify(importResult.config.textRule) !== JSON.stringify(cleanConfig.textRule)) {
+              if (
+                JSON.stringify(importResult.config.textRule) !==
+                JSON.stringify(cleanConfig.textRule)
+              ) {
                 return false;
               }
             }
             if (cleanConfig.directoryRule) {
-              if (JSON.stringify(importResult.config.directoryRule) !== JSON.stringify(cleanConfig.directoryRule)) {
+              if (
+                JSON.stringify(importResult.config.directoryRule) !==
+                JSON.stringify(cleanConfig.directoryRule)
+              ) {
                 return false;
               }
             }
@@ -126,7 +161,12 @@ describe('配置导入/导出属性测试', () => {
       for (const invalid of invalidJsonStrings) {
         const result = importConfig(invalid);
         // 空字符串和非对象 JSON 应该失败
-        if (invalid === '' || invalid === 'null' || invalid === '123' || invalid === '"string"') {
+        if (
+          invalid === '' ||
+          invalid === 'null' ||
+          invalid === '123' ||
+          invalid === '"string"'
+        ) {
           expect(result.success).toBe(false);
         }
       }
@@ -157,7 +197,12 @@ describe('配置导入/导出属性测试', () => {
         groupRule: {
           mode: 'selectOne',
           sortCriteria: [
-            { field: 'invalidField', direction: 'asc', preferEmpty: false, enabled: true },
+            {
+              field: 'invalidField',
+              direction: 'asc',
+              preferEmpty: false,
+              enabled: true,
+            },
           ],
           keepExistingSelection: false,
         },

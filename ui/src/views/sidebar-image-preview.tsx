@@ -6,8 +6,8 @@ import { useAtom } from 'jotai';
 import { Image } from 'lucide-react';
 import { sidebarImagePreviewAtom } from '~/atom/primitive';
 import { FloatingPanel } from '~/components/cards/floating-panel';
-import { ImagePreviewCard } from '~/views/cards/image-preview-card';
 import { useT } from '~/hooks';
+import { ImagePreviewCard } from '~/views/cards/image-preview-card';
 
 export function SidebarImagePreview() {
   const [sidebarState, setSidebarState] = useAtom(sidebarImagePreviewAtom);
@@ -25,7 +25,13 @@ export function SidebarImagePreview() {
       position:
         newMode === 'floating' && !prev.position
           ? {
-              x: Math.max(0, Math.min(window.innerWidth / 2 - size.width / 2, window.innerWidth - size.width - 20)),
+              x: Math.max(
+                0,
+                Math.min(
+                  window.innerWidth / 2 - size.width / 2,
+                  window.innerWidth - size.width - 20,
+                ),
+              ),
               y: 100,
             }
           : prev.position,

@@ -6,16 +6,26 @@
 import { useAtom, useAtomValue } from 'jotai';
 import { Settings } from 'lucide-react';
 import { useState } from 'react';
-import { Checkbox } from '~/components/shadcn/checkbox';
-import { Label } from '~/components/shadcn/label';
-import { Button } from '~/components/shadcn/button';
-import { Popover, PopoverContent, PopoverTrigger } from '~/components/shadcn/popover';
-import { Input } from '~/components/shadcn/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/shadcn/select';
 import { filterStateAtom } from '~/atom/filter-panel';
 import { currentToolAtom } from '~/atom/primitive';
-import { useT } from '~/hooks';
+import { Button } from '~/components/shadcn/button';
+import { Checkbox } from '~/components/shadcn/checkbox';
+import { Input } from '~/components/shadcn/input';
+import { Label } from '~/components/shadcn/label';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '~/components/shadcn/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/shadcn/select';
 import { Tools } from '~/consts';
+import { useT } from '~/hooks';
 import type { AspectRatioType } from '~/lib/filter-panel/types';
 
 export function ResolutionFilter() {
@@ -42,7 +52,10 @@ export function ResolutionFilter() {
     const num = Number.parseInt(value, 10);
     setFilterState((prev) => ({
       ...prev,
-      resolution: { ...prev.resolution, minWidth: Number.isNaN(num) ? undefined : num },
+      resolution: {
+        ...prev.resolution,
+        minWidth: Number.isNaN(num) ? undefined : num,
+      },
     }));
   };
 
@@ -50,7 +63,10 @@ export function ResolutionFilter() {
     const num = Number.parseInt(value, 10);
     setFilterState((prev) => ({
       ...prev,
-      resolution: { ...prev.resolution, minHeight: Number.isNaN(num) ? undefined : num },
+      resolution: {
+        ...prev.resolution,
+        minHeight: Number.isNaN(num) ? undefined : num,
+      },
     }));
   };
 
@@ -58,7 +74,10 @@ export function ResolutionFilter() {
     const num = Number.parseInt(value, 10);
     setFilterState((prev) => ({
       ...prev,
-      resolution: { ...prev.resolution, maxWidth: Number.isNaN(num) ? undefined : num },
+      resolution: {
+        ...prev.resolution,
+        maxWidth: Number.isNaN(num) ? undefined : num,
+      },
     }));
   };
 
@@ -66,7 +85,10 @@ export function ResolutionFilter() {
     const num = Number.parseInt(value, 10);
     setFilterState((prev) => ({
       ...prev,
-      resolution: { ...prev.resolution, maxHeight: Number.isNaN(num) ? undefined : num },
+      resolution: {
+        ...prev.resolution,
+        maxHeight: Number.isNaN(num) ? undefined : num,
+      },
     }));
   };
 
@@ -84,12 +106,16 @@ export function ResolutionFilter() {
       parts.push(`≥${resolution.minWidth || 0}x${resolution.minHeight || 0}`);
     }
     if (resolution.maxWidth || resolution.maxHeight) {
-      parts.push(`≤${resolution.maxWidth || '∞'}x${resolution.maxHeight || '∞'}`);
+      parts.push(
+        `≤${resolution.maxWidth || '∞'}x${resolution.maxHeight || '∞'}`,
+      );
     }
     if (resolution.aspectRatio && resolution.aspectRatio !== 'any') {
       parts.push(resolution.aspectRatio);
     }
-    return parts.length > 0 ? parts.join(', ') : t('Resolution' as any) || 'Resolution';
+    return parts.length > 0
+      ? parts.join(', ')
+      : t('Resolution' as any) || 'Resolution';
   };
 
   return (
@@ -104,7 +130,7 @@ export function ResolutionFilter() {
           {buildLabel()}
         </Label>
       </div>
-      
+
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="ghost" size="icon" className="h-6 w-6">
@@ -115,7 +141,9 @@ export function ResolutionFilter() {
           <div className="space-y-4">
             {/* 最小分辨率 */}
             <div className="space-y-2">
-              <Label className="text-xs">{t('MinResolution' as any) || 'Min Resolution'}</Label>
+              <Label className="text-xs">
+                {t('MinResolution' as any) || 'Min Resolution'}
+              </Label>
               <div className="flex gap-2 items-center">
                 <Input
                   type="number"
@@ -134,10 +162,12 @@ export function ResolutionFilter() {
                 />
               </div>
             </div>
-            
+
             {/* 最大分辨率 */}
             <div className="space-y-2">
-              <Label className="text-xs">{t('MaxResolution' as any) || 'Max Resolution'}</Label>
+              <Label className="text-xs">
+                {t('MaxResolution' as any) || 'Max Resolution'}
+              </Label>
               <div className="flex gap-2 items-center">
                 <Input
                   type="number"
@@ -156,23 +186,30 @@ export function ResolutionFilter() {
                 />
               </div>
             </div>
-            
+
             {/* 宽高比 */}
             <div className="space-y-2">
-              <Label className="text-xs">{t('AspectRatio' as any) || 'Aspect Ratio'}</Label>
-              <Select value={resolution.aspectRatio || 'any'} onValueChange={handleAspectRatioChange}>
+              <Label className="text-xs">
+                {t('AspectRatio' as any) || 'Aspect Ratio'}
+              </Label>
+              <Select
+                value={resolution.aspectRatio || 'any'}
+                onValueChange={handleAspectRatioChange}
+              >
                 <SelectTrigger className="h-8">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="any">{t('Any' as any) || 'Any'}</SelectItem>
+                  <SelectItem value="any">
+                    {t('Any' as any) || 'Any'}
+                  </SelectItem>
                   <SelectItem value="16:9">16:9</SelectItem>
                   <SelectItem value="4:3">4:3</SelectItem>
                   <SelectItem value="1:1">1:1</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            
+
             {/* 快捷预设 */}
             <div className="flex gap-2">
               <Button
@@ -182,7 +219,11 @@ export function ResolutionFilter() {
                 onClick={() => {
                   setFilterState((prev) => ({
                     ...prev,
-                    resolution: { ...prev.resolution, minWidth: 1920, minHeight: 1080 },
+                    resolution: {
+                      ...prev.resolution,
+                      minWidth: 1920,
+                      minHeight: 1080,
+                    },
                   }));
                 }}
               >
@@ -195,14 +236,18 @@ export function ResolutionFilter() {
                 onClick={() => {
                   setFilterState((prev) => ({
                     ...prev,
-                    resolution: { ...prev.resolution, minWidth: 3840, minHeight: 2160 },
+                    resolution: {
+                      ...prev.resolution,
+                      minWidth: 3840,
+                      minHeight: 2160,
+                    },
                   }));
                 }}
               >
                 ≥4K
               </Button>
             </div>
-            
+
             <div className="flex justify-end">
               <Button size="sm" onClick={() => setOpen(false)}>
                 {t('Done' as any) || 'Done'}

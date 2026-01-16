@@ -4,8 +4,8 @@
  */
 import { filesize } from 'filesize';
 import { motion } from 'framer-motion';
-import { useFormatStats } from '~/hooks/useFormatStats';
 import { useT } from '~/hooks/use-t';
+import { useFormatStats } from '~/hooks/useFormatStats';
 
 export function FormatBarChartCard() {
   const stats = useFormatStats();

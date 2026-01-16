@@ -5,27 +5,34 @@
  */
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { ChevronDown, ChevronRight, Redo2, RotateCcw, ToggleLeft, Undo2 } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronRight,
+  Redo2,
+  RotateCcw,
+  ToggleLeft,
+  Undo2,
+} from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import {
   canRedoAtom,
   canUndoAtom,
   clearAllSelectionAtom,
   currentSelectionAtom,
+  type ExpandedPanel,
   expandedPanelAtom,
   invertSelectionAtom,
   redoSelectionAtom,
   undoSelectionAtom,
-  type ExpandedPanel,
 } from '~/atom/selection-assistant';
 import { currentToolDataAtom } from '~/atom/tools';
 import { Button } from '~/components/shadcn/button';
-import { cn } from '~/utils/cn';
 import { useT } from '~/hooks';
+import type { BaseEntry, RefEntry } from '~/types';
+import { cn } from '~/utils/cn';
 import { DirectorySelectionSection } from './directory-selection-section';
 import { GroupSelectionSection } from './group-selection-section';
 import { TextSelectionSection } from './text-selection-section';
-import type { BaseEntry, RefEntry } from '~/types';
 
 interface AccordionItemProps {
   id: ExpandedPanel;
@@ -36,7 +43,12 @@ interface AccordionItemProps {
 }
 
 /** 可折叠区域组件 */
-function AccordionItem({ title, expanded, onToggle, children }: AccordionItemProps) {
+function AccordionItem({
+  title,
+  expanded,
+  onToggle,
+  children,
+}: AccordionItemProps) {
   return (
     <div className="border-b border-border last:border-b-0">
       <button
@@ -70,7 +82,7 @@ export function SelectionAssistantPanel() {
   const canRedo = useAtomValue(canRedoAtom);
   const [, undo] = useAtom(undoSelectionAtom);
   const [, redo] = useAtom(redoSelectionAtom);
-  
+
   // 选择统计和操作
   const currentSelection = useAtomValue(currentSelectionAtom);
   const currentToolData = useAtomValue(currentToolDataAtom);
@@ -78,7 +90,8 @@ export function SelectionAssistantPanel() {
   const invert = useSetAtom(invertSelectionAtom);
 
   const selectedCount = useMemo(() => {
-    return Object.keys(currentSelection).filter((k) => currentSelection[k]).length;
+    return Object.keys(currentSelection).filter((k) => currentSelection[k])
+      .length;
   }, [currentSelection]);
 
   const totalCount = currentToolData.length;
@@ -127,12 +140,12 @@ export function SelectionAssistantPanel() {
             <Redo2 className="h-4 w-4" />
           </Button>
         </div>
-        
+
         {/* 中间：选择统计 */}
         <span className="text-xs text-muted-foreground">
           {t('Selected')}: {selectedCount} / {totalCount}
         </span>
-        
+
         {/* 右侧：清空/反选按钮 */}
         <div className="flex items-center gap-1">
           <Button

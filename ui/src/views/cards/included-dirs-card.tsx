@@ -16,12 +16,7 @@ import {
 import { useMemo, useState } from 'react';
 import { includedDirsRowSelectionAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
-import {
-  Button,
-  Checkbox,
-  Textarea,
-  TooltipButton,
-} from '~/components';
+import { Button, Checkbox, Textarea, TooltipButton } from '~/components';
 import {
   createColumns,
   DataTable,
@@ -51,7 +46,7 @@ export function IncludedDirsCard() {
   const t = useT();
   const [settings, setSettings] = useAtom(settingsAtom);
   const [rowSelection, setRowSelection] = useAtom(includedDirsRowSelectionAtom);
-  
+
   const data: TableData[] = useMemo(() => {
     return settings.includedDirectories.map((path) => ({
       path,
@@ -60,7 +55,8 @@ export function IncludedDirsCard() {
     }));
   }, [settings]);
 
-  const allReferenceSelected = data.length > 0 && data.every((d) => d.isReference);
+  const allReferenceSelected =
+    data.length > 0 && data.every((d) => d.isReference);
 
   const handleReferenceSelectAll = (checked: boolean) => {
     setSettings((old) => ({
@@ -71,7 +67,8 @@ export function IncludedDirsCard() {
 
   const handleReferenceToggle = (path: string) => {
     setSettings((old) => {
-      const isCurrentlyReference = old.includedDirectoriesReferenced.includes(path);
+      const isCurrentlyReference =
+        old.includedDirectoriesReferenced.includes(path);
       const newReferences = isCurrentlyReference
         ? old.includedDirectoriesReferenced.filter((p) => p !== path)
         : [...old.includedDirectoriesReferenced, path];
@@ -115,7 +112,7 @@ export function IncludedDirsCard() {
                 'h-4 w-4',
                 row.original.isReference
                   ? 'text-yellow-500 fill-yellow-500'
-                  : 'text-muted-foreground'
+                  : 'text-muted-foreground',
               )}
             />
           </Button>
@@ -167,7 +164,7 @@ function DirsRemoveButton({ path, field, table }: TableData & { table: any }) {
       [field]: settings[field].filter((v: string) => v !== path),
     }));
     table.setRowSelection((old: RowSelection) =>
-      Object.fromEntries(Object.entries(old).filter((obj) => obj[0] !== path))
+      Object.fromEntries(Object.entries(old).filter((obj) => obj[0] !== path)),
     );
   };
 
@@ -198,7 +195,10 @@ function DirsActions({
   const [manualAddPaths, setManualAddPaths] = useState('');
   const openFileDialogLoading = useBoolean();
 
-  const checkPathForReferenceKeywords = (path: string, keywords: string): boolean => {
+  const checkPathForReferenceKeywords = (
+    path: string,
+    keywords: string,
+  ): boolean => {
     if (field !== 'includedDirectories') return false;
     const keywordList = splitStr(keywords);
     return keywordList.some((keyword) => keyword && path.includes(keyword));
@@ -219,7 +219,9 @@ function DirsActions({
       if (field === 'includedDirectories') {
         const newReferenceDirs = [...settings.includedDirectoriesReferenced];
         for (const dir of uniqueDirs) {
-          if (checkPathForReferenceKeywords(dir, settings.referencePathKeywords)) {
+          if (
+            checkPathForReferenceKeywords(dir, settings.referencePathKeywords)
+          ) {
             if (!newReferenceDirs.includes(dir)) newReferenceDirs.push(dir);
           }
         }
@@ -259,7 +261,9 @@ function DirsActions({
       if (field === 'includedDirectories') {
         const newReferenceDirs = [...settings.includedDirectoriesReferenced];
         for (const path of paths) {
-          if (checkPathForReferenceKeywords(path, settings.referencePathKeywords)) {
+          if (
+            checkPathForReferenceKeywords(path, settings.referencePathKeywords)
+          ) {
             if (!newReferenceDirs.includes(path)) newReferenceDirs.push(path);
           }
         }
@@ -301,7 +305,9 @@ function DirsActions({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('Manual add')}</DialogTitle>
-            <DialogDescription>{t('Manually add paths desc')}</DialogDescription>
+            <DialogDescription>
+              {t('Manually add paths desc')}
+            </DialogDescription>
           </DialogHeader>
           <Textarea
             rows={10}
@@ -317,10 +323,18 @@ function DirsActions({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <TooltipButton tooltip={t('Remove selected')} onClick={handleRemovePaths} size="sm">
+      <TooltipButton
+        tooltip={t('Remove selected')}
+        onClick={handleRemovePaths}
+        size="sm"
+      >
         <Trash2 className="h-4 w-4" />
       </TooltipButton>
-      <TooltipButton tooltip={t('Clear all')} onClick={handleClearAllPaths} size="sm">
+      <TooltipButton
+        tooltip={t('Clear all')}
+        onClick={handleClearAllPaths}
+        size="sm"
+      >
         <FolderMinus className="h-4 w-4" />
       </TooltipButton>
     </div>

@@ -3,15 +3,16 @@
  * 集成 MagicCard 提供鼠标跟随光效
  * 支持可折叠内容区域
  */
-import { useState, type ReactNode, type ComponentType } from 'react';
+
 import { ChevronDown } from 'lucide-react';
-import { cn } from '~/utils/cn';
+import { type ComponentType, type ReactNode, useState } from 'react';
 import { MagicCard } from '~/components/magicui/magic-card';
 import {
   BLUR_INTENSITY_MAP,
   DEFAULT_GLASS_CONFIG,
   type GlassEffectConfig,
 } from '~/lib/cards/types';
+import { cn } from '~/utils/cn';
 
 export interface GlassCardProps {
   // 基础属性
@@ -64,10 +65,11 @@ export function GlassCard({
   headerActions,
 }: GlassCardProps) {
   const [internalExpanded, setInternalExpanded] = useState(defaultExpanded);
-  
+
   // 支持受控和非受控模式
-  const isExpanded = controlledExpanded !== undefined ? controlledExpanded : internalExpanded;
-  
+  const isExpanded =
+    controlledExpanded !== undefined ? controlledExpanded : internalExpanded;
+
   const handleToggleExpand = () => {
     const newExpanded = !isExpanded;
     if (controlledExpanded === undefined) {
@@ -84,7 +86,7 @@ export function GlassCard({
       className={cn(
         'rounded-lg border border-border/50 overflow-hidden',
         blurClass,
-        className
+        className,
       )}
       gradientSize={gradientSize}
       gradientOpacity={gradientOpacity}
@@ -102,19 +104,24 @@ export function GlassCard({
               'flex items-center justify-between border-b border-border/50',
               compact ? 'px-2 py-1' : 'px-3 py-2',
               collapsible && 'cursor-pointer select-none',
-              'bg-muted/30'
+              'bg-muted/30',
             )}
             onClick={collapsible ? handleToggleExpand : undefined}
           >
             <div className="flex items-center gap-2 min-w-0">
               {!hideIcon && Icon && (
-                <Icon className={cn('flex-shrink-0', compact ? 'h-3 w-3' : 'h-4 w-4')} />
+                <Icon
+                  className={cn(
+                    'flex-shrink-0',
+                    compact ? 'h-3 w-3' : 'h-4 w-4',
+                  )}
+                />
               )}
               {!hideTitle && title && (
                 <span
                   className={cn(
                     'font-medium truncate',
-                    compact ? 'text-xs' : 'text-sm'
+                    compact ? 'text-xs' : 'text-sm',
                   )}
                 >
                   {title}
@@ -127,7 +134,7 @@ export function GlassCard({
                 <ChevronDown
                   className={cn(
                     'h-4 w-4 transition-transform duration-200',
-                    !isExpanded && '-rotate-90'
+                    !isExpanded && '-rotate-90',
                   )}
                 />
               )}
@@ -139,7 +146,7 @@ export function GlassCard({
         <div
           className={cn(
             'flex-1 min-h-0 overflow-auto',
-            collapsible && !isExpanded && 'hidden'
+            collapsible && !isExpanded && 'hidden',
           )}
         >
           {children}

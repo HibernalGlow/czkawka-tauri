@@ -6,8 +6,8 @@ import { useAtom } from 'jotai';
 import { Filter } from 'lucide-react';
 import { filterPanelAtom } from '~/atom/primitive';
 import { FloatingPanel } from '~/components/cards/floating-panel';
-import { FilterPanel } from './filter-panel';
 import { useT } from '~/hooks';
+import { FilterPanel } from './filter-panel';
 
 export function FloatingFilterPanel() {
   const [panelState, setPanelState] = useAtom(filterPanelAtom);
@@ -25,7 +25,13 @@ export function FloatingFilterPanel() {
       position:
         newMode === 'floating' && !prev.position
           ? {
-              x: Math.max(0, Math.min(window.innerWidth / 2 - size.width / 2, window.innerWidth - size.width - 20)),
+              x: Math.max(
+                0,
+                Math.min(
+                  window.innerWidth / 2 - size.width / 2,
+                  window.innerWidth - size.width - 20,
+                ),
+              ),
               y: 100,
             }
           : prev.position,

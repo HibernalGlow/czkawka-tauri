@@ -5,33 +5,33 @@
 
 import type { BaseEntry, RefEntry } from '~/types';
 import type {
-  FilterState,
-  FilterStats,
-  FilterContext,
-  FilterResult,
-  MarkStatusOption,
-  RangeFilterConfig,
   DateFilterConfig,
-  PathFilterConfig,
-  SimilarityFilterConfig,
-  ResolutionFilterConfig,
   ExtensionFilterConfig,
   FilterableEntry,
+  FilterContext,
+  FilterResult,
+  FilterState,
+  FilterStats,
   GroupMarkStatus,
+  MarkStatusOption,
+  PathFilterConfig,
+  RangeFilterConfig,
+  ResolutionFilterConfig,
+  SimilarityFilterConfig,
 } from './types';
 import {
-  getFileExtension,
-  matchPath,
-  getGroupFileCount,
-  getGroupTotalSize,
-  getGroupMarkStatus,
-  getUniqueGroupIds,
-  getItemSize,
-  getItemModifiedDate,
-  getItemSimilarity,
-  getItemResolution,
-  matchAspectRatio,
   getDateRange,
+  getFileExtension,
+  getGroupFileCount,
+  getGroupMarkStatus,
+  getGroupTotalSize,
+  getItemModifiedDate,
+  getItemResolution,
+  getItemSimilarity,
+  getItemSize,
+  getUniqueGroupIds,
+  matchAspectRatio,
+  matchPath,
 } from './utils';
 
 /**
@@ -40,13 +40,13 @@ import {
 export function applyMarkStatusFilter<T extends BaseEntry & Partial<RefEntry>>(
   data: T[],
   options: MarkStatusOption[],
-  selection: Set<string>
+  selection: Set<string>,
 ): T[] {
   if (options.length === 0) return data;
 
   const groupIds = getUniqueGroupIds(data);
   const groupStatuses = new Map<number, GroupMarkStatus>();
-  
+
   // 预计算每个组的标记状态
   for (const groupId of groupIds) {
     groupStatuses.set(groupId, getGroupMarkStatus(data, groupId, selection));
@@ -55,7 +55,8 @@ export function applyMarkStatusFilter<T extends BaseEntry & Partial<RefEntry>>(
   return data.filter((item) => {
     const isMarked = selection.has(item.path);
     const groupId = 'groupId' in item ? (item.groupId as number) : undefined;
-    const groupStatus = groupId !== undefined ? groupStatuses.get(groupId) : undefined;
+    const groupStatus =
+      groupId !== undefined ? groupStatuses.get(groupId) : undefined;
 
     // OR 逻辑：匹配任意一个选项即可
     return options.some((option) => {
@@ -86,7 +87,7 @@ export function applyMarkStatusFilter<T extends BaseEntry & Partial<RefEntry>>(
  */
 export function applyGroupCountFilter<T extends BaseEntry & Partial<RefEntry>>(
   data: T[],
-  config: RangeFilterConfig
+  config: RangeFilterConfig,
 ): T[] {
   if (!config.enabled) return data;
 
@@ -111,7 +112,7 @@ export function applyGroupCountFilter<T extends BaseEntry & Partial<RefEntry>>(
  */
 export function applyGroupSizeFilter<T extends FilterableEntry>(
   data: T[],
-  config: RangeFilterConfig
+  config: RangeFilterConfig,
 ): T[] {
   if (!config.enabled) return data;
 
@@ -136,7 +137,7 @@ export function applyGroupSizeFilter<T extends FilterableEntry>(
  */
 export function applyFileSizeFilter<T extends FilterableEntry>(
   data: T[],
-  config: RangeFilterConfig
+  config: RangeFilterConfig,
 ): T[] {
   if (!config.enabled) return data;
 
@@ -151,12 +152,12 @@ export function applyFileSizeFilter<T extends FilterableEntry>(
  */
 export function applyExtensionFilter<T extends BaseEntry>(
   data: T[],
-  config: ExtensionFilterConfig
+  config: ExtensionFilterConfig,
 ): T[] {
   if (!config.enabled || config.extensions.length === 0) return data;
 
   const normalizedExtensions = new Set(
-    config.extensions.map((ext) => ext.toLowerCase().replace(/^\./, ''))
+    config.extensions.map((ext) => ext.toLowerCase().replace(/^\./, '')),
   );
 
   return data.filter((item) => {
@@ -171,14 +172,14 @@ export function applyExtensionFilter<T extends BaseEntry>(
  */
 export function applyDateFilter<T extends FilterableEntry>(
   data: T[],
-  config: DateFilterConfig
+  config: DateFilterConfig,
 ): T[] {
   if (!config.enabled) return data;
 
   const { start, end } = getDateRange(
     config.preset,
     config.startDate,
-    config.endDate
+    config.endDate,
   );
 
   return data.filter((item) => {
@@ -192,12 +193,12 @@ export function applyDateFilter<T extends FilterableEntry>(
  */
 export function applyPathFilter<T extends BaseEntry>(
   data: T[],
-  config: PathFilterConfig
+  config: PathFilterConfig,
 ): T[] {
   if (!config.enabled || !config.pattern) return data;
 
   return data.filter((item) =>
-    matchPath(item.path, config.pattern, config.mode, config.caseSensitive)
+    matchPath(item.path, config.pattern, config.mode, config.caseSensitive),
   );
 }
 
@@ -206,7 +207,7 @@ export function applyPathFilter<T extends BaseEntry>(
  */
 export function applySimilarityFilter<T extends FilterableEntry>(
   data: T[],
-  config: SimilarityFilterConfig
+  config: SimilarityFilterConfig,
 ): T[] {
   if (!config.enabled) return data;
 
@@ -221,7 +222,7 @@ export function applySimilarityFilter<T extends FilterableEntry>(
  */
 export function applyResolutionFilter<T extends FilterableEntry>(
   data: T[],
-  config: ResolutionFilterConfig
+  config: ResolutionFilterConfig,
 ): T[] {
   if (!config.enabled) return data;
 
@@ -233,9 +234,11 @@ export function applyResolutionFilter<T extends FilterableEntry>(
 
     // 检查最小/最大分辨率
     if (config.minWidth !== undefined && width < config.minWidth) return false;
-    if (config.minHeight !== undefined && height < config.minHeight) return false;
+    if (config.minHeight !== undefined && height < config.minHeight)
+      return false;
     if (config.maxWidth !== undefined && width > config.maxWidth) return false;
-    if (config.maxHeight !== undefined && height > config.maxHeight) return false;
+    if (config.maxHeight !== undefined && height > config.maxHeight)
+      return false;
 
     // 检查宽高比
     if (config.aspectRatio && config.aspectRatio !== 'any') {
@@ -252,7 +255,7 @@ export function applyResolutionFilter<T extends FilterableEntry>(
 export function applySelectionFilter<T extends BaseEntry>(
   data: T[],
   selection: Set<string>,
-  enabled: boolean
+  enabled: boolean,
 ): T[] {
   if (!enabled) return data;
   return data.filter((item) => selection.has(item.path));
@@ -261,16 +264,14 @@ export function applySelectionFilter<T extends BaseEntry>(
 /**
  * 应用"在已过滤的组中显示所有文件"选项
  */
-export function applyShowAllInFilteredGroups<T extends BaseEntry & Partial<RefEntry>>(
-  originalData: T[],
-  filteredData: T[],
-  showAll: boolean
-): T[] {
+export function applyShowAllInFilteredGroups<
+  T extends BaseEntry & Partial<RefEntry>,
+>(originalData: T[], filteredData: T[], showAll: boolean): T[] {
   if (!showAll) return filteredData;
 
   // 获取过滤后数据中的所有组ID
   const filteredGroupIds = getUniqueGroupIds(filteredData);
-  
+
   // 如果没有分组数据，直接返回过滤后的数据
   if (filteredGroupIds.size === 0) return filteredData;
 
@@ -288,14 +289,21 @@ export function applyShowAllInFilteredGroups<T extends BaseEntry & Partial<RefEn
  * 应用所有过滤器
  */
 export function applyFilters<T extends FilterableEntry>(
-  ctx: FilterContext<T>
+  ctx: FilterContext<T>,
 ): FilterResult<T> {
   const { data, selection, filterState } = ctx;
   let filtered = [...data];
 
   // 按顺序应用各个过滤器（AND 逻辑）
-  if (filterState.markStatus.enabled && filterState.markStatus.options.length > 0) {
-    filtered = applyMarkStatusFilter(filtered, filterState.markStatus.options, selection);
+  if (
+    filterState.markStatus.enabled &&
+    filterState.markStatus.options.length > 0
+  ) {
+    filtered = applyMarkStatusFilter(
+      filtered,
+      filterState.markStatus.options,
+      selection,
+    );
   }
 
   if (filterState.groupCount.enabled) {
@@ -350,13 +358,19 @@ export function applyFilters<T extends FilterableEntry>(
 export function calculateStats<T extends FilterableEntry>(
   originalData: T[],
   filteredData: T[],
-  filterState: FilterState
+  filterState: FilterState,
 ): FilterStats {
   const totalGroups = getUniqueGroupIds(originalData).size;
   const filteredGroups = getUniqueGroupIds(filteredData).size;
 
-  const totalSize = originalData.reduce((sum, item) => sum + getItemSize(item), 0);
-  const filteredSize = filteredData.reduce((sum, item) => sum + getItemSize(item), 0);
+  const totalSize = originalData.reduce(
+    (sum, item) => sum + getItemSize(item),
+    0,
+  );
+  const filteredSize = filteredData.reduce(
+    (sum, item) => sum + getItemSize(item),
+    0,
+  );
 
   return {
     totalItems: originalData.length,
@@ -394,7 +408,6 @@ export function isAnyFilterActive(state: FilterState): boolean {
   return countActiveFilters(state) > 0;
 }
 
-
 /**
  * 重置过滤器状态到默认值
  */
@@ -402,11 +415,26 @@ export function resetToDefault(): FilterState {
   return {
     markStatus: { enabled: false, options: [] },
     groupCount: { enabled: false, min: 2, max: 100 },
-    groupSize: { enabled: false, min: 0, max: 100 * 1024 * 1024 * 1024, unit: 'MB' },
-    fileSize: { enabled: false, min: 0, max: 100 * 1024 * 1024 * 1024, unit: 'MB' },
+    groupSize: {
+      enabled: false,
+      min: 0,
+      max: 100 * 1024 * 1024 * 1024,
+      unit: 'MB',
+    },
+    fileSize: {
+      enabled: false,
+      min: 0,
+      max: 100 * 1024 * 1024 * 1024,
+      unit: 'MB',
+    },
     extension: { enabled: false, extensions: [], mode: 'include' },
     modifiedDate: { enabled: false, preset: 'custom' },
-    path: { enabled: false, mode: 'contains', pattern: '', caseSensitive: false },
+    path: {
+      enabled: false,
+      mode: 'contains',
+      pattern: '',
+      caseSensitive: false,
+    },
     similarity: { enabled: false, min: 0, max: 100 },
     resolution: { enabled: false, aspectRatio: 'any' },
     selectionOnly: false,
@@ -420,7 +448,7 @@ export function resetToDefault(): FilterState {
  * 这是一个幂等操作，多次调用结果相同
  */
 export function refreshFilters<T extends FilterableEntry>(
-  ctx: FilterContext<T>
+  ctx: FilterContext<T>,
 ): FilterResult<T> {
   return applyFilters(ctx);
 }

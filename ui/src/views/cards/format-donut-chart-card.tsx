@@ -4,8 +4,8 @@
  */
 import { filesize } from 'filesize';
 import { motion } from 'framer-motion';
-import { useFormatStats } from '~/hooks/useFormatStats';
 import { useT } from '~/hooks/use-t';
+import { useFormatStats } from '~/hooks/useFormatStats';
 
 const COLORS = [
   '#3b82f6', // blue-500
@@ -38,7 +38,10 @@ export function FormatDonutChartCard() {
         {/* 环形图 */}
         <div className="flex flex-col items-center justify-center">
           <div className="relative w-48 h-48">
-            <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
+            <svg
+              viewBox="0 0 100 100"
+              className="w-full h-full transform -rotate-90"
+            >
               {stats.slice(0, 10).map((stat, i) => {
                 const prevPercent = stats
                   .slice(0, i)
@@ -57,18 +60,33 @@ export function FormatDonutChartCard() {
                     strokeDashoffset={-prevPercent}
                     pathLength="100"
                     initial={{ opacity: 0, strokeDasharray: '0 100' }}
-                    animate={{ opacity: 1, strokeDasharray: `${stat.percent} ${100 - stat.percent}` }}
-                    transition={{ duration: 1, delay: i * 0.1, ease: 'easeOut' }}
+                    animate={{
+                      opacity: 1,
+                      strokeDasharray: `${stat.percent} ${100 - stat.percent}`,
+                    }}
+                    transition={{
+                      duration: 1,
+                      delay: i * 0.1,
+                      ease: 'easeOut',
+                    }}
                     strokeLinecap="butt"
                   />
                 );
               })}
               {/* 内圆 */}
-              <circle cx="50" cy="50" r="30" fill="currentColor" className="text-background" />
+              <circle
+                cx="50"
+                cy="50"
+                r="30"
+                fill="currentColor"
+                className="text-background"
+              />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <span className="text-2xl font-bold">{stats.length}</span>
-              <span className="text-xs text-muted-foreground">{t('Formats')}</span>
+              <span className="text-xs text-muted-foreground">
+                {t('Formats')}
+              </span>
             </div>
           </div>
         </div>

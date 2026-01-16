@@ -4,11 +4,11 @@
  */
 
 import { useAtom, useAtomValue } from 'jotai';
-import { Checkbox } from '~/components/shadcn/checkbox';
-import { Label } from '~/components/shadcn/label';
-import { Badge } from '~/components/shadcn/badge';
 import { filterStateAtom, filterStatsAtom } from '~/atom/filter-panel';
 import { currentToolRowSelectionAtom } from '~/atom/tools';
+import { Badge } from '~/components/shadcn/badge';
+import { Checkbox } from '~/components/shadcn/checkbox';
+import { Label } from '~/components/shadcn/label';
 import { useT } from '~/hooks';
 
 export function SelectionFilter() {
@@ -36,14 +36,14 @@ export function SelectionFilter() {
           onCheckedChange={(checked) => handleChange(checked === true)}
           disabled={selectionCount === 0}
         />
-        <Label 
-          htmlFor="selection-filter" 
+        <Label
+          htmlFor="selection-filter"
           className={`text-sm cursor-pointer ${selectionCount === 0 ? 'text-muted-foreground' : ''}`}
         >
           {t('ShowSelectedOnly' as any) || 'Show Selected Only'}
         </Label>
       </div>
-      
+
       {selectionCount > 0 && (
         <Badge variant="secondary" className="text-xs">
           {selectionCount}

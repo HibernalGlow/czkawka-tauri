@@ -51,7 +51,6 @@ export function matchText(
     .exhaustive();
 }
 
-
 /**
  * 获取文件的指定列值
  * @param path 文件完整路径
@@ -91,12 +90,17 @@ export function getDirectory(path: string): string {
 export function isInDirectory(path: string, directory: string): boolean {
   const normalizedPath = path.replace(/\\/g, '/').toLowerCase();
   const normalizedDir = directory.replace(/\\/g, '/').toLowerCase();
-  
+
   // 确保目录路径以 / 结尾进行比较
-  const dirWithSlash = normalizedDir.endsWith('/') ? normalizedDir : `${normalizedDir}/`;
-  
-  return normalizedPath.toLowerCase().startsWith(dirWithSlash) ||
-         getDirectory(normalizedPath).toLowerCase() === normalizedDir.replace(/\/$/, '');
+  const dirWithSlash = normalizedDir.endsWith('/')
+    ? normalizedDir
+    : `${normalizedDir}/`;
+
+  return (
+    normalizedPath.toLowerCase().startsWith(dirWithSlash) ||
+    getDirectory(normalizedPath).toLowerCase() ===
+      normalizedDir.replace(/\/$/, '')
+  );
 }
 
 /**

@@ -4,12 +4,12 @@
  */
 import { useAtom, useAtomValue } from 'jotai';
 import { Percent } from 'lucide-react';
-import { settingsAtom } from '~/atom/settings';
 import { currentToolAtom } from '~/atom/primitive';
+import { settingsAtom } from '~/atom/settings';
 import { Label } from '~/components/shadcn/label';
 import { Slider } from '~/components/shadcn/slider';
-import { useT } from '~/hooks';
 import { Tools } from '~/consts';
+import { useT } from '~/hooks';
 
 export function SimilarityFilterCard() {
   const t = useT();
@@ -35,9 +35,15 @@ export function SimilarityFilterCard() {
 
   const handleChange = (value: number[]) => {
     if (currentTool === Tools.SimilarImages) {
-      setSettings((prev) => ({ ...prev, similarImagesSubSimilarity: value[0] }));
+      setSettings((prev) => ({
+        ...prev,
+        similarImagesSubSimilarity: value[0],
+      }));
     } else if (currentTool === Tools.SimilarVideos) {
-      setSettings((prev) => ({ ...prev, similarVideosSubSimilarity: value[0] }));
+      setSettings((prev) => ({
+        ...prev,
+        similarVideosSubSimilarity: value[0],
+      }));
     }
   };
 
@@ -45,7 +51,10 @@ export function SimilarityFilterCard() {
   const maxValue = getMaxValue();
 
   // 只在相似图片/视频工具中显示
-  if (currentTool !== Tools.SimilarImages && currentTool !== Tools.SimilarVideos) {
+  if (
+    currentTool !== Tools.SimilarImages &&
+    currentTool !== Tools.SimilarVideos
+  ) {
     return (
       <div className="p-2 text-sm text-muted-foreground text-center">
         Not available for this tool

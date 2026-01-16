@@ -29,7 +29,9 @@ export function ImageInfoCard() {
       </div>
       <div className="grid grid-cols-2 gap-2">
         <div className="text-muted-foreground">{t('Path')}:</div>
-        <div className="truncate" title={imagePath}>{imagePath}</div>
+        <div className="truncate" title={imagePath}>
+          {imagePath}
+        </div>
       </div>
     </div>
   );
