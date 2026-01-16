@@ -253,7 +253,7 @@ export function VideoThumbnailCell({
           <img
             src={thumbnailData}
             alt="Video thumbnail"
-            className={`${sizeClass} object-cover rounded ${onClick ? 'cursor-pointer hover:opacity-80' : ''} transition-opacity`}
+            className={`${sizeClass} object-contain bg-black/5 rounded ${onClick ? 'cursor-pointer hover:opacity-80' : ''} transition-opacity`}
             style={thumbnailStyle}
           />
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">

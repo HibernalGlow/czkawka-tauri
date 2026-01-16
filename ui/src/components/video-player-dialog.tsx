@@ -26,6 +26,8 @@ export function VideoPlayerDialog({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showControls, setShowControls] = useState(true);
+  const controlsTimerRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { getVideoUrl } = useVideoServer();
   const videoUrl = getVideoUrl(path);
@@ -57,13 +59,17 @@ export function VideoPlayerDialog({
     video.addEventListener('play', handlePlay);
     video.addEventListener('pause', handlePause);
 
+    // If video is already loaded/playing, sync state
+    if (video.duration) setDuration(video.duration);
+    if (!video.paused) setIsPlaying(true);
+
     return () => {
       video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('durationchange', handleDurationChange);
       video.removeEventListener('play', handlePlay);
       video.removeEventListener('pause', handlePause);
     };
-  }, []);
+  }, [videoUrl, isOpen]); // Re-attach when video element is created or src changes
 
   const togglePlay = () => {
     const video = videoRef.current;
@@ -111,11 +117,42 @@ export function VideoPlayerDialog({
   };
 
   const formatTime = (seconds: number) => {
-    if (isNaN(seconds)) return '0:00';
+    if (isNaN(seconds) || !isFinite(seconds)) return '0:00';
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
+
+  const handleMouseMove = () => {
+    setShowControls(true);
+    if (controlsTimerRef.current) {
+      clearTimeout(controlsTimerRef.current);
+    }
+    controlsTimerRef.current = setTimeout(() => {
+      if (isPlaying) {
+        setShowControls(false);
+      }
+    }, 3000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (controlsTimerRef.current) {
+        clearTimeout(controlsTimerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isPlaying) {
+      setShowControls(true);
+      if (controlsTimerRef.current) {
+        clearTimeout(controlsTimerRef.current);
+      }
+    } else {
+      handleMouseMove();
+    }
+  }, [isPlaying]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -130,33 +167,41 @@ export function VideoPlayerDialog({
         </DialogDescription>
         <div
           ref={containerRef}
-          className="relative w-full h-full bg-black flex flex-col"
+          className="relative w-full h-full bg-black flex flex-col group"
+          onMouseMove={handleMouseMove}
+          onMouseLeave={() => isPlaying && setShowControls(false)}
         >
-          {/* Close button */}
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 z-50 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
-          >
-            <X className="w-6 h-6 text-white" />
-          </button>
 
-          {/* Video */}
-          <div className="flex-1 flex items-center justify-center">
+          {/* Video Container */}
+          <div className="flex-1 relative min-h-0 bg-black overflow-hidden select-none">
             {videoUrl ? (
               <video
                 ref={videoRef}
                 src={videoUrl}
-                className="max-w-full max-h-full"
+                className="absolute inset-0 w-full h-full object-contain outline-none z-0"
                 onClick={togglePlay}
                 autoPlay
+                playsInline
+                controls={false}
               />
             ) : (
-              <div className="text-white">Loading video...</div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-white text-lg animate-pulse">
+                  Loading video...
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Controls */}
-          <div className="bg-gradient-to-t from-black/80 to-transparent p-4 space-y-2">
+          {/* Controls Overlay */}
+          <div
+            className={cn(
+              'absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-4 transition-all duration-300 z-10',
+              showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
+            )}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Progress bar */}
             <input
               type="range"
@@ -166,7 +211,7 @@ export function VideoPlayerDialog({
               onChange={handleSeek}
               className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-500"
               style={{
-                background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(currentTime / duration) * 100}%, #4b5563 ${(currentTime / duration) * 100}%, #4b5563 100%)`,
+                background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${duration ? (currentTime / duration) * 100 : 0}%, #4b5563 ${duration ? (currentTime / duration) * 100 : 0}%, #4b5563 100%)`,
               }}
             />
 
