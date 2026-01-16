@@ -18,10 +18,7 @@ export function useSimilarityStats() {
   const currentTool = useAtomValue(currentToolAtom);
 
   return useMemo(() => {
-    if (!data || !Array.isArray(data) || data.length === 0) return null;
-
-    // Only process for tools that have similarity data
-    if (currentTool !== Tools.SimilarImages && currentTool !== Tools.SimilarVideos) {
+    if (!data || !Array.isArray(data) || data.length === 0) {
       return null;
     }
 
@@ -29,38 +26,48 @@ export function useSimilarityStats() {
     let total = 0;
     let hasSimilarity = false;
 
-    // Determine hash size for similarity levels
-    // For videos, the default or fixed hash size should be consistent with how getSimilarityLevel expects it.
-    // Based on similarity-utils.ts, the default is 16.
     const hashSize = currentTool === Tools.SimilarImages 
       ? Number.parseInt(settings.similarImagesSubHashSize || '16', 10)
-      : 16; // Similar Videos doesn't seem to have a configurable hash size in UI settings yet
+      : 16;
 
     for (const item of data as any[]) {
-      // Skip hidden rows and reference rows
-      if (item.hidden || item.isRef) continue;
+      // Skip hidden rows (separators)
+      if (item.hidden) continue;
       
-      let simValue: number | null = null;
-      
-      // Try to get similarity from raw data first (more reliable)
-      if (item.raw && item.raw.similarity !== undefined && item.raw.similarity !== null) {
-        simValue = typeof item.raw.similarity === 'number' 
-          ? item.raw.similarity 
-          : Number.parseInt(item.raw.similarity.toString().split(' ')[0], 10);
-      } else if (item.similarity !== undefined && item.similarity !== null && item.similarity !== '') {
-        // Fallback to the display similarity string
-        simValue = Number.parseInt(item.similarity.toString().split(' ')[0], 10);
+      // Try to find similarity in various possible fields
+      // 1. raw.similarity (preferred)
+      // 2. item.similarity
+      // 3. item.Similarity
+      let rawSimValue: any = item.raw?.similarity ?? item.similarity ?? item.Similarity;
+
+      if (rawSimValue === undefined || rawSimValue === null || rawSimValue === '') {
+        continue;
       }
 
-      if (simValue === null || Number.isNaN(simValue)) continue;
+      let simValue: number;
+      if (typeof rawSimValue === 'number') {
+        simValue = rawSimValue;
+      } else {
+        // Parse string: "15 (Diff)" -> 15, "10" -> 10
+        const match = rawSimValue.toString().match(/\d+/);
+        simValue = match ? Number.parseInt(match[0], 10) : Number.NaN;
+      }
 
+      if (Number.isNaN(simValue)) {
+        continue;
+      }
+
+      // Count the item
       hasSimilarity = true;
       const level = getSimilarityLevel(simValue, hashSize);
       statsMap.set(level, (statsMap.get(level) || 0) + 1);
       total++;
     }
 
-    if (!hasSimilarity) return null;
+    if (!hasSimilarity) {
+      console.log('[SimilarityStats] No similarity data found in', data.length, 'items');
+      return null;
+    }
 
     const levels = [
       SimilarityLevel.Original,
@@ -72,12 +79,14 @@ export function useSimilarityStats() {
       SimilarityLevel.Minimal,
     ];
 
-    return levels
+    const result = levels
       .map((level) => ({
         level,
         count: statsMap.get(level) || 0,
         percent: total > 0 ? ((statsMap.get(level) || 0) / total) * 100 : 0,
       }))
       .filter((stat) => stat.count > 0);
+
+    return result;
   }, [data, settings.similarImagesSubHashSize, currentTool]);
 }
