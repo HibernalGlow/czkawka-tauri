@@ -216,7 +216,7 @@ export function FloatingPanel({
   );
 
   return (
-    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 9999 }}>
+    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 50 }}>
       <div
         ref={dragRef}
         className={cn(
