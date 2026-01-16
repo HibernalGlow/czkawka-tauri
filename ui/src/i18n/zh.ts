@@ -368,6 +368,7 @@ export const zh: Record<TranslationKeys, string> = {
   'Search cards': '搜索卡片...',
   'Assign to panel': '分配到面板',
   'No cards found': '未找到卡片',
+  'Select a panel to enable drag sorting': '选择一个面板标签以启用拖拽排序',
   Hide: '隐藏',
   Show: '显示',
   'Bottom Bar': '底栏',

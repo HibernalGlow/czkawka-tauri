@@ -376,6 +376,7 @@ export const en = {
   'Search cards': 'Search cards...',
   'Assign to panel': 'Assign to panel',
   'No cards found': 'No cards found',
+  'Select a panel to enable drag sorting': 'Select a panel tab to enable drag sorting',
   Hide: 'Hide',
   Show: 'Show',
   'Bottom Bar': 'Bottom Bar',

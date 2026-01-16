@@ -2,13 +2,28 @@
  * CardPanelManager - 卡片面板管理器
  * 提供表格形式的卡片管理界面，支持搜索、拖拽排序和面板分配
  */
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { useAtom, useSetAtom } from 'jotai';
 import {
   LayoutGrid,
   RotateCcw,
   Search,
-  ArrowUp,
-  ArrowDown,
   MoreHorizontal,
   GripVertical,
   Eye,
@@ -20,7 +35,7 @@ import {
   cardConfigAtom,
   resetCardConfigAtom,
   setCardVisibleAtom,
-  moveCardAtom,
+  reorderCardsAtom,
   moveCardToPanelAtom,
 } from '~/atom/card-config';
 import { cardRegistry, getAllPanelIds } from '~/lib/cards/registry';
@@ -74,11 +89,139 @@ const CARD_TITLE_KEYS: Record<string, string> = {
   'card-panel-manager': 'Card panels',
 };
 
+// 扩展的卡片配置类型
+type ExtendedCardConfig = CardConfig & { 
+  panelTitle: string; 
+  localizedTitle: string;
+  sortKey: string; // 用于拖拽排序的唯一键
+};
+
+// 可排序卡片项组件
+function SortableCardItem({
+  card,
+  allPanelIds,
+  getPanelTitleLocalized,
+  onToggleVisible,
+  onAssignToPanel,
+  t,
+}: {
+  card: ExtendedCardConfig;
+  allPanelIds: PanelId[];
+  getPanelTitleLocalized: (panelId: PanelId) => string;
+  onToggleVisible: (card: CardConfig) => void;
+  onAssignToPanel: (card: CardConfig, targetPanelId: PanelId) => void;
+  t: (key: any) => string;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: card.sortKey });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  const cardDef = cardRegistry[card.id];
+  const Icon = cardDef?.icon;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        'flex items-center gap-3 px-3 py-2 group border-b',
+        !card.visible && 'opacity-50',
+        isDragging && 'opacity-70 bg-muted/50 z-50'
+      )}
+    >
+      {/* 拖拽手柄 */}
+      <div
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing touch-none"
+      >
+        <GripVertical className="h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60" />
+      </div>
+
+      {/* 图标 */}
+      <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted">
+        {Icon && <Icon className="h-4 w-4" />}
+      </div>
+
+      {/* 信息 */}
+      <div className="flex-1 min-w-0">
+        <div className="font-medium text-sm truncate">{card.localizedTitle}</div>
+        <div className="text-xs text-muted-foreground font-mono uppercase">
+          {card.id}
+        </div>
+      </div>
+
+      {/* 面板标签 */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="sm" className="h-7 px-2">
+            <Badge variant={card.visible ? 'default' : 'outline'} className="text-[10px]">
+              {card.panelTitle}
+            </Badge>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel className="text-xs">{t('Assign to panel')}</DropdownMenuLabel>
+          {allPanelIds.map((panelId) => (
+            <DropdownMenuItem
+              key={panelId}
+              onClick={() => onAssignToPanel(card, panelId)}
+              className="gap-2"
+            >
+              <MapPin className="h-3.5 w-3.5" />
+              {getPanelTitleLocalized(panelId)}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* 操作按钮 */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-7 w-7">
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            onClick={() => onToggleVisible(card)}
+            disabled={!card.canHide}
+            className="gap-2"
+          >
+            {card.visible ? (
+              <>
+                <EyeOff className="h-4 w-4" />
+                {t('Hide')}
+              </>
+            ) : (
+              <>
+                <Eye className="h-4 w-4" />
+                {t('Show')}
+              </>
+            )}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+}
+
+
 export function CardPanelManager() {
   const [cardConfig] = useAtom(cardConfigAtom);
   const resetConfig = useSetAtom(resetCardConfigAtom);
   const setCardVisible = useSetAtom(setCardVisibleAtom);
-  const moveCard = useSetAtom(moveCardAtom);
+  const reorderCards = useSetAtom(reorderCardsAtom);
   const moveCardToPanel = useSetAtom(moveCardToPanelAtom);
   const t = useT();
 
@@ -86,6 +229,18 @@ export function CardPanelManager() {
   const [panelFilter, setPanelFilter] = useState<string>('all');
 
   const allPanelIds = getAllPanelIds();
+
+  // 配置拖拽传感器
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   // 获取翻译后的面板标题
   const getPanelTitleLocalized = (panelId: PanelId): string => {
@@ -101,14 +256,15 @@ export function CardPanelManager() {
 
   // 合并所有卡片数据
   const allCards = useMemo(() => {
-    const result: (CardConfig & { panelTitle: string; localizedTitle: string })[] = [];
+    const result: ExtendedCardConfig[] = [];
     for (const panelId of allPanelIds) {
       const cards = cardConfig.configs[panelId] || [];
       result.push(
-        ...cards.map((c) => ({
+        ...cards.map((c, idx) => ({
           ...c,
           panelTitle: getPanelTitleLocalized(panelId),
           localizedTitle: getCardTitleLocalized(c.id),
+          sortKey: `${panelId}-${c.id}-${idx}`,
         }))
       );
     }
@@ -133,6 +289,20 @@ export function CardPanelManager() {
     return cards;
   }, [allCards, panelFilter, searchQuery]);
 
+  // 当前面板的卡片（用于拖拽排序）
+  const currentPanelCards = useMemo(() => {
+    if (panelFilter === 'all' || searchQuery.trim()) {
+      return filteredCards;
+    }
+    const cards = cardConfig.configs[panelFilter as PanelId] || [];
+    return cards.map((c, idx) => ({
+      ...c,
+      panelTitle: getPanelTitleLocalized(panelFilter as PanelId),
+      localizedTitle: getCardTitleLocalized(c.id),
+      sortKey: `${panelFilter}-${c.id}-${idx}`,
+    }));
+  }, [cardConfig, panelFilter, searchQuery, filteredCards, t]);
+
   // 各面板卡片数量
   const groupCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -150,27 +320,39 @@ export function CardPanelManager() {
     setCardVisible({ panelId: card.panelId, cardId: card.id, visible: !card.visible });
   };
 
-  const handleMoveUp = (card: CardConfig) => {
-    const cards = cardConfig.configs[card.panelId] || [];
-    const idx = cards.findIndex((c) => c.id === card.id);
-    if (idx > 0) {
-      moveCard({ panelId: card.panelId, cardId: card.id, newOrder: idx - 1 });
-    }
-  };
-
-  const handleMoveDown = (card: CardConfig) => {
-    const cards = cardConfig.configs[card.panelId] || [];
-    const idx = cards.findIndex((c) => c.id === card.id);
-    if (idx < cards.length - 1) {
-      moveCard({ panelId: card.panelId, cardId: card.id, newOrder: idx + 1 });
-    }
-  };
-
   const handleAssignToPanel = (card: CardConfig, targetPanelId: PanelId) => {
     if (targetPanelId !== card.panelId) {
       moveCardToPanel({ cardId: card.id, targetPanelId });
     }
   };
+
+  // 处理拖拽结束
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) return;
+
+    // 只在单个面板视图中支持拖拽排序
+    if (panelFilter === 'all' || searchQuery.trim()) return;
+
+    const panelId = panelFilter as PanelId;
+    const cards = cardConfig.configs[panelId] || [];
+    
+    const oldIndex = cards.findIndex((c, idx) => `${panelId}-${c.id}-${idx}` === active.id);
+    const newIndex = cards.findIndex((c, idx) => `${panelId}-${c.id}-${idx}` === over.id);
+
+    if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+      const newOrder = arrayMove(cards, oldIndex, newIndex).map(c => c.id);
+      reorderCards({ panelId, cardIds: newOrder });
+    }
+  };
+
+  // 是否可以拖拽排序（只在单个面板视图且无搜索时）
+  const canDragSort = panelFilter !== 'all' && !searchQuery.trim();
+
+  const sortableIds = canDragSort 
+    ? currentPanelCards.map(c => c.sortKey)
+    : [];
 
   return (
     <div className="flex flex-col h-full gap-4 p-2">
@@ -222,120 +404,45 @@ export function CardPanelManager() {
 
       {/* 卡片列表 */}
       <ScrollArea className="flex-1 border rounded-lg">
-        <div className="divide-y">
-          {filteredCards.map((card) => {
-            const cardDef = cardRegistry[card.id];
-            const Icon = cardDef?.icon;
-            const panelCards = cardConfig.configs[card.panelId] || [];
-            const cardIndex = panelCards.findIndex((c) => c.id === card.id);
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={sortableIds}
+            strategy={verticalListSortingStrategy}
+          >
+            <div>
+              {currentPanelCards.map((card) => (
+                <SortableCardItem
+                  key={card.sortKey}
+                  card={card}
+                  allPanelIds={allPanelIds}
+                  getPanelTitleLocalized={getPanelTitleLocalized}
+                  onToggleVisible={handleToggleVisible}
+                  onAssignToPanel={handleAssignToPanel}
+                  t={t}
+                />
+              ))}
 
-            return (
-              <div
-                key={`${card.panelId}-${card.id}`}
-                className={cn(
-                  'flex items-center gap-3 px-3 py-2 group',
-                  !card.visible && 'opacity-50'
-                )}
-              >
-                {/* 拖拽手柄 */}
-                <GripVertical className="h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 cursor-grab" />
-
-                {/* 图标 */}
-                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted">
-                  {Icon && <Icon className="h-4 w-4" />}
+              {currentPanelCards.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                  <LayoutGrid className="h-10 w-10 opacity-20 mb-3" />
+                  <p className="text-sm">{t('No cards found')}</p>
                 </div>
-
-                {/* 信息 */}
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-sm truncate">{card.localizedTitle}</div>
-                  <div className="text-xs text-muted-foreground font-mono uppercase">
-                    {card.id}
-                  </div>
-                </div>
-
-                {/* 面板标签 */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-7 px-2">
-                      <Badge variant={card.visible ? 'default' : 'outline'} className="text-[10px]">
-                        {card.panelTitle}
-                      </Badge>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel className="text-xs">{t('Assign to panel')}</DropdownMenuLabel>
-                    {allPanelIds.map((panelId) => (
-                      <DropdownMenuItem
-                        key={panelId}
-                        onClick={() => handleAssignToPanel(card, panelId)}
-                        className="gap-2"
-                      >
-                        <MapPin className="h-3.5 w-3.5" />
-                        {getPanelTitleLocalized(panelId)}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-
-                {/* 操作按钮 */}
-                <div className="flex items-center gap-0.5">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    disabled={cardIndex === 0}
-                    onClick={() => handleMoveUp(card)}
-                  >
-                    <ArrowUp className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    disabled={cardIndex === panelCards.length - 1}
-                    onClick={() => handleMoveDown(card)}
-                  >
-                    <ArrowDown className="h-3.5 w-3.5" />
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-7 w-7">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={() => handleToggleVisible(card)}
-                        disabled={!card.canHide}
-                        className="gap-2"
-                      >
-                        {card.visible ? (
-                          <>
-                            <EyeOff className="h-4 w-4" />
-                            {t('Hide')}
-                          </>
-                        ) : (
-                          <>
-                            <Eye className="h-4 w-4" />
-                            {t('Show')}
-                          </>
-                        )}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            );
-          })}
-
-          {filteredCards.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-              <LayoutGrid className="h-10 w-10 opacity-20 mb-3" />
-              <p className="text-sm">{t('No cards found')}</p>
+              )}
             </div>
-          )}
-        </div>
+          </SortableContext>
+        </DndContext>
       </ScrollArea>
+
+      {/* 拖拽提示 */}
+      {!canDragSort && filteredCards.length > 0 && (
+        <p className="text-xs text-muted-foreground text-center">
+          {t('Select a panel to enable drag sorting')}
+        </p>
+      )}
     </div>
   );
 }

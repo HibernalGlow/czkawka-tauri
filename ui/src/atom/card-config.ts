@@ -186,6 +186,28 @@ export const resetCardConfigAtom = atom(null, (_get, set) => {
   set(cardConfigAtom, generateDefaultConfig());
 });
 
+// 批量重排序卡片（用于拖拽排序）
+export const reorderCardsAtom = atom(
+  null,
+  (get, set, params: { panelId: PanelId; cardIds: string[] }) => {
+    const { panelId, cardIds } = params;
+    const state = get(cardConfigAtom);
+    const cards = state.configs[panelId] || [];
+    
+    // 根据新顺序重排卡片
+    const cardMap = new Map(cards.map(c => [c.id, c]));
+    const reorderedCards = cardIds
+      .map(id => cardMap.get(id))
+      .filter((c): c is CardConfig => c !== undefined)
+      .map((c, i) => ({ ...c, order: i }));
+    
+    set(cardConfigAtom, {
+      ...state,
+      configs: { ...state.configs, [panelId]: reorderedCards },
+    });
+  }
+);
+
 // 辅助函数：获取面板卡片
 export function usePanelCards(panelId: PanelId) {
   return getPanelCardsAtom(panelId);

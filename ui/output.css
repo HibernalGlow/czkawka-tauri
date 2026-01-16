@@ -3756,6 +3756,10 @@ body {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
+.active\:cursor-grabbing:active {
+  cursor: grabbing;
+}
+
 .active\:bg-sidebar-accent:active {
   background-color: var(--sidebar-accent);
 }
