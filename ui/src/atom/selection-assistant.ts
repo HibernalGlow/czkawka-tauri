@@ -196,6 +196,14 @@ export const invertSelectionAtom = atom(
   },
 );
 
+/** 是否将选中项移到顶部显示 */
+export const moveSelectedToTopAtom = atomWithStorage<boolean>(
+  'selection-assistant-move-to-top',
+  false,
+  undefined,
+  { getOnInit: true },
+);
+
 // ============ 导出 Action Symbols ============
 
 export { UNDO, REDO, RESET };

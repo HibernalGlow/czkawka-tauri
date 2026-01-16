@@ -208,39 +208,43 @@ function SettingsContent() {
 
   return (
     <ScrollArea className="flex-1">
-      <Form className="pr-3" value={settings} onChange={handleSettingsChange}>
+      <Form className="gap-0 py-0 pr-3" value={settings} onChange={handleSettingsChange}>
         <GroupTitle>{t('General settings')}</GroupTitle>
         <FormItem
           name="excludedItems"
           label={t('Excluded items')}
           comp="textarea"
         >
-          <Textarea rows={2} />
+          <Textarea className="min-h-[60px]" rows={2} />
         </FormItem>
         <FormItem
           name="allowedExtensions"
           label={t('Allowed extensions')}
           comp="textarea"
         >
-          <Textarea rows={2} />
+          <Textarea className="min-h-[60px]" rows={2} />
         </FormItem>
         <FormItem
           name="excludedExtensions"
           label={t('Excluded extensions')}
           comp="textarea"
         >
-          <Textarea rows={2} />
+          <Textarea className="min-h-[60px]" rows={2} />
         </FormItem>
-        <div className="flex items-center gap-2">
-          <Label className="flex-shrink-0">{t('File size')}(KB):</Label>
-          <FormItem name="minimumFileSize" comp="input-number">
-            <InputNumber minValue={16} maxValue={MAXIMUM_FILE_SIZE} />
-          </FormItem>
-          ~
-          <FormItem name="maximumFileSize" comp="input-number">
-            <InputNumber minValue={16} maxValue={MAXIMUM_FILE_SIZE} />
-          </FormItem>
+        
+        <div className="flex items-center justify-between gap-4 px-3 py-3 border-b hover:bg-muted/20 transition-colors group">
+          <Label className="text-sm font-semibold">{t('File size')}(KB)</Label>
+          <div className="flex items-center gap-2">
+            <FormItem name="minimumFileSize" comp="input-number">
+              <InputNumber className="w-24" minValue={16} maxValue={MAXIMUM_FILE_SIZE} />
+            </FormItem>
+            <span className="text-muted-foreground">~</span>
+            <FormItem name="maximumFileSize" comp="input-number">
+              <InputNumber className="w-24" minValue={16} maxValue={MAXIMUM_FILE_SIZE} />
+            </FormItem>
+          </div>
         </div>
+
         <FormItem
           name="recursiveSearch"
           label={t('Recursive search')}
@@ -274,46 +278,50 @@ function SettingsContent() {
           <Textarea rows={1} placeholder="#compare" />
         </FormItem>
 
-        <div className="flex flex-col gap-2 py-2">
-          <Label>{t('Cache folder path')}</Label>
-          <div className="flex gap-2">
+        <div className="flex items-center justify-between gap-4 px-3 py-3 border-b hover:bg-muted/20 transition-colors group">
+          <div className="flex flex-col gap-1 flex-1">
+            <Label className="text-sm font-semibold">{t('Cache folder path')}</Label>
+          </div>
+          <div className="flex items-center gap-2">
             <Input
               value={settings.customCacheFolderPath}
               onChange={(e) =>
                 handleSettingsChange({ customCacheFolderPath: e.target.value })
               }
               placeholder={platformSettings.cacheDirPath || t('System default')}
-              className="flex-1"
+              className="w-48 h-8 text-xs"
             />
             <Button
               variant="outline"
+              size="sm"
               onClick={() => handleBrowseFolder('customCacheFolderPath')}
-              className="flex-shrink-0"
+              className="h-8"
             >
-              <Folder className="h-4 w-4 mr-1" />
-              {t('Browse')}
+              <Folder className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 py-2">
-          <Label>{t('Config folder path')}</Label>
-          <div className="flex gap-2">
+        <div className="flex items-center justify-between gap-4 px-3 py-3 border-b hover:bg-muted/20 transition-colors group">
+          <div className="flex flex-col gap-1 flex-1">
+            <Label className="text-sm font-semibold">{t('Config folder path')}</Label>
+          </div>
+          <div className="flex items-center gap-2">
             <Input
               value={settings.customConfigFolderPath}
               onChange={(e) =>
                 handleSettingsChange({ customConfigFolderPath: e.target.value })
               }
               placeholder={t('System default')}
-              className="flex-1"
+              className="w-48 h-8 text-xs"
             />
             <Button
               variant="outline"
+              size="sm"
               onClick={() => handleBrowseFolder('customConfigFolderPath')}
-              className="flex-shrink-0"
+              className="h-8"
             >
-              <Folder className="h-4 w-4 mr-1" />
-              {t('Browse')}
+              <Folder className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>
@@ -440,5 +448,11 @@ function SettingsContent() {
 function GroupTitle(props: { children?: React.ReactNode }) {
   const { children } = props;
 
-  return <h3 className="w-full text-center">{children}</h3>;
+  return (
+    <div className="bg-muted/30 px-3 py-1.5 mt-4 first:mt-0 border-y border-border/50">
+      <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">
+        {children}
+      </h3>
+    </div>
+  );
 }
