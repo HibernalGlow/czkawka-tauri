@@ -1,10 +1,11 @@
 /**
  * 组选择区域
  * 实现按组选择文件的功能
+ * 支持与过滤面板集成，过滤器激活时只操作过滤后的数据
  */
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { Check, Plus } from 'lucide-react';
+import { AlertTriangle, Check, Plus } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import {
   currentSelectionAtom,
@@ -12,6 +13,7 @@ import {
 } from '~/atom/selection-assistant';
 import { currentToolAtom } from '~/atom/primitive';
 import { currentToolDataAtom, currentToolRowSelectionAtom } from '~/atom/tools';
+import { filteredDataAtom, isFilterActiveAtom, activeFilterCountAtom } from '~/atom/filter-panel';
 import { Button } from '~/components/shadcn/button';
 import { Checkbox } from '~/components/shadcn/checkbox';
 import { Label } from '~/components/shadcn/label';
@@ -19,7 +21,6 @@ import { Select } from '~/components/one-select';
 import { useT } from '~/hooks';
 import { GroupSelectionRule } from '~/lib/selection-assistant/rules/group-rule';
 import type {
-  GroupRuleConfig,
   GroupSelectionMode,
   SortCriterion,
   SortField,
@@ -53,6 +54,19 @@ export function GroupSelectionSection() {
   const currentToolData = useAtomValue(currentToolDataAtom);
   const currentSelection = useAtomValue(currentSelectionAtom);
   const setSelection = useSetAtom(currentToolRowSelectionAtom);
+  
+  // 过滤器相关状态
+  const isFilterActive = useAtomValue(isFilterActiveAtom);
+  const activeFilterCount = useAtomValue(activeFilterCountAtom);
+  const filteredData = useAtomValue(filteredDataAtom);
+
+  // 根据过滤器状态选择使用的数据
+  const effectiveData = useMemo(() => {
+    if (isFilterActive && filteredData.length > 0) {
+      return filteredData as (BaseEntry & RefEntry & { raw: Record<string, unknown> })[];
+    }
+    return currentToolData as (BaseEntry & RefEntry & { raw: Record<string, unknown> })[];
+  }, [isFilterActive, filteredData, currentToolData]);
 
   // 模式选项
   const modeOptions = useMemo(
@@ -145,7 +159,8 @@ export function GroupSelectionSection() {
   // 执行选择
   const executeSelection = useCallback((action: SelectionAction) => {
     const rule = new GroupSelectionRule(config);
-    const data = currentToolData as (BaseEntry & RefEntry & { raw: Record<string, unknown> })[];
+    // 使用过滤后的数据（如果过滤器激活）
+    const data = effectiveData;
     
     // 构建当前选择集合
     const currentSet = new Set<string>();
@@ -170,7 +185,7 @@ export function GroupSelectionSection() {
       newSelection[path] = true;
     }
     setSelection(newSelection);
-  }, [config, currentToolData, currentSelection, setSelection]);
+  }, [config, effectiveData, currentSelection, setSelection]);
 
   // 执行标记
   const handleMark = useCallback(() => {
@@ -187,6 +202,16 @@ export function GroupSelectionSection() {
 
   return (
     <div className="space-y-3">
+      {/* 过滤器激活警告 */}
+      {isFilterActive && (
+        <div className="flex items-center gap-2 p-2 text-xs bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-md border border-amber-500/20">
+          <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
+          <span>
+            {t('Filter active')} ({activeFilterCount}) - {t('Selection will only affect filtered items')}
+          </span>
+        </div>
+      )}
+
       {/* 模式选择 */}
       <div className="space-y-1.5">
         <Label className="text-xs">{t('Mode')}</Label>

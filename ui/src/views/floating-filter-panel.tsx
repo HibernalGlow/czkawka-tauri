@@ -1,12 +1,12 @@
 /**
  * FloatingFilterPanel - 过滤器悬浮面板
- * 使用统一的 FloatingPanel 和 GlassCard 组件
+ * 使用统一的 FloatingPanel 和新的 FilterPanel 组件
  */
 import { useAtom } from 'jotai';
 import { Filter } from 'lucide-react';
 import { filterPanelAtom } from '~/atom/primitive';
 import { FloatingPanel } from '~/components/cards/floating-panel';
-import { FileFilterContent } from './file-filter-content';
+import { FilterPanel } from './filter-panel';
 import { useT } from '~/hooks';
 
 export function FloatingFilterPanel() {
@@ -59,7 +59,7 @@ export function FloatingFilterPanel() {
       maxHeight={700}
       fixedPosition={{ right: 16, top: 64 }}
     >
-      <FileFilterContent />
+      <FilterPanel />
     </FloatingPanel>
   );
 }
