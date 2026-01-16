@@ -3,6 +3,8 @@ import { open as openFileDialog } from '@tauri-apps/plugin-dialog';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   ArrowDownFromLine,
+  BarChart3,
+  Filter,
   Folder,
   FolderMinus,
   FolderPen,
@@ -13,6 +15,7 @@ import {
   Sliders,
   Star,
   Trash2,
+  Wand2,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -58,11 +61,19 @@ import { getRowSelectionKeys, splitStr } from '~/utils/common';
 import { FileFilter } from './file-filter';
 import { Operations } from './operations';
 import { ToolSettings } from './tool-settings';
+import { SelectionAssistantPanel } from './selection-assistant/selection-assistant-panel';
+import { FilterPanel } from './filter-panel';
+import { FormatDonutChartCard } from './cards/format-donut-chart-card';
+import { FormatBarChartCard } from './cards/format-bar-chart-card';
+import { SimilarityDistributionCard } from './cards/similarity-distribution-card';
+import { useFormatStats } from '~/hooks/useFormatStats';
+import { useSimilarityStats } from '~/hooks/useSimilarityStats';
 
 const DisplayType = {
   Dirs: 'dirs',
   Logs: 'logs',
   ToolSettings: 'toolSettings',
+  Assistant: 'assistant',
 } as const;
 
 interface TableData {
@@ -176,6 +187,9 @@ export function BottomBar({ headerRef }: BottomBarProps) {
               <TabsTrigger value={DisplayType.Logs}>
                 <ScrollText />
               </TabsTrigger>
+              <TabsTrigger value={DisplayType.Assistant}>
+                <Wand2 />
+              </TabsTrigger>
             </TabsList>
           </Tabs>
           <Dialog
@@ -245,6 +259,8 @@ export function BottomBar({ headerRef }: BottomBarProps) {
                   <ToolSettings inPanel={true} />
                 </div>
               </div>
+            ) : displayType === DisplayType.Assistant ? (
+              <AssistantPanel />
             ) : (
               <Logs />
             )}
@@ -709,5 +725,106 @@ function Logs() {
     <ScrollArea className="h-full rounded-md border text-card-foreground px-2 py-1 dark:bg-muted/10 hide-scrollbar">
       <div className="whitespace-break-spaces">{logs}</div>
     </ScrollArea>
+  );
+}
+
+/**
+ * AssistantPanel - 助手面板
+ * 包含选择助手、过滤器、格式分析三个独立卡片
+ */
+function AssistantPanel() {
+  return (
+    <ResizablePanelGroup direction="horizontal">
+      <ResizablePanel defaultSize={40} minSize={20}>
+        <SelectionAssistantCard />
+      </ResizablePanel>
+      <ResizableHandle />
+      <ResizablePanel defaultSize={30} minSize={20}>
+        <FilterCard />
+      </ResizablePanel>
+      <ResizableHandle />
+      <ResizablePanel defaultSize={30} minSize={20}>
+        <AnalysisCard />
+      </ResizablePanel>
+    </ResizablePanelGroup>
+  );
+}
+
+/**
+ * 选择助手卡片
+ */
+function SelectionAssistantCard() {
+  const t = useT();
+  
+  return (
+    <div className="h-full flex flex-col border rounded-md overflow-hidden">
+      <div className="bg-muted/30 p-2 border-b">
+        <h3 className="text-sm font-medium flex items-center gap-1">
+          <Wand2 className="h-4 w-4" />
+          <span>{t('Selection Assistant')}</span>
+        </h3>
+      </div>
+      <div className="flex-1 overflow-auto p-2 hide-scrollbar">
+        <SelectionAssistantPanel />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * 过滤器卡片
+ */
+function FilterCard() {
+  const t = useT();
+  
+  return (
+    <div className="h-full flex flex-col border rounded-md overflow-hidden">
+      <div className="bg-muted/30 p-2 border-b">
+        <h3 className="text-sm font-medium flex items-center gap-1">
+          <Filter className="h-4 w-4" />
+          <span>{t('Filter')}</span>
+        </h3>
+      </div>
+      <div className="flex-1 overflow-hidden">
+        <FilterPanel />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * 格式分析卡片
+ */
+function AnalysisCard() {
+  const t = useT();
+  const stats = useFormatStats();
+  const similarityStats = useSimilarityStats();
+  const hasData = (stats && stats.length > 0) || (similarityStats && similarityStats.length > 0);
+
+  return (
+    <div className="h-full flex flex-col border rounded-md overflow-hidden">
+      <div className="bg-muted/30 p-2 border-b">
+        <h3 className="text-sm font-medium flex items-center gap-1">
+          <BarChart3 className="h-4 w-4" />
+          <span>{t('Data analysis')}</span>
+        </h3>
+      </div>
+      <div className="flex-1 overflow-auto p-2 hide-scrollbar">
+        {hasData ? (
+          <div className="space-y-3">
+            <FormatDonutChartCard />
+            <FormatBarChartCard />
+            <SimilarityDistributionCard />
+          </div>
+        ) : (
+          <div className="flex items-center justify-center text-muted-foreground h-full">
+            <div className="text-center">
+              <BarChart3 className="h-12 w-12 mx-auto mb-2 opacity-20" />
+              <p className="text-sm">{t('No data available')}</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

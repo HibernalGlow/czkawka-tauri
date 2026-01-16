@@ -1,26 +1,31 @@
 /**
  * 选择助手主面板
  * 包含三个可折叠区域：组选择、文本选择、目录选择
+ * 顶部操作栏包含 Undo/Redo 和选择统计/操作按钮
  */
 
-import { useAtom, useAtomValue } from 'jotai';
-import { ChevronDown, ChevronRight, Redo2, Undo2 } from 'lucide-react';
-import { useCallback } from 'react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { ChevronDown, ChevronRight, Redo2, RotateCcw, ToggleLeft, Undo2 } from 'lucide-react';
+import { useCallback, useMemo } from 'react';
 import {
   canRedoAtom,
   canUndoAtom,
+  clearAllSelectionAtom,
+  currentSelectionAtom,
   expandedPanelAtom,
+  invertSelectionAtom,
   redoSelectionAtom,
   undoSelectionAtom,
   type ExpandedPanel,
 } from '~/atom/selection-assistant';
+import { currentToolDataAtom } from '~/atom/tools';
 import { Button } from '~/components/shadcn/button';
 import { cn } from '~/utils/cn';
 import { useT } from '~/hooks';
-import { ActionButtons } from './action-buttons';
 import { DirectorySelectionSection } from './directory-selection-section';
 import { GroupSelectionSection } from './group-selection-section';
 import { TextSelectionSection } from './text-selection-section';
+import type { BaseEntry, RefEntry } from '~/types';
 
 interface AccordionItemProps {
   id: ExpandedPanel;
@@ -65,6 +70,28 @@ export function SelectionAssistantPanel() {
   const canRedo = useAtomValue(canRedoAtom);
   const [, undo] = useAtom(undoSelectionAtom);
   const [, redo] = useAtom(redoSelectionAtom);
+  
+  // 选择统计和操作
+  const currentSelection = useAtomValue(currentSelectionAtom);
+  const currentToolData = useAtomValue(currentToolDataAtom);
+  const clearAll = useSetAtom(clearAllSelectionAtom);
+  const invert = useSetAtom(invertSelectionAtom);
+
+  const selectedCount = useMemo(() => {
+    return Object.keys(currentSelection).filter((k) => currentSelection[k]).length;
+  }, [currentSelection]);
+
+  const totalCount = currentToolData.length;
+
+  const handleClearAll = useCallback(() => {
+    clearAll();
+  }, [clearAll]);
+
+  const handleInvert = useCallback(() => {
+    const data = currentToolData as (BaseEntry & Partial<RefEntry>)[];
+    const allPaths = data.map((item) => item.path);
+    invert(allPaths);
+  }, [currentToolData, invert]);
 
   const handleToggle = useCallback(
     (panel: ExpandedPanel) => {
@@ -74,10 +101,10 @@ export function SelectionAssistantPanel() {
   );
 
   return (
-    <div className="flex flex-col h-full">
-      {/* 顶部操作栏 */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-border">
-        <span className="text-sm font-medium">{t('Selection Assistant')}</span>
+    <div className="flex flex-col h-full overflow-y-auto">
+      {/* 顶部操作栏：Undo/Redo + 选择统计 + 清空/反选 - 随内容滚动 */}
+      <div className="flex items-center justify-between px-3 py-2 border-b border-border gap-2 flex-wrap">
+        {/* 左侧：Undo/Redo */}
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
@@ -100,10 +127,39 @@ export function SelectionAssistantPanel() {
             <Redo2 className="h-4 w-4" />
           </Button>
         </div>
+        
+        {/* 中间：选择统计 */}
+        <span className="text-xs text-muted-foreground">
+          {t('Selected')}: {selectedCount} / {totalCount}
+        </span>
+        
+        {/* 右侧：清空/反选按钮 */}
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            disabled={selectedCount === 0}
+            onClick={handleClearAll}
+            title={t('Clear all')}
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            disabled={totalCount === 0}
+            onClick={handleInvert}
+            title={t('Invert selection')}
+          >
+            <ToggleLeft className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
-      {/* 可折叠区域 */}
-      <div className="flex-1 overflow-y-auto">
+      {/* 可折叠区域 - 随内容滚动 */}
+      <div className="flex-1">
         <AccordionItem
           id="group"
           title={t('Group Selection')}
@@ -130,11 +186,6 @@ export function SelectionAssistantPanel() {
         >
           <DirectorySelectionSection />
         </AccordionItem>
-      </div>
-
-      {/* 底部操作按钮 */}
-      <div className="border-t border-border p-3">
-        <ActionButtons />
       </div>
     </div>
   );
