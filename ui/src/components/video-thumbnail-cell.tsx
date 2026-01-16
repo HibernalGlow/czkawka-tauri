@@ -229,31 +229,31 @@ export function VideoThumbnailCell({
     >
       {!isVisible ? (
         <div
-          className={`${sizeClass} bg-gray-100 rounded flex items-center justify-center`}
+          className={`${sizeClass} bg-muted rounded flex items-center justify-center`}
           style={thumbnailStyle}
         >
-          <Video className={`${iconClass} text-gray-300`} />
+          <Video className={`${iconClass} text-muted-foreground/50`} />
         </div>
       ) : isLoading ? (
         <div
-          className={`${sizeClass} bg-gray-100 rounded flex items-center justify-center`}
+          className={`${sizeClass} bg-muted rounded flex items-center justify-center`}
           style={thumbnailStyle}
         >
-          <div className="animate-spin w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full" />
+          <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
         </div>
       ) : hasError || !thumbnailData ? (
         <div
-          className={`${sizeClass} bg-gray-200 rounded flex items-center justify-center`}
+          className={`${sizeClass} bg-muted/50 rounded flex items-center justify-center`}
           style={thumbnailStyle}
         >
-          <Video className={`${iconClass} text-gray-400`} />
+          <Video className={`${iconClass} text-muted-foreground/50`} />
         </div>
       ) : (
         <div className="relative group">
           <img
             src={thumbnailData}
             alt="Video thumbnail"
-            className={`${sizeClass} object-contain bg-black/5 rounded ${onClick ? 'cursor-pointer hover:opacity-80' : ''} transition-opacity`}
+            className={`${sizeClass} object-contain bg-muted/20 rounded ${onClick ? 'cursor-pointer hover:opacity-80' : ''} transition-opacity`}
             style={thumbnailStyle}
           />
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">

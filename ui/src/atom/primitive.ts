@@ -137,6 +137,7 @@ export const sidebarWidthAtom = atomWithStorage('sidebar-width', 260);
 // Re-export local feature atoms for backward compatibility
 export {
   filterPanelAtom,
+  analysisPanelAtom,
   sidebarImagePreviewAtom,
   sidebarVideoPreviewAtom,
 } from './local-features';

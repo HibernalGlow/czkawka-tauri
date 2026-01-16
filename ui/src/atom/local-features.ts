@@ -49,5 +49,18 @@ export const filterPanelAtom = atom<{
   size: { width: 400, height: 500 },
 });
 
+// 图表分析面板状态
+export const analysisPanelAtom = atom<{
+  isOpen: boolean;
+  mode: 'floating' | 'fixed';
+  position: { x: number; y: number } | null;
+  size: { width: number; height: number };
+}>({
+  isOpen: false,
+  mode: 'fixed',
+  position: null,
+  size: { width: 700, height: 500 },
+});
+
 // NOTE: selectedThemeAtom and customThemesAtom are defined in primitive.ts
 // We keep these here for logical grouping with other local features

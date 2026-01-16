@@ -212,14 +212,14 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
       const strValue = String(value ?? '').toLowerCase();
       const searchValue = filterValue.toLowerCase();
 
-      return match(filterCondition)
-        .with('contains', () => strValue.includes(searchValue))
-        .with('notContains', () => !strValue.includes(searchValue))
-        .with('startsWith', () => strValue.startsWith(searchValue))
-        .with('endsWith', () => strValue.endsWith(searchValue))
-        .with('equals', () => strValue === searchValue)
-        .with('none', () => true)
-        .exhaustive();
+      const condition = filterCondition as FilterCondition;
+      if (condition === 'none') return true;
+      if (condition === 'contains') return strValue.includes(searchValue);
+      if (condition === 'notContains') return !strValue.includes(searchValue);
+      if (condition === 'startsWith') return strValue.startsWith(searchValue);
+      if (condition === 'endsWith') return strValue.endsWith(searchValue);
+      if (condition === 'equals') return strValue === searchValue;
+      return true;
     });
   }
 

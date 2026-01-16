@@ -20,6 +20,7 @@ import { AppBody } from '~/views/app-body';
 import { AppHeader } from '~/views/app-header';
 import { AppSidebar } from '~/views/app-sidebar';
 import { BottomBar } from '~/views/bottom-bar';
+import { FloatingAnalysisPanel } from '~/views/floating-analysis-panel';
 import { FloatingFilterPanel } from '~/views/floating-filter-panel';
 import { SidebarImagePreview } from '~/views/sidebar-image-preview';
 import { SidebarVideoPreview } from '~/views/sidebar-video-preview';
@@ -137,6 +138,7 @@ export default function App() {
       <SidebarImagePreview />
       <SidebarVideoPreview />
       <FloatingFilterPanel />
+      <FloatingAnalysisPanel />
     </div>
   );
 }

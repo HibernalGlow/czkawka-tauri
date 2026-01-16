@@ -2,7 +2,7 @@ import { open } from '@tauri-apps/plugin-dialog';
 import { openPath, openUrl } from '@tauri-apps/plugin-opener';
 import { motion } from 'framer-motion';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { CircleHelp, Folder, Github, Palette, Settings } from 'lucide-react';
+import { CircleHelp, Folder, Github, LayoutGrid, Palette, Settings } from 'lucide-react';
 import { useEffect } from 'react';
 import { initCurrentPresetAtom } from '~/atom/preset';
 import { platformSettingsAtom } from '~/atom/primitive';
@@ -39,6 +39,7 @@ import {
 import { MAXIMUM_FILE_SIZE } from '~/consts';
 import { useBoolean, useT } from '~/hooks';
 import { eventPreventDefault } from '~/utils/event';
+import { CardPanelManager } from './card-panel-manager';
 import { PresetSelect } from './preset-select';
 import { ThemePanel } from './theme-panel';
 
@@ -131,7 +132,7 @@ export function SettingsButton(props: ButtonProps) {
           </BoxReveal>
         </div>
         <Tabs defaultValue="general" className="h-[550px] flex flex-col">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="general" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
               {t('General settings')}
@@ -139,6 +140,10 @@ export function SettingsButton(props: ButtonProps) {
             <TabsTrigger value="theme" className="flex items-center gap-2">
               <Palette className="h-4 w-4" />
               {t('Theme settings')}
+            </TabsTrigger>
+            <TabsTrigger value="cards" className="flex items-center gap-2">
+              <LayoutGrid className="h-4 w-4" />
+              {t('Card panels')}
             </TabsTrigger>
           </TabsList>
           <TabsContent
@@ -155,6 +160,12 @@ export function SettingsButton(props: ButtonProps) {
             className="flex-1 h-[480px] overflow-hidden"
           >
             <ThemePanel />
+          </TabsContent>
+          <TabsContent
+            value="cards"
+            className="flex-1 h-[480px] overflow-hidden"
+          >
+            <CardPanelManager />
           </TabsContent>
         </Tabs>
       </DialogContent>
