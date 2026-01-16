@@ -209,9 +209,9 @@ export function VideoPlayerDialog({
               max={duration || 0}
               value={currentTime}
               onChange={handleSeek}
-              className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-500"
+              className="w-full h-1 rounded-lg appearance-none cursor-pointer accent-primary"
               style={{
-                background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${duration ? (currentTime / duration) * 100 : 0}%, #4b5563 ${duration ? (currentTime / duration) * 100 : 0}%, #4b5563 100%)`,
+                background: `linear-gradient(to right, hsl(var(--primary)) 0%, hsl(var(--primary)) ${duration ? (currentTime / duration) * 100 : 0}%, rgba(156, 163, 175, 0.5) ${duration ? (currentTime / duration) * 100 : 0}%, rgba(156, 163, 175, 0.5) 100%)`,
               }}
             />
 
@@ -220,12 +220,12 @@ export function VideoPlayerDialog({
               <div className="flex items-center gap-4">
                 <button
                   onClick={togglePlay}
-                  className="p-2 hover:bg-white/20 rounded-full transition-colors"
+                  className="p-2 hover:bg-accent rounded-full transition-colors"
                 >
                   {isPlaying ? (
-                    <Pause className="w-6 h-6" />
+                    <Pause className="w-6 h-6 text-primary" />
                   ) : (
-                    <Play className="w-6 h-6" />
+                    <Play className="w-6 h-6 text-primary" />
                   )}
                 </button>
 
