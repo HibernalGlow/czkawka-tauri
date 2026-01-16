@@ -401,6 +401,7 @@ export const zh: Record<TranslationKeys, string> = {
   Condition: '条件',
   Pattern: '模式',
   'Invalid regex pattern': '无效的正则表达式',
+  'Match whole column': '匹配整列',
   'Keep one per directory': '每个目录保留一个',
   'Select all in directory': '选择目录下所有',
   'Exclude directory': '排除目录',

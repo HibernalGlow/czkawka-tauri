@@ -107,57 +107,55 @@
   }
 }
 
-/* 全局滚动条样式 - 简洁美观，符合主题色系 */
+/* 全局滚动条和选中文本样式 */
 @layer base {
-  /* Webkit 浏览器 (Chrome, Safari, Edge) */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground) / 0.3);
-    border-radius: 9999px;
-    border: 2px solid transparent;
-    background-clip: padding-box;
-    transition: background 0.2s ease;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--primary) / 0.5);
-    border: 2px solid transparent;
-    background-clip: padding-box;
-  }
-
-  ::-webkit-scrollbar-thumb:active {
-    background: hsl(var(--primary) / 0.7);
-    border: 2px solid transparent;
-    background-clip: padding-box;
-  }
-
-  ::-webkit-scrollbar-corner {
-    background: transparent;
-  }
-
-  /* Firefox */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
-  }
-
-  /* 选中文本样式 */
+  /* 选中文本样式 - 使用主题色 */
   ::selection {
-    background: hsl(var(--primary) / 0.3);
-    color: hsl(var(--foreground));
+    background-color: var(--primary);
+    color: var(--primary-foreground);
   }
 
-  ::-moz-selection {
-    background: hsl(var(--primary) / 0.3);
-    color: hsl(var(--foreground));
+  /* 隐藏所有滚动条 */
+  * {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  *::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
+  /* 确保主窗口不显示滚动条 */
+  html,
+  body {
+    overflow: hidden;
+  }
+
+  /* 需要显示滚动条的容器专用样式 */
+  .show-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+    display: block;
+  }
+
+  .show-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .show-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--muted-foreground);
+    opacity: 0.3;
+    border-radius: 3px;
+  }
+
+  .show-scrollbar::-webkit-scrollbar-thumb:hover {
+    opacity: 0.5;
+  }
+
+  /* Firefox 滚动条样式 */
+  .show-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--muted-foreground) transparent;
   }
 }
 

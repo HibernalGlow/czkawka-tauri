@@ -35,6 +35,7 @@ export class TextSelectionRule implements SelectionRule<TextRuleConfig> {
       pattern: config.pattern || '',
       useRegex: config.useRegex || false,
       caseSensitive: config.caseSensitive || false,
+      matchWholeColumn: config.matchWholeColumn || false,
       keepExistingSelection: config.keepExistingSelection || false,
     };
   }
@@ -62,10 +63,14 @@ export class TextSelectionRule implements SelectionRule<TextRuleConfig> {
       const matchedPaths = new Set<string>();
       for (const item of data) {
         const value = getColumnValue(item.path, this.config.column);
+        
+        // 如果启用了"匹配整列"，则使用 equals 条件
+        const effectiveCondition = this.config.matchWholeColumn ? 'equals' : this.config.condition;
+        
         const isMatch = matchText(
           value,
           this.config.pattern,
-          this.config.condition,
+          effectiveCondition,
           this.config.caseSensitive,
           this.config.useRegex,
         );
@@ -143,11 +148,14 @@ export class TextSelectionRule implements SelectionRule<TextRuleConfig> {
     };
 
     const col = columnDesc[this.config.column] || this.config.column;
-    const cond = conditionDesc[this.config.condition] || this.config.condition;
+    const cond = this.config.matchWholeColumn 
+      ? '等于' 
+      : (conditionDesc[this.config.condition] || this.config.condition);
     const regex = this.config.useRegex ? ' (正则)' : '';
     const caseSens = this.config.caseSensitive ? ' (大小写敏感)' : '';
+    const wholeCol = this.config.matchWholeColumn ? ' (整列)' : '';
 
-    return `文本选择: ${col} ${cond} "${this.config.pattern}"${regex}${caseSens}`;
+    return `文本选择: ${col} ${cond} "${this.config.pattern}"${regex}${caseSens}${wholeCol}`;
   }
 
   /**

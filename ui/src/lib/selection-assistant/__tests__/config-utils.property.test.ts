@@ -42,6 +42,7 @@ const textRuleConfigArb: fc.Arbitrary<TextRuleConfig> = fc.record({
   pattern: fc.string({ minLength: 0, maxLength: 50 }),
   useRegex: fc.boolean(),
   caseSensitive: fc.boolean(),
+  matchWholeColumn: fc.boolean(),
   keepExistingSelection: fc.boolean(),
 }) as fc.Arbitrary<TextRuleConfig>;
 
@@ -194,6 +195,7 @@ describe('配置合并', () => {
         pattern: 'old',
         useRegex: false,
         caseSensitive: false,
+        matchWholeColumn: false,
         keepExistingSelection: false,
       },
       directoryRule: {
@@ -211,6 +213,7 @@ describe('配置合并', () => {
         pattern: 'new',
         useRegex: true,
         caseSensitive: true,
+        matchWholeColumn: false,
         keepExistingSelection: true,
       },
     };

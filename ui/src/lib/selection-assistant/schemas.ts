@@ -73,6 +73,7 @@ export const textRuleConfigSchema = z.object({
   pattern: z.string(),
   useRegex: z.boolean(),
   caseSensitive: z.boolean(),
+  matchWholeColumn: z.boolean(),
   keepExistingSelection: z.boolean(),
 });
 

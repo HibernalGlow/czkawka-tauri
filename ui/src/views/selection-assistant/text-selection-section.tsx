@@ -114,6 +114,14 @@ export function TextSelectionSection() {
     [setConfig],
   );
 
+  // 更新匹配整列
+  const handleMatchWholeColumnChange = useCallback(
+    (checked: boolean) => {
+      setConfig((prev) => ({ ...prev, matchWholeColumn: checked }));
+    },
+    [setConfig],
+  );
+
   // 更新保持已选择
   const handleKeepExistingChange = useCallback(
     (checked: boolean) => {
@@ -216,12 +224,12 @@ export function TextSelectionSection() {
       <div className="flex flex-wrap gap-x-4 gap-y-2">
         <div className="flex items-center space-x-2">
           <Checkbox
-            id="use-regex"
-            checked={config.useRegex}
-            onCheckedChange={handleUseRegexChange}
+            id="match-whole-column"
+            checked={config.matchWholeColumn}
+            onCheckedChange={handleMatchWholeColumnChange}
           />
-          <Label htmlFor="use-regex" className="text-xs cursor-pointer">
-            {t('Use regex')}
+          <Label htmlFor="match-whole-column" className="text-xs cursor-pointer">
+            {t('Match whole column')}
           </Label>
         </div>
 
@@ -233,6 +241,17 @@ export function TextSelectionSection() {
           />
           <Label htmlFor="case-sensitive" className="text-xs cursor-pointer">
             {t('Case sensitive')}
+          </Label>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="use-regex"
+            checked={config.useRegex}
+            onCheckedChange={handleUseRegexChange}
+          />
+          <Label htmlFor="use-regex" className="text-xs cursor-pointer">
+            {t('Use regex')}
           </Label>
         </div>
 

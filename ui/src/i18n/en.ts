@@ -409,6 +409,7 @@ export const en = {
   Condition: 'Condition',
   Pattern: 'Pattern',
   'Invalid regex pattern': 'Invalid regex pattern',
+  'Match whole column': 'Match whole column',
   'Keep one per directory': 'Keep one per directory',
   'Select all in directory': 'Select all in directory',
   'Exclude directory': 'Exclude directory',

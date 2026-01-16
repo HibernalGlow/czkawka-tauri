@@ -137,6 +137,7 @@ export interface TextRuleConfig {
   pattern: string;
   useRegex: boolean;
   caseSensitive: boolean;
+  matchWholeColumn: boolean; // 匹配整列
   keepExistingSelection: boolean;
 }
 

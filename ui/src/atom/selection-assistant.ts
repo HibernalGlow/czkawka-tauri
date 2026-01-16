@@ -34,6 +34,7 @@ export const defaultTextRuleConfig: TextRuleConfig = {
   pattern: '',
   useRegex: false,
   caseSensitive: false,
+  matchWholeColumn: false,
   keepExistingSelection: false,
 };
 
