@@ -352,6 +352,7 @@ export const zh: Record<TranslationKeys, string> = {
   Count: '数量',
   and_others: '以及其他 {{count}} 种格式',
   'Size distribution': '体积占比分布',
+  'Similarity distribution': '差异度分布情况',
 
   // 选择助手
   'Selection Assistant': '选择助手',
@@ -383,15 +384,9 @@ export const zh: Record<TranslationKeys, string> = {
   Disk: '磁盘',
   'File type': '文件类型',
   'Creation date': '创建日期',
-  Hash: '哈希值',
   'Hard links': '硬链接',
-  // 过滤条件
-  Filter: '过滤',
   'No filter': '无过滤',
-  Contains: '包含',
   'Not contains': '不包含',
-  'Starts with': '起始于',
-  'Ends with': '结尾于',
-  Equals: '等于',
   'Filter value': '过滤值',
+  'Original': '参考/相同',
 };

@@ -360,6 +360,7 @@ export const en = {
   Count: 'Count',
   and_others: 'and {{count}} other formats',
   'Size distribution': 'Size distribution',
+  'Similarity distribution': 'Similarity distribution',
 
   // Selection Assistant
   'Selection Assistant': 'Selection Assistant',
@@ -391,17 +392,11 @@ export const en = {
   Disk: 'Disk',
   'File type': 'File type',
   'Creation date': 'Creation date',
-  Hash: 'Hash',
   'Hard links': 'Hard links',
-  // Filter conditions
-  Filter: 'Filter',
   'No filter': 'No filter',
-  Contains: 'Contains',
   'Not contains': 'Not contains',
-  'Starts with': 'Starts with',
-  'Ends with': 'Ends with',
-  Equals: 'Equals',
   'Filter value': 'Filter value',
+  'Original': 'Original',
 };
 
 export type TranslationKeys = keyof typeof en;
