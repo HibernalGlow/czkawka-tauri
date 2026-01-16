@@ -1,6 +1,7 @@
 /**
  * FloatingPanel - 悬浮面板容器组件
  * 使用 GlassCard 作为容器，支持拖拽移动和调整大小
+ * 自动适配窗口大小变化和主题
  */
 import { useCallback, useEffect, useRef, useState, type ReactNode, type ComponentType } from 'react';
 import { Pin, PinOff, X } from 'lucide-react';
@@ -45,7 +46,7 @@ export interface FloatingPanelProps {
 }
 
 export function FloatingPanel({
-  panelId,
+  panelId: _panelId,
   title,
   icon: Icon,
   children,
@@ -74,14 +75,72 @@ export function FloatingPanel({
 
   const isFloating = mode === 'floating';
 
+  // 窗口大小变化时自动调整面板位置和大小
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleResize = () => {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+
+      // 限制最大尺寸不超过视口
+      const effectiveMaxWidth = Math.min(maxWidth, vw - 40);
+      const effectiveMaxHeight = Math.min(maxHeight, vh - 40);
+
+      let needsUpdate = false;
+      let newWidth = size.width;
+      let newHeight = size.height;
+      let newX = position?.x ?? 0;
+      let newY = position?.y ?? 0;
+
+      // 调整尺寸
+      if (size.width > effectiveMaxWidth) {
+        newWidth = effectiveMaxWidth;
+        needsUpdate = true;
+      }
+      if (size.height > effectiveMaxHeight) {
+        newHeight = effectiveMaxHeight;
+        needsUpdate = true;
+      }
+
+      // 调整位置确保在视口内
+      if (isFloating && position) {
+        if (position.x + newWidth > vw) {
+          newX = Math.max(0, vw - newWidth - 20);
+          needsUpdate = true;
+        }
+        if (position.y + newHeight > vh) {
+          newY = Math.max(0, vh - newHeight - 20);
+          needsUpdate = true;
+        }
+      }
+
+      if (needsUpdate) {
+        if (newWidth !== size.width || newHeight !== size.height) {
+          onSizeChange?.({ width: newWidth, height: newHeight });
+        }
+        if (isFloating && position && (newX !== position.x || newY !== position.y)) {
+          onPositionChange?.({ x: newX, y: newY });
+        }
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    // 初始检查
+    handleResize();
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isOpen, isFloating, position, size, maxWidth, maxHeight, onPositionChange, onSizeChange]);
+
   const toggleMode = () => {
     const newMode = mode === 'fixed' ? 'floating' : 'fixed';
     onModeChange?.(newMode);
     
     if (newMode === 'floating' && !position) {
       // 切换到浮动模式时设置初始位置
+      const vw = window.innerWidth;
       onPositionChange?.({
-        x: Math.max(0, Math.min(window.innerWidth / 2 - size.width / 2, window.innerWidth - size.width - 20)),
+        x: Math.max(0, Math.min(vw / 2 - size.width / 2, vw - size.width - 20)),
         y: 100,
       });
     }
@@ -101,15 +160,22 @@ export function FloatingPanel({
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+
       if (isDragging && isFloating && position) {
-        const newX = Math.max(0, Math.min(e.clientX - dragOffset.x, window.innerWidth - size.width));
-        const newY = Math.max(0, Math.min(e.clientY - dragOffset.y, window.innerHeight - size.height));
+        const newX = Math.max(0, Math.min(e.clientX - dragOffset.x, vw - size.width));
+        const newY = Math.max(0, Math.min(e.clientY - dragOffset.y, vh - size.height));
         onPositionChange?.({ x: newX, y: newY });
       }
 
       if (isResizing && isFloating && position && resizeDirection) {
         const deltaX = e.clientX - resizeStartPos.x;
         const deltaY = e.clientY - resizeStartPos.y;
+
+        // 动态计算最大尺寸
+        const effectiveMaxWidth = Math.min(maxWidth, vw - 40);
+        const effectiveMaxHeight = Math.min(maxHeight, vh - 40);
 
         let newWidth = resizeStartSize.width;
         let newHeight = resizeStartSize.height;
@@ -118,25 +184,25 @@ export function FloatingPanel({
 
         // 处理不同方向的调整
         if (resizeDirection.includes('e')) {
-          newWidth = Math.max(minWidth, Math.min(maxWidth, resizeStartSize.width + deltaX));
+          newWidth = Math.max(minWidth, Math.min(effectiveMaxWidth, resizeStartSize.width + deltaX));
         }
         if (resizeDirection.includes('w')) {
           const widthChange = Math.min(resizeStartSize.width - minWidth, deltaX);
-          newWidth = Math.max(minWidth, Math.min(maxWidth, resizeStartSize.width - deltaX));
+          newWidth = Math.max(minWidth, Math.min(effectiveMaxWidth, resizeStartSize.width - deltaX));
           newX = resizeStartPos.x + widthChange;
         }
         if (resizeDirection.includes('s')) {
-          newHeight = Math.max(minHeight, Math.min(maxHeight, resizeStartSize.height + deltaY));
+          newHeight = Math.max(minHeight, Math.min(effectiveMaxHeight, resizeStartSize.height + deltaY));
         }
         if (resizeDirection.includes('n')) {
           const heightChange = Math.min(resizeStartSize.height - minHeight, deltaY);
-          newHeight = Math.max(minHeight, Math.min(maxHeight, resizeStartSize.height - deltaY));
+          newHeight = Math.max(minHeight, Math.min(effectiveMaxHeight, resizeStartSize.height - deltaY));
           newY = resizeStartPos.y + heightChange;
         }
 
         // 确保面板在视口内
-        newX = Math.max(0, Math.min(newX, window.innerWidth - newWidth));
-        newY = Math.max(0, Math.min(newY, window.innerHeight - newHeight));
+        newX = Math.max(0, Math.min(newX, vw - newWidth));
+        newY = Math.max(0, Math.min(newY, vh - newHeight));
 
         onPositionChange?.({ x: newX, y: newY });
         onSizeChange?.({ width: newWidth, height: newHeight });
@@ -177,18 +243,23 @@ export function FloatingPanel({
 
   if (!isOpen) return null;
 
-  // 计算样式
+  // 计算样式，确保不超出视口
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const effectiveWidth = Math.min(size.width, vw - 40);
+  const effectiveHeight = Math.min(size.height, vh - 40);
+
   const panelStyle = isFloating && position
     ? {
-        left: position.x,
-        top: position.y,
-        width: size.width,
-        height: size.height,
+        left: Math.min(position.x, vw - effectiveWidth - 20),
+        top: Math.min(position.y, vh - effectiveHeight - 20),
+        width: effectiveWidth,
+        height: effectiveHeight,
       }
     : {
         ...fixedPosition,
-        width: size.width,
-        height: size.height,
+        width: effectiveWidth,
+        height: effectiveHeight,
       };
 
   // 头部操作按钮
@@ -198,7 +269,7 @@ export function FloatingPanel({
         variant="ghost"
         size="sm"
         onClick={toggleMode}
-        className="h-6 w-6 p-0"
+        className="h-6 w-6 p-0 hover:bg-accent/50"
         title={isFloating ? 'Pin panel' : 'Unpin panel'}
       >
         {isFloating ? <Pin className="h-4 w-4" /> : <PinOff className="h-4 w-4" />}
@@ -207,7 +278,7 @@ export function FloatingPanel({
         variant="ghost"
         size="sm"
         onClick={onClose}
-        className="h-6 w-6 p-0"
+        className="h-6 w-6 p-0 hover:bg-destructive/20 hover:text-destructive"
         title="Close"
       >
         <X className="h-4 w-4" />
@@ -215,14 +286,16 @@ export function FloatingPanel({
     </div>
   );
 
+
   return (
     <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 50 }}>
       <div
         ref={dragRef}
         className={cn(
-          'pointer-events-auto fixed',
-          isDragging && 'cursor-grabbing',
+          'pointer-events-auto fixed transition-shadow duration-200',
+          isDragging && 'cursor-grabbing shadow-2xl',
           isResizing && 'select-none',
+          !isDragging && !isResizing && 'shadow-lg',
           className
         )}
         style={panelStyle}
@@ -230,7 +303,11 @@ export function FloatingPanel({
         <GlassCard
           title={title}
           icon={Icon}
-          className={cn('h-full', isFloating && 'cursor-grab')}
+          className={cn(
+            'h-full transition-all duration-200',
+            isFloating && 'cursor-grab',
+            isDragging && 'ring-2 ring-primary/50'
+          )}
           headerActions={headerActions}
           blurIntensity="lg"
           opacity={0.9}
@@ -252,16 +329,48 @@ export function FloatingPanel({
         {/* 调整大小手柄 - 仅浮动模式 */}
         {isFloating && (
           <>
-            {/* 角落手柄 */}
-            <div className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-30" onMouseDown={(e) => startResize(e, 'nw')} />
-            <div className="absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-30" onMouseDown={(e) => startResize(e, 'ne')} />
-            <div className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-30" onMouseDown={(e) => startResize(e, 'sw')} />
-            <div className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-30" onMouseDown={(e) => startResize(e, 'se')} />
+            {/* 角落手柄 - 带视觉指示 */}
+            <div 
+              className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-30 group"
+              onMouseDown={(e) => startResize(e, 'nw')}
+            >
+              <div className="absolute top-1 left-1 w-2 h-2 rounded-full bg-border/0 group-hover:bg-primary/50 transition-colors" />
+            </div>
+            <div 
+              className="absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-30 group"
+              onMouseDown={(e) => startResize(e, 'ne')}
+            >
+              <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-border/0 group-hover:bg-primary/50 transition-colors" />
+            </div>
+            <div 
+              className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-30 group"
+              onMouseDown={(e) => startResize(e, 'sw')}
+            >
+              <div className="absolute bottom-1 left-1 w-2 h-2 rounded-full bg-border/0 group-hover:bg-primary/50 transition-colors" />
+            </div>
+            <div 
+              className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-30 group"
+              onMouseDown={(e) => startResize(e, 'se')}
+            >
+              <div className="absolute bottom-1 right-1 w-2 h-2 rounded-full bg-border/0 group-hover:bg-primary/50 transition-colors" />
+            </div>
             {/* 边缘手柄 */}
-            <div className="absolute top-0 left-4 right-4 h-2 cursor-n-resize z-30" onMouseDown={(e) => startResize(e, 'n')} />
-            <div className="absolute bottom-0 left-4 right-4 h-2 cursor-s-resize z-30" onMouseDown={(e) => startResize(e, 's')} />
-            <div className="absolute left-0 top-4 bottom-4 w-2 cursor-w-resize z-30" onMouseDown={(e) => startResize(e, 'w')} />
-            <div className="absolute right-0 top-4 bottom-4 w-2 cursor-e-resize z-30" onMouseDown={(e) => startResize(e, 'e')} />
+            <div 
+              className="absolute top-0 left-4 right-4 h-2 cursor-n-resize z-30 hover:bg-primary/10 transition-colors" 
+              onMouseDown={(e) => startResize(e, 'n')} 
+            />
+            <div 
+              className="absolute bottom-0 left-4 right-4 h-2 cursor-s-resize z-30 hover:bg-primary/10 transition-colors" 
+              onMouseDown={(e) => startResize(e, 's')} 
+            />
+            <div 
+              className="absolute left-0 top-4 bottom-4 w-2 cursor-w-resize z-30 hover:bg-primary/10 transition-colors" 
+              onMouseDown={(e) => startResize(e, 'w')} 
+            />
+            <div 
+              className="absolute right-0 top-4 bottom-4 w-2 cursor-e-resize z-30 hover:bg-primary/10 transition-colors" 
+              onMouseDown={(e) => startResize(e, 'e')} 
+            />
           </>
         )}
       </div>

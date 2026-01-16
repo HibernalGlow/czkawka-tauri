@@ -1,6 +1,6 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { invoke } from '@tauri-apps/api/core';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { ExternalLink } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { settingsAtom } from '~/atom/settings';
@@ -9,6 +9,7 @@ import {
   currentToolFilterAtom,
   currentToolRowSelectionAtom,
 } from '~/atom/tools';
+import { sidebarVideoPreviewAtom } from '~/atom/primitive';
 import {
   DataTable,
   FilterStateUpdater,
@@ -19,7 +20,6 @@ import {
 import { DynamicVideoThumbnailCell } from '~/components/dynamic-video-thumbnail-cell';
 import { toastError } from '~/components/toast';
 import { TooltipButton } from '~/components/tooltip-button';
-import { VideoPlayerDialog } from '~/components/video-player-dialog';
 import { useT } from '~/hooks';
 import type { VideosEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
@@ -30,13 +30,9 @@ export function SimilarVideos() {
   const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);
+  const setSidebarVideoPreview = useSetAtom(sidebarVideoPreviewAtom);
   const t = useT();
 
-  // Video player state
-  const [selectedVideoPath, setSelectedVideoPath] = useState<string | null>(
-    null,
-  );
-  const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
   const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80);
 
   const filteredData = useMemo(() => {
@@ -77,10 +73,13 @@ export function SimilarVideos() {
     return Math.max(36, thumbnailSize + 16);
   }, [settings.similarVideosEnableThumbnails, thumbnailColumnWidth]);
 
-  // Handle opening video in app player
+  // Handle opening video in floating preview panel
   const handleVideoClick = (path: string) => {
-    setSelectedVideoPath(path);
-    setIsVideoPlayerOpen(true);
+    setSidebarVideoPreview((prev) => ({
+      ...prev,
+      isOpen: true,
+      videoPath: path,
+    }));
   };
 
   // Handle opening video in system player
@@ -216,31 +215,19 @@ export function SimilarVideos() {
   ];
 
   return (
-    <>
-      <DataTable
-        className="flex-1 rounded-none border-none grow"
-        data={filteredData}
-        columns={columns}
-        rowSelection={rowSelection}
-        onRowSelectionChange={setRowSelection}
-        rowHeight={dynamicRowHeight}
-        globalFilter={filter}
-        onGlobalFilterChange={(updater: FilterStateUpdater) => {
-          const newValue =
-            typeof updater === 'function' ? updater(filter) : updater;
-          setFilter(newValue);
-        }}
-      />
-      {selectedVideoPath && (
-        <VideoPlayerDialog
-          path={selectedVideoPath}
-          isOpen={isVideoPlayerOpen}
-          onClose={() => {
-            setIsVideoPlayerOpen(false);
-            setSelectedVideoPath(null);
-          }}
-        />
-      )}
-    </>
+    <DataTable
+      className="flex-1 rounded-none border-none grow"
+      data={filteredData}
+      columns={columns}
+      rowSelection={rowSelection}
+      onRowSelectionChange={setRowSelection}
+      rowHeight={dynamicRowHeight}
+      globalFilter={filter}
+      onGlobalFilterChange={(updater: FilterStateUpdater) => {
+        const newValue =
+          typeof updater === 'function' ? updater(filter) : updater;
+        setFilter(newValue);
+      }}
+    />
   );
 }
