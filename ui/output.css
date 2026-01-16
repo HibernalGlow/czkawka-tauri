@@ -996,6 +996,14 @@ body {
   margin-top: 0.5rem;
 }
 
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
+
+.mt-8 {
+  margin-top: 2rem;
+}
+
 .block {
   display: block;
 }
@@ -1166,12 +1174,20 @@ body {
   height: 100svh;
 }
 
+.h-64 {
+  height: 16rem;
+}
+
 .max-h-96 {
   max-height: 24rem;
 }
 
 .max-h-full {
   max-height: 100%;
+}
+
+.max-h-\[90vh\] {
+  max-height: 90vh;
 }
 
 .min-h-0 {
@@ -1316,6 +1332,10 @@ body {
 
 .w-screen {
   width: 100vw;
+}
+
+.w-24 {
+  width: 6rem;
 }
 
 .min-w-0 {
@@ -1636,6 +1656,14 @@ body {
   gap: 1.25rem;
 }
 
+.gap-6 {
+  gap: 1.5rem;
+}
+
+.gap-8 {
+  gap: 2rem;
+}
+
 .space-x-2 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-x-reverse: 0;
   margin-right: calc(0.5rem * var(--tw-space-x-reverse));
@@ -1670,6 +1698,12 @@ body {
   --tw-space-y-reverse: 0;
   margin-top: calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(1.5rem * var(--tw-space-y-reverse));
+}
+
+.space-y-1 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(0.25rem * var(--tw-space-y-reverse));
 }
 
 .overflow-auto {
@@ -2204,6 +2238,11 @@ body {
   line-height: 1rem;
 }
 
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
 .font-black {
   font-weight: 900;
 }
@@ -2359,6 +2398,10 @@ body {
 .text-yellow-600 {
   --tw-text-opacity: 1;
   color: rgb(202 138 4 / var(--tw-text-opacity, 1));
+}
+
+.text-background {
+  color: var(--background);
 }
 
 .underline-offset-4 {

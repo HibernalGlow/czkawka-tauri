@@ -16,6 +16,7 @@ import {
   getSimilarityLevelText,
 } from '~/utils/similarity-utils';
 import { DeleteFiles } from './delete-files';
+import { FormatAnalysisDialog } from './format-analysis';
 import { MoveFiles } from './move-files';
 import { RenameExt } from './rename-ext';
 import { RowSelectionMenu } from './row-selection-menu';
@@ -103,6 +104,7 @@ export function Operations() {
       <DeleteFiles disabled={disabled} />
       <SaveResult disabled={disabled} />
       {currentTool === Tools.BadExtensions && <RenameExt disabled={disabled} />}
+      <FormatAnalysisDialog />
       <SimilarityQuickTableDialog />
     </div>
   );

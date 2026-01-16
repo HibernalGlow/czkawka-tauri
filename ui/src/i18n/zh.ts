@@ -346,4 +346,10 @@ export const zh: Record<TranslationKeys, string> = {
   'Toggle Sidebar': '切换侧边栏',
   'Change language': '更改语言',
   Language: '语言',
+  'Format analysis': '格式分析',
+  'File format analysis': '文件格式占比分析',
+  Formats: '种格式',
+  Count: '数量',
+  and_others: '以及其他 {{count}} 种格式',
+  'Size distribution': '体积占比分布',
 };

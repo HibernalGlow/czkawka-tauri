@@ -354,6 +354,12 @@ export const en = {
   'Toggle Sidebar': 'Toggle Sidebar',
   'Change language': 'Change language',
   Language: 'Language',
+  'Format analysis': 'Format analysis',
+  'File format analysis': 'File format analysis',
+  Formats: 'Formats',
+  Count: 'Count',
+  and_others: 'and {{count}} other formats',
+  'Size distribution': 'Size distribution',
 };
 
 export type TranslationKeys = keyof typeof en;
