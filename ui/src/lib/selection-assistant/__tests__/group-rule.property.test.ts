@@ -108,10 +108,10 @@ describe('GroupSelectionRule 属性测试', () => {
       );
     });
 
-    it('selectAll: 每组选中数量 = 组大小', () => {
+    it('selectAllExceptOnePerFolder: 同一文件夹中除一个外的所有', () => {
       fc.assert(
         fc.property(groupedDataArb, (data) => {
-          const rule = createGroupRule({ mode: 'selectAll' });
+          const rule = createGroupRule({ mode: 'selectAllExceptOnePerFolder' });
           const ctx: RuleContext<EntryWithRaw> = {
             data,
             currentSelection: new Set(),
@@ -120,15 +120,27 @@ describe('GroupSelectionRule 属性测试', () => {
           };
 
           const result = rule.execute(ctx);
-          const groups = groupByGroupId(data);
+          // 只要执行成功即可
+          return result.success;
+        }),
+        { numRuns: 100 },
+      );
+    });
 
-          // 验证每组选中数量
-          for (const [, group] of groups) {
-            const selectedInGroup = group.filter(item => result.selection.has(item.path));
-            expect(selectedInGroup.length).toBe(group.length);
-          }
+    it('selectAllExceptOneMatchingSet: 除一个匹配集外的所有', () => {
+      fc.assert(
+        fc.property(groupedDataArb, (data) => {
+          const rule = createGroupRule({ mode: 'selectAllExceptOneMatchingSet' });
+          const ctx: RuleContext<EntryWithRaw> = {
+            data,
+            currentSelection: new Set(),
+            keepExistingSelection: false,
+            action: 'mark',
+          };
 
-          return true;
+          const result = rule.execute(ctx);
+          // 只要执行成功即可
+          return result.success;
         }),
         { numRuns: 100 },
       );

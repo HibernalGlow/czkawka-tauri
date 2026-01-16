@@ -23,7 +23,7 @@ import type {
 
 // 生成有效配置的 arbitrary
 const groupRuleConfigArb: fc.Arbitrary<GroupRuleConfig> = fc.record({
-  mode: fc.constantFrom('selectAllExceptOne', 'selectOne', 'selectAll'),
+  mode: fc.constantFrom('selectAllExceptOne', 'selectOne', 'selectAllExceptOnePerFolder', 'selectAllExceptOneMatchingSet'),
   sortCriteria: fc.array(
     fc.record({
       field: fc.constantFrom('folderPath', 'fileName', 'fileSize', 'creationDate', 'modifiedDate', 'resolution'),

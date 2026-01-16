@@ -69,8 +69,8 @@ export function FloatingAnalysisPanel() {
       fixedPosition={{ right: 20, top: 80 }}
     >
       {hasData ? (
-        <Tabs defaultValue="format" className="h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-2 mb-2">
+        <Tabs defaultValue="format" className="flex flex-col">
+          <TabsList className="grid w-full grid-cols-2 mb-2 flex-shrink-0">
             <TabsTrigger value="format" className="flex items-center gap-2">
               <PieChart className="h-4 w-4" />
               {t('File format')}
@@ -81,21 +81,19 @@ export function FloatingAnalysisPanel() {
             </TabsTrigger>
           </TabsList>
 
-          <div className="flex-1 overflow-auto">
-            <TabsContent value="format" className="mt-0 h-full">
-              <div className="space-y-4">
-                <FormatDonutChartCard />
-                <FormatBarChartCard />
-              </div>
-            </TabsContent>
+          <TabsContent value="format" className="mt-0">
+            <div className="space-y-4">
+              <FormatDonutChartCard />
+              <FormatBarChartCard />
+            </div>
+          </TabsContent>
 
-            <TabsContent value="similarity" className="mt-0 h-full">
-              <SimilarityDistributionCard />
-            </TabsContent>
-          </div>
+          <TabsContent value="similarity" className="mt-0">
+            <SimilarityDistributionCard />
+          </TabsContent>
         </Tabs>
       ) : (
-        <div className="h-full flex items-center justify-center text-muted-foreground">
+        <div className="flex items-center justify-center text-muted-foreground py-8">
           <div className="text-center">
             <BarChart3 className="h-12 w-12 mx-auto mb-2 opacity-20" />
             <p className="text-sm">{t('No data available')}</p>

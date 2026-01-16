@@ -389,6 +389,8 @@ export const zh: Record<TranslationKeys, string> = {
   Mode: '模式',
   'Select all except one': '选择除一个外的所有',
   'Select one': '选择一个',
+  'All but one per folder': '同一文件夹中除一个外的所有',
+  'All but one matching set': '除一个匹配集外的所有',
   'Sort criteria': '排序条件',
   'Keep existing selection': '保持已有选择',
   Mark: '标记',

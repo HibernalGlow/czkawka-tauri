@@ -53,8 +53,8 @@ export function MagicCard({
         className="pointer-events-none absolute inset-0 z-0 transition-opacity duration-300"
         style={gradientStyle}
       />
-      {/* 内容层 */}
-      <div className="relative z-10">{children}</div>
+      {/* 内容层 - 使用 absolute inset-0 确保填满父容器 */}
+      <div className="absolute inset-0 z-10">{children}</div>
     </div>
   );
 }

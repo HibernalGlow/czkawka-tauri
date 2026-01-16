@@ -59,7 +59,8 @@ export function GroupSelectionSection() {
     () => [
       { label: t('Select all except one'), value: 'selectAllExceptOne' },
       { label: t('Select one'), value: 'selectOne' },
-      { label: t('Select all'), value: 'selectAll' },
+      { label: t('All but one per folder'), value: 'selectAllExceptOnePerFolder' },
+      { label: t('All but one matching set'), value: 'selectAllExceptOneMatchingSet' },
     ],
     [t],
   );

@@ -102,8 +102,12 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
     const validFilterConditions: FilterCondition[] = [
       'none', 'contains', 'notContains', 'startsWith', 'endsWith', 'equals'
     ];
+    const validModes = [
+      'selectAllExceptOne', 'selectOne', 
+      'selectAllExceptOnePerFolder', 'selectAllExceptOneMatchingSet'
+    ];
 
-    if (!['selectAllExceptOne', 'selectOne', 'selectAll'].includes(this.config.mode)) {
+    if (!validModes.includes(this.config.mode)) {
       errors.push('无效的选择模式');
     }
 
@@ -128,8 +132,9 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
   describe(): string {
     const modeDesc = match(this.config.mode)
       .with('selectAllExceptOne', () => '每组除了一份文件之外其他所有')
-      .with('selectOne', () => '每组选择一份')
-      .with('selectAll', () => '选择所有')
+      .with('selectOne', () => '每组中仅一份文件')
+      .with('selectAllExceptOnePerFolder', () => '同一组且同一文件夹中除了一份之外其他所有')
+      .with('selectAllExceptOneMatchingSet', () => '每组中除了一个匹配集之外其他所有')
       .exhaustive();
 
     const criteriaDesc = this.config.sortCriteria
@@ -307,21 +312,79 @@ export class GroupSelectionRule implements SelectionRule<GroupRuleConfig> {
   /**
    * 根据模式选择文件
    */
-  private selectByMode<T extends BaseEntry>(sorted: T[]): string[] {
+  private selectByMode<T extends BaseEntry & Partial<RefEntry>>(sorted: T[]): string[] {
     return match(this.config.mode)
       .with('selectAllExceptOne', () => {
-        // 选择除了第一个之外的所有文件
+        // 每组除了一份文件之外其他所有（保留排序后的第一个）
         if (sorted.length <= 1) return [];
         return sorted.slice(1).map(item => item.path);
       })
       .with('selectOne', () => {
-        // 只选择第一个
+        // 每组中仅一份文件（选择排序后的第一个）
         if (sorted.length === 0) return [];
         return [sorted[0].path];
       })
-      .with('selectAll', () => {
-        // 选择所有
-        return sorted.map(item => item.path);
+      .with('selectAllExceptOnePerFolder', () => {
+        // 同一组且同一文件夹中除了一份之外其他所有
+        // 按文件夹分组，每个文件夹保留一个
+        const byFolder = new Map<string, T[]>();
+        for (const item of sorted) {
+          const folder = getColumnValue(item.path, 'folderPath') as string;
+          if (!byFolder.has(folder)) {
+            byFolder.set(folder, []);
+          }
+          byFolder.get(folder)!.push(item);
+        }
+        
+        const selected: string[] = [];
+        for (const folderItems of byFolder.values()) {
+          // 每个文件夹保留第一个，选择其余的
+          if (folderItems.length > 1) {
+            for (let i = 1; i < folderItems.length; i++) {
+              selected.push(folderItems[i].path);
+            }
+          }
+        }
+        return selected;
+      })
+      .with('selectAllExceptOneMatchingSet', () => {
+        // 每组中除了一个匹配集之外其他所有
+        // 按排序条件的第一个字段值分组，每个匹配集保留一个
+        if (sorted.length <= 1) return [];
+        
+        const enabledCriteria = this.config.sortCriteria.filter(c => c.enabled);
+        if (enabledCriteria.length === 0) {
+          // 没有排序条件时，退化为 selectAllExceptOne
+          return sorted.slice(1).map(item => item.path);
+        }
+        
+        // 按第一个排序字段的值分组
+        const firstField = enabledCriteria[0].field;
+        const byFieldValue = new Map<string | number | null, T[]>();
+        for (const item of sorted) {
+          const value = this.getFieldValue(item, firstField);
+          const key = value ?? '__null__';
+          if (!byFieldValue.has(key as string | number | null)) {
+            byFieldValue.set(key as string | number | null, []);
+          }
+          byFieldValue.get(key as string | number | null)!.push(item);
+        }
+        
+        // 保留第一个匹配集，选择其他所有匹配集的文件
+        const matchingSets = Array.from(byFieldValue.values());
+        if (matchingSets.length <= 1) {
+          // 只有一个匹配集，退化为 selectAllExceptOne
+          return sorted.slice(1).map(item => item.path);
+        }
+        
+        // 保留第一个匹配集，选择其余匹配集的所有文件
+        const selected: string[] = [];
+        for (let i = 1; i < matchingSets.length; i++) {
+          for (const item of matchingSets[i]) {
+            selected.push(item.path);
+          }
+        }
+        return selected;
       })
       .exhaustive();
   }

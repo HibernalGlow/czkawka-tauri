@@ -45,7 +45,8 @@ export const sortCriterionSchema = z.object({
 export const groupSelectionModeSchema = z.enum([
   'selectAllExceptOne',
   'selectOne',
-  'selectAll',
+  'selectAllExceptOnePerFolder',
+  'selectAllExceptOneMatchingSet',
 ]);
 
 export const groupRuleConfigSchema = z.object({

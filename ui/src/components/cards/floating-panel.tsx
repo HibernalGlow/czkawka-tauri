@@ -320,8 +320,8 @@ export function FloatingPanel({
             />
           )}
 
-          {/* 内容 */}
-          <div className="h-full overflow-auto p-3">
+          {/* 内容 - GlassCard 内部已有 overflow-auto，这里只需要 padding */}
+          <div className="p-3">
             {children}
           </div>
         </GlassCard>

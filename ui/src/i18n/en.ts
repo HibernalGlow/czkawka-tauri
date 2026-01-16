@@ -397,6 +397,8 @@ export const en = {
   Mode: 'Mode',
   'Select all except one': 'Select all except one',
   'Select one': 'Select one',
+  'All but one per folder': 'All but one per folder',
+  'All but one matching set': 'All but one matching set',
   'Sort criteria': 'Sort criteria',
   'Keep existing selection': 'Keep existing selection',
   Mark: 'Mark',

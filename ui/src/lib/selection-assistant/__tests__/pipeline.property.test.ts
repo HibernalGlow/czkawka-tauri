@@ -191,7 +191,7 @@ describe('RulePipeline 基本功能', () => {
   it('reorderRules 应该正确重排序', () => {
     const pipeline = createPipeline();
     const rule1 = createGroupRule({ mode: 'selectOne' });
-    const rule2 = createGroupRule({ mode: 'selectAll' });
+    const rule2 = createGroupRule({ mode: 'selectAllExceptOne' });
     
     pipeline.addRule(rule1);
     pipeline.addRule(rule2);

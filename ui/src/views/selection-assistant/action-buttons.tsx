@@ -7,7 +7,6 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { RotateCcw, ToggleLeft } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import {
-  baseSelectionAtom,
   clearAllSelectionAtom,
   currentSelectionAtom,
   invertSelectionAtom,

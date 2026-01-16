@@ -69,8 +69,9 @@ export interface SelectionRule<TConfig = unknown> {
 /** 组选择模式 */
 export type GroupSelectionMode =
   | 'selectAllExceptOne' // 每组除了一份文件之外其他所有
-  | 'selectOne' // 每组选择一份
-  | 'selectAll'; // 选择所有
+  | 'selectOne' // 每组中仅一份文件
+  | 'selectAllExceptOnePerFolder' // 同一组且同一文件夹中除了一份之外其他所有
+  | 'selectAllExceptOneMatchingSet'; // 每组中除了一个匹配集之外其他所有
 
 /** 排序字段 */
 export type SortField =

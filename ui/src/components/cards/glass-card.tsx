@@ -90,7 +90,7 @@ export function GlassCard({
       gradientOpacity={gradientOpacity}
     >
       <div
-        className="h-full flex flex-col"
+        className="h-full flex flex-col min-h-0"
         style={{
           backgroundColor: `hsl(var(--background) / ${bgOpacity}%)`,
         }}
@@ -135,10 +135,10 @@ export function GlassCard({
           </div>
         )}
 
-        {/* 内容区域 */}
+        {/* 内容区域 - min-h-0 确保 flex 子元素可以正确收缩并滚动 */}
         <div
           className={cn(
-            'flex-1 overflow-auto',
+            'flex-1 min-h-0 overflow-auto',
             collapsible && !isExpanded && 'hidden'
           )}
         >
