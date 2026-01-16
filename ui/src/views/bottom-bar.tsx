@@ -231,7 +231,7 @@ export function BottomBar({ headerRef }: BottomBarProps) {
         </div>
       </div>
       {!minimizeBottomBar.value && (
-        <ResizablePanelGroup direction="vertical" className="min-h-[200px]">
+        <ResizablePanelGroup direction="vertical" className="flex-1">
           <ResizablePanel defaultSize={100} minSize={20}>
             {displayType === DisplayType.Dirs ? (
               <ResizablePanelGroup direction="horizontal">

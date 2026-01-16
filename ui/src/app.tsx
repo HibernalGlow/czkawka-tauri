@@ -124,7 +124,7 @@ export default function App() {
                     ref={bottomPanelRef}
                     defaultSize={defaultBottomSize}
                     minSize={bottomPanelMinSize}
-                    maxSize={50}
+                    maxSize={80}
                   >
                     <BottomBar headerRef={headerRef} />
                   </ResizablePanel>

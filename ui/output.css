@@ -1238,10 +1238,6 @@ body {
   max-height: 24rem;
 }
 
-.max-h-\[500px\] {
-  max-height: 500px;
-}
-
 .max-h-full {
   max-height: 100%;
 }
@@ -1264,10 +1260,6 @@ body {
 
 .min-h-\[120px\] {
   min-height: 120px;
-}
-
-.min-h-\[200px\] {
-  min-height: 200px;
 }
 
 .min-h-svh {
@@ -1306,6 +1298,10 @@ body {
   width: 0.625rem;
 }
 
+.w-20 {
+  width: 5rem;
+}
+
 .w-24 {
   width: 6rem;
 }
@@ -1334,6 +1330,10 @@ body {
   width: 1rem;
 }
 
+.w-40 {
+  width: 10rem;
+}
+
 .w-48 {
   width: 12rem;
 }
@@ -1358,8 +1358,16 @@ body {
   width: 1.75rem;
 }
 
+.w-72 {
+  width: 18rem;
+}
+
 .w-8 {
   width: 2rem;
+}
+
+.w-80 {
+  width: 20rem;
 }
 
 .w-9 {
@@ -1386,6 +1394,11 @@ body {
   width: auto;
 }
 
+.w-fit {
+  width: -moz-fit-content;
+  width: fit-content;
+}
+
 .w-full {
   width: 100%;
 }
@@ -1396,27 +1409,6 @@ body {
 
 .w-screen {
   width: 100vw;
-}
-
-.w-fit {
-  width: -moz-fit-content;
-  width: fit-content;
-}
-
-.w-72 {
-  width: 18rem;
-}
-
-.w-20 {
-  width: 5rem;
-}
-
-.w-80 {
-  width: 20rem;
-}
-
-.w-40 {
-  width: 10rem;
 }
 
 .min-w-0 {
@@ -1463,6 +1455,10 @@ body {
   max-width: var(--skeleton-width);
 }
 
+.max-w-\[200px\] {
+  max-width: 200px;
+}
+
 .max-w-\[700px\] {
   max-width: 700px;
 }
@@ -1477,10 +1473,6 @@ body {
 
 .max-w-sm {
   max-width: 24rem;
-}
-
-.max-w-\[200px\] {
-  max-width: 200px;
 }
 
 .flex-1 {
@@ -1741,6 +1733,10 @@ body {
   gap: 0.25rem;
 }
 
+.gap-1\.5 {
+  gap: 0.375rem;
+}
+
 .gap-2 {
   gap: 0.5rem;
 }
@@ -1759,10 +1755,6 @@ body {
 
 .gap-6 {
   gap: 1.5rem;
-}
-
-.gap-1\.5 {
-  gap: 0.375rem;
 }
 
 .gap-x-4 {
@@ -1918,6 +1910,10 @@ body {
   border-style: none;
 }
 
+.border-amber-500\/20 {
+  border-color: rgb(245 158 11 / 0.2);
+}
+
 .border-blue-500 {
   --tw-border-opacity: 1;
   border-color: rgb(59 130 246 / var(--tw-border-opacity, 1));
@@ -1961,6 +1957,10 @@ body {
 
 .bg-accent {
   background-color: var(--accent);
+}
+
+.bg-amber-500\/10 {
+  background-color: rgb(245 158 11 / 0.1);
 }
 
 .bg-background {
@@ -2436,6 +2436,11 @@ body {
   color: var(--accent-foreground);
 }
 
+.text-amber-600 {
+  --tw-text-opacity: 1;
+  color: rgb(217 119 6 / var(--tw-text-opacity, 1));
+}
+
 .text-background {
   color: var(--background);
 }
@@ -2592,10 +2597,6 @@ body {
   opacity: 0.7;
 }
 
-.opacity-80 {
-  opacity: 0.8;
-}
-
 .shadow {
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
@@ -2635,12 +2636,6 @@ body {
 .shadow-sm {
   --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
-}
-
-.shadow-\[0_0_12px_rgba\(var\(--primary-rgb\)\2c 0\.3\)\] {
-  --tw-shadow: 0 0 12px rgba(var(--primary-rgb),0.3);
-  --tw-shadow-colored: 0 0 12px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
@@ -2744,6 +2739,12 @@ body {
   transition-duration: 150ms;
 }
 
+.transition-\[color\2c box-shadow\] {
+  transition-property: color,box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
 .transition-\[left\2c right\2c width\] {
   transition-property: left,right,width;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -2794,12 +2795,6 @@ body {
 
 .transition-transform {
   transition-property: transform;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-
-.transition-\[color\2c box-shadow\] {
-  transition-property: color,box-shadow;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
@@ -3817,6 +3812,11 @@ body {
   background-color: rgb(17 24 39 / var(--tw-bg-opacity, 1));
 }
 
+.dark\:text-amber-400:is(.dark *) {
+  --tw-text-opacity: 1;
+  color: rgb(251 191 36 / var(--tw-text-opacity, 1));
+}
+
 @media (min-width: 640px) {
   .sm\:mt-0 {
     margin-top: 0px;
@@ -3932,14 +3932,14 @@ body {
   pointer-events: none;
 }
 
-.\[\&\>svg\]\:size-4>svg {
-  width: 1rem;
-  height: 1rem;
-}
-
 .\[\&\>svg\]\:size-3>svg {
   width: 0.75rem;
   height: 0.75rem;
+}
+
+.\[\&\>svg\]\:size-4>svg {
+  width: 1rem;
+  height: 1rem;
 }
 
 .\[\&\>svg\]\:shrink-0>svg {

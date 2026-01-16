@@ -54,7 +54,7 @@ function AccordionItem({ title, expanded, onToggle, children }: AccordionItemPro
       <div
         className={cn(
           'overflow-hidden transition-all duration-200',
-          expanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0',
+          expanded ? 'opacity-100' : 'max-h-0 opacity-0',
         )}
       >
         <div className="px-3 pb-3">{children}</div>
