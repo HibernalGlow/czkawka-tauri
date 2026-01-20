@@ -67,7 +67,7 @@ export function getDefaultSettings(): Settings {
     excludedItems: '',
     allowedExtensions: '',
     excludedExtensions: '',
-    minimumFileSize: 16,
+    minimumFileSize: 0,
     maximumFileSize: MAXIMUM_FILE_SIZE,
     recursiveSearch: true,
     useCache: true,

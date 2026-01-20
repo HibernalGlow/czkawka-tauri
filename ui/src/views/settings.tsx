@@ -250,11 +250,11 @@ function SettingsContent() {
         <div className="flex items-center gap-2">
           <Label className="flex-shrink-0">{t('File size')}(KB):</Label>
           <FormItem name="minimumFileSize" comp="input-number">
-            <InputNumber minValue={16} maxValue={MAXIMUM_FILE_SIZE} />
+            <InputNumber minValue={0} maxValue={MAXIMUM_FILE_SIZE} />
           </FormItem>
           ~
           <FormItem name="maximumFileSize" comp="input-number">
-            <InputNumber minValue={16} maxValue={MAXIMUM_FILE_SIZE} />
+            <InputNumber minValue={0} maxValue={MAXIMUM_FILE_SIZE} />
           </FormItem>
         </div>
         <div className="flex flex-wrap gap-2 py-2">
