@@ -70,6 +70,7 @@ const PANEL_TITLE_KEYS: Record<PanelId, string> = {
 const CARD_TITLE_KEYS: Record<string, string> = {
   'tool-controls': 'Tool controls',
   'algorithm-settings': 'Algorithm settings',
+  'format-filter': 'Format filter',
   'included-dirs': 'Include Directories',
   logs: 'Logs',
   'image-preview': 'Image Preview',

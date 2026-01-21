@@ -9,6 +9,7 @@ import {
   FolderMinus,
   FolderPen,
   FolderPlus,
+  ListFilter,
   LoaderCircle,
   ScrollText,
   Settings2,
@@ -62,6 +63,7 @@ import { cn } from '~/utils/cn';
 import { getRowSelectionKeys, splitStr } from '~/utils/common';
 import { FormatBarChartCard } from './cards/format-bar-chart-card';
 import { FormatDonutChartCard } from './cards/format-donut-chart-card';
+import { FormatFilterCard } from './cards/format-filter-card';
 import { SimilarityDistributionCard } from './cards/similarity-distribution-card';
 import { FileFilter } from './file-filter';
 import { FilterPanel } from './filter-panel';
@@ -235,15 +237,19 @@ export function BottomBar({ headerRef }: BottomBarProps) {
           <ResizablePanel defaultSize={100} minSize={20}>
             {displayType === DisplayType.Dirs ? (
               <ResizablePanelGroup direction="horizontal">
-                <ResizablePanel defaultSize={25} minSize={15}>
+                <ResizablePanel defaultSize={20} minSize={12}>
                   <ToolControlsPanel />
                 </ResizablePanel>
                 <ResizableHandle />
-                <ResizablePanel defaultSize={25} minSize={15}>
+                <ResizablePanel defaultSize={20} minSize={12}>
                   <ToolAlgorithmPanel />
                 </ResizablePanel>
                 <ResizableHandle />
-                <ResizablePanel defaultSize={50} minSize={20}>
+                <ResizablePanel defaultSize={15} minSize={10}>
+                  <FormatFilterPanel />
+                </ResizablePanel>
+                <ResizableHandle />
+                <ResizablePanel defaultSize={45} minSize={20}>
                   <IncludedDirsTable />
                 </ResizablePanel>
               </ResizablePanelGroup>
@@ -310,6 +316,24 @@ function ToolAlgorithmPanel() {
           showControls={false}
           showAlgorithms={true}
         />
+      </div>
+    </div>
+  );
+}
+
+function FormatFilterPanel() {
+  const t = useT();
+
+  return (
+    <div className="h-full flex flex-col border rounded-md overflow-hidden">
+      <div className="bg-muted/30 p-2 border-b">
+        <h3 className="text-sm font-medium flex items-center gap-1">
+          <ListFilter className="h-4 w-4" />
+          <span>{t('Format filter')}</span>
+        </h3>
+      </div>
+      <div className="flex-1 overflow-hidden">
+        <FormatFilterCard />
       </div>
     </div>
   );

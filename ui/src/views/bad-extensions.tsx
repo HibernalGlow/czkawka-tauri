@@ -1,5 +1,5 @@
 import { useAtom, useAtomValue } from 'jotai';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { settingsAtom } from '~/atom/settings';
 import {
   currentToolDataAtom,
@@ -12,8 +12,10 @@ import {
   DataTable,
   FilterStateUpdater,
 } from '~/components/data-table';
+import { DynamicThumbnailCell } from '~/components/dynamic-thumbnail-cell';
 import { useT } from '~/hooks';
 import type { BadFileEntry } from '~/types';
+import { isPreviewableFile } from '~/utils/file-type-utils';
 import { formatPathDisplay } from '~/utils/path-utils';
 import { filterItems } from '~/utils/table-helper';
 import { ClickablePreview } from './clickable-preview';
@@ -23,6 +25,7 @@ export function BadExtensions() {
   const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);
+  const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80);
   const t = useT();
 
   const filteredData = useMemo(() => {
@@ -34,7 +37,44 @@ export function BadExtensions() {
     ]);
   }, [data, filter]);
 
+  // 检查是否有可预览文件
+  const hasPreviewableFiles = useMemo(() => {
+    return data.some((entry) => isPreviewableFile(entry.path));
+  }, [data]);
+
+  // 动态行高
+  const dynamicRowHeight = useMemo(() => {
+    if (!hasPreviewableFiles) {
+      return 36;
+    }
+    const thumbnailSize = Math.max(20, Math.min(thumbnailColumnWidth - 8, 200));
+    return Math.max(36, thumbnailSize + 16);
+  }, [hasPreviewableFiles, thumbnailColumnWidth]);
+
   const columns = createColumns<BadFileEntry>([
+    ...(hasPreviewableFiles
+      ? [
+          {
+            id: 'thumbnail',
+            header: t('Thumbnail'),
+            size: 80,
+            minSize: 60,
+            maxSize: 120,
+            cell: ({ row }: { row: any }) => {
+              if (!isPreviewableFile(row.original.path)) {
+                return null;
+              }
+              return (
+                <DynamicThumbnailCell
+                  path={row.original.path}
+                  enableLazyLoad={true}
+                  onSizeChange={setThumbnailColumnWidth}
+                />
+              );
+            },
+          },
+        ]
+      : []),
     {
       accessorKey: 'fileName',
       header: t('File name'),
@@ -91,6 +131,7 @@ export function BadExtensions() {
       columns={columns}
       rowSelection={rowSelection}
       onRowSelectionChange={setRowSelection}
+      rowHeight={dynamicRowHeight}
       globalFilter={filter}
       onGlobalFilterChange={(updater: FilterStateUpdater) => {
         const newValue =
