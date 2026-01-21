@@ -20,8 +20,8 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { currentToolAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
-import { cn } from '~/utils/cn';
 import {
+  Badge,
   Button,
   CheckboxWithLabel,
   InputNumber,
@@ -30,7 +30,6 @@ import {
   Slider,
   ToggleBadge,
   TooltipButton,
-  Badge,
 } from '~/components';
 import { Form, FormItem } from '~/components/form';
 import {
@@ -52,16 +51,14 @@ import {
 } from '~/consts';
 import { useBoolean, useT } from '~/hooks';
 import { ipc } from '~/ipc';
+import { cn } from '~/utils/cn';
 
 // 通用路径显示设置组件
 function PathDisplaySettings() {
   const t = useT();
 
   return (
-    <FormItem
-      name="reversePathDisplay"
-      comp="badge-switch"
-    >
+    <FormItem name="reversePathDisplay" comp="badge-switch">
       <TooltipButton tooltip={t('Reverse path display')}>
         <ToggleBadge>
           <ArrowLeftRight className="h-4 w-4" />
@@ -114,44 +111,40 @@ function ImageDisplaySettings() {
 
   return (
     <>
-    <div className="flex gap-2">
-      <FormItem
-        name="similarImagesEnableThumbnails"
-        comp="badge-switch"
-      >
-        <TooltipButton tooltip={t('Enable thumbnails')}>
-          <ToggleBadge>
-            <ImageIcon className="h-4 w-4" />
-          </ToggleBadge>
-        </TooltipButton>
-      </FormItem>
-      <FormItem
-        name="similarImagesShowImagePreview"
-        comp="badge-switch"
-      >
-        <TooltipButton tooltip={t('Show image preview')}>
-          <ToggleBadge>
-            <Eye className="h-4 w-4" />
-          </ToggleBadge>
-        </TooltipButton>
-      </FormItem>
-      {settings.similarImagesEnableThumbnails && (
-        <TooltipButton
-          tooltip={`${t('Clear cache')} (${cacheStats ? `${cacheStats.count} ${t('files')}, ${cacheStats.size}` : ''})`}
-        >
-          <Badge
-            variant="outline"
-            onClick={handleClearCache}
-            className={cn(
-              'h-9 w-9 p-0 flex items-center justify-center cursor-pointer hover:bg-accent transition-colors',
-              clearingCache && 'opacity-50 cursor-wait'
-            )}
+      <div className="flex gap-2">
+        <FormItem name="similarImagesEnableThumbnails" comp="badge-switch">
+          <TooltipButton tooltip={t('Enable thumbnails')}>
+            <ToggleBadge>
+              <ImageIcon className="h-4 w-4" />
+            </ToggleBadge>
+          </TooltipButton>
+        </FormItem>
+        <FormItem name="similarImagesShowImagePreview" comp="badge-switch">
+          <TooltipButton tooltip={t('Show image preview')}>
+            <ToggleBadge>
+              <Eye className="h-4 w-4" />
+            </ToggleBadge>
+          </TooltipButton>
+        </FormItem>
+        {settings.similarImagesEnableThumbnails && (
+          <TooltipButton
+            tooltip={`${t('Clear cache')} (${cacheStats ? `${cacheStats.count} ${t('files')}, ${cacheStats.size}` : ''})`}
           >
-            <Trash2 className={cn('h-4 w-4', clearingCache && 'animate-pulse')} />
-          </Badge>
-        </TooltipButton>
-      )}
-    </div>
+            <Badge
+              variant="outline"
+              onClick={handleClearCache}
+              className={cn(
+                'h-9 w-9 p-0 flex items-center justify-center cursor-pointer hover:bg-accent transition-colors',
+                clearingCache && 'opacity-50 cursor-wait',
+              )}
+            >
+              <Trash2
+                className={cn('h-4 w-4', clearingCache && 'animate-pulse')}
+              />
+            </Badge>
+          </TooltipButton>
+        )}
+      </div>
     </>
   );
 }
@@ -162,10 +155,7 @@ function VideoDisplaySettings() {
   const t = useT();
 
   return (
-    <FormItem
-      name="similarVideosEnableThumbnails"
-      comp="badge-switch"
-    >
+    <FormItem name="similarVideosEnableThumbnails" comp="badge-switch">
       <TooltipButton tooltip={t('Enable video thumbnails')}>
         <ToggleBadge>
           <Video className="h-4 w-4" />
@@ -342,10 +332,7 @@ function DuplicateFilesSettings({
       )}
       {showControls && (
         <>
-          <FormItem
-            name="duplicatesSubNameCaseSensitive"
-            comp="badge-switch"
-          >
+          <FormItem name="duplicatesSubNameCaseSensitive" comp="badge-switch">
             <TooltipButton tooltip={t('Case sensitive')}>
               <ToggleBadge>
                 <CaseSensitive className="h-4 w-4" />
@@ -487,10 +474,7 @@ function SimilarImagesSettings({
           >
             <Slider min={1} max={50} />
           </FormItem>
-          <FormItem
-            name="similarImagesSubIgnoreSameSize"
-            comp="badge-switch"
-          >
+          <FormItem name="similarImagesSubIgnoreSameSize" comp="badge-switch">
             <TooltipButton tooltip={t('Ignore same size')}>
               <ToggleBadge>
                 <Ruler className="h-4 w-4" />
@@ -527,10 +511,7 @@ function SimilarVideosSettings({
           >
             <Slider min={0} max={20} />
           </FormItem>
-          <FormItem
-            name="similarVideosSubIgnoreSameSize"
-            comp="badge-switch"
-          >
+          <FormItem name="similarVideosSubIgnoreSameSize" comp="badge-switch">
             <TooltipButton tooltip={t('Ignore same size')}>
               <ToggleBadge>
                 <Ruler className="h-4 w-4" />

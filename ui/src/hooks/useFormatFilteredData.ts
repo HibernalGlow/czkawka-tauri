@@ -4,12 +4,9 @@
  */
 import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
-import {
-  type FormatCategory,
-  formatFilterAtom,
-} from '~/atom/format-filter';
-import type { BaseEntry } from '~/types';
+import { type FormatCategory, formatFilterAtom } from '~/atom/format-filter';
 import { EXTENSION_PRESETS } from '~/lib/filter-panel/utils';
+import type { BaseEntry } from '~/types';
 
 // 获取格式的分类
 function getFormatCategory(format: string): FormatCategory {
@@ -58,7 +55,9 @@ export function applyFormatFilter<T extends BaseEntry>(
     return data;
   }
 
-  const excludedFormatSet = new Set(excludedFormats.map((f) => f.toLowerCase()));
+  const excludedFormatSet = new Set(
+    excludedFormats.map((f) => f.toLowerCase()),
+  );
   const excludedCategorySet = new Set(excludedCategories);
 
   return data.filter((item) => {
@@ -68,7 +67,7 @@ export function applyFormatFilter<T extends BaseEntry>(
     }
 
     const ext = getExtension(item);
-    
+
     // 检查是否直接排除了这个格式
     if (excludedFormatSet.has(ext)) {
       return false;

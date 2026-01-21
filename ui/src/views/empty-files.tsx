@@ -2,8 +2,8 @@ import { useAtom, useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 import { settingsAtom } from '~/atom/settings';
 import {
-  currentToolFilteredDataAtom,
   currentToolFilterAtom,
+  currentToolFilteredDataAtom,
   currentToolRowSelectionAtom,
 } from '~/atom/tools';
 import {

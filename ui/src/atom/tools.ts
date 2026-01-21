@@ -224,7 +224,10 @@ export const currentToolFilteredDataAtom = atom((get) => {
 
       for (const key of keys) {
         const value = (item as any)[key];
-        if (typeof value === 'string' && value.toLowerCase().includes(lowercaseFilter)) {
+        if (
+          typeof value === 'string' &&
+          value.toLowerCase().includes(lowercaseFilter)
+        ) {
           return true;
         }
       }
@@ -261,7 +264,10 @@ export const toolInProgressFilteredDataAtom = atom((get) => {
     filtered = filtered.filter((item) => {
       for (const key of keys) {
         const value = (item as any)[key];
-        if (typeof value === 'string' && value.toLowerCase().includes(lowercaseFilter)) {
+        if (
+          typeof value === 'string' &&
+          value.toLowerCase().includes(lowercaseFilter)
+        ) {
           return true;
         }
       }
@@ -271,4 +277,3 @@ export const toolInProgressFilteredDataAtom = atom((get) => {
 
   return filtered;
 });
-

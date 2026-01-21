@@ -1,10 +1,11 @@
 import type { ColumnDef, Row } from '@tanstack/react-table';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useMemo, useState } from 'react';
+import { formatFilterAtom } from '~/atom/format-filter';
 import { settingsAtom } from '~/atom/settings';
 import {
-  currentToolFilteredDataAtom,
   currentToolFilterAtom,
+  currentToolFilteredDataAtom,
   currentToolRowSelectionAtom,
   similarImagesFoldersAtom,
   similarImagesViewModeAtom,
@@ -19,7 +20,6 @@ import {
 import { DynamicPreviewCell } from '~/components/dynamic-preview-cell';
 import { useT } from '~/hooks';
 import { applyFormatFilter } from '~/hooks/useFormatFilteredData';
-import { formatFilterAtom } from '~/atom/format-filter';
 import type { ImagesEntry as BaseImagesEntry, FolderStat } from '~/types';
 
 // 扩展 ImagesEntry 类型，支持文件夹行
@@ -36,7 +36,9 @@ import { ClickableImagePreview } from './clickable-image-preview';
 export function SimilarImages() {
   const [viewMode, setViewMode] = useAtom(similarImagesViewModeAtom);
   const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80);
-  const filteredData = useAtomValue(currentToolFilteredDataAtom) as BaseImagesEntry[];
+  const filteredData = useAtomValue(
+    currentToolFilteredDataAtom,
+  ) as BaseImagesEntry[];
   const foldersData = useAtomValue(similarImagesFoldersAtom);
   const settings = useAtomValue(settingsAtom);
   const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
@@ -149,7 +151,13 @@ export function SimilarImages() {
       });
     }
     return result;
-  }, [filteredData, viewMode, transformedFoldersData, filter, formatFilterState]);
+  }, [
+    filteredData,
+    viewMode,
+    transformedFoldersData,
+    filter,
+    formatFilterState,
+  ]);
 
   const columns: ColumnDef<CombinedEntry>[] = [
     {
@@ -323,7 +331,9 @@ export function SimilarImages() {
 function FileName(props: { row: Row<CombinedEntry> }) {
   const { row } = props;
   const { hidden, path, fileName } = row.original;
-  const filteredData = useAtomValue(currentToolFilteredDataAtom) as BaseImagesEntry[];
+  const filteredData = useAtomValue(
+    currentToolFilteredDataAtom,
+  ) as BaseImagesEntry[];
   const settings = useAtomValue(settingsAtom);
 
   if (hidden) {
@@ -368,7 +378,9 @@ function FileName(props: { row: Row<CombinedEntry> }) {
 function ClickablePath(props: { row: Row<CombinedEntry> }) {
   const { row } = props;
   const { path } = row.original;
-  const filteredData = useAtomValue(currentToolFilteredDataAtom) as BaseImagesEntry[];
+  const filteredData = useAtomValue(
+    currentToolFilteredDataAtom,
+  ) as BaseImagesEntry[];
   const settings = useAtomValue(settingsAtom);
 
   // 根据设置格式化路径显示
@@ -412,7 +424,9 @@ function ClickablePath(props: { row: Row<CombinedEntry> }) {
 function ClickableCell(props: { row: Row<CombinedEntry>; value: string }) {
   const { row, value } = props;
   const { path } = row.original;
-  const filteredData = useAtomValue(currentToolFilteredDataAtom) as BaseImagesEntry[];
+  const filteredData = useAtomValue(
+    currentToolFilteredDataAtom,
+  ) as BaseImagesEntry[];
   const settings = useAtomValue(settingsAtom);
 
   // 如果是文件夹行，支持点击预览第一张图片

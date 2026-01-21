@@ -3,8 +3,8 @@ import { useMemo, useState } from 'react';
 import { sidebarVideoPreviewAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
 import {
-  currentToolFilteredDataAtom,
   currentToolFilterAtom,
+  currentToolFilteredDataAtom,
   currentToolRowSelectionAtom,
 } from '~/atom/tools';
 import {
@@ -21,7 +21,9 @@ import { formatPathDisplay } from '~/utils/path-utils';
 import { ClickablePreview } from './clickable-preview';
 
 export function TemporaryFiles() {
-  const filteredData = useAtomValue(currentToolFilteredDataAtom) as TemporaryFileEntry[];
+  const filteredData = useAtomValue(
+    currentToolFilteredDataAtom,
+  ) as TemporaryFileEntry[];
   const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);

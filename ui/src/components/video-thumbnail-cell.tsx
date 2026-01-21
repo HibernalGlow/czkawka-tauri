@@ -182,7 +182,6 @@ export function VideoThumbnailCell({
 
   // ...
 
-
   const handleClick = () => {
     if (onClick) {
       onClick();

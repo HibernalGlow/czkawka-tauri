@@ -6,8 +6,8 @@ import { useMemo, useState } from 'react';
 import { sidebarVideoPreviewAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
 import {
-  currentToolFilteredDataAtom,
   currentToolFilterAtom,
+  currentToolFilteredDataAtom,
   currentToolRowSelectionAtom,
 } from '~/atom/tools';
 import {
@@ -26,7 +26,9 @@ import { formatPathDisplay } from '~/utils/path-utils';
 import { ClickableVideoPreview } from './clickable-video-preview';
 
 export function SimilarVideos() {
-  const filteredData = useAtomValue(currentToolFilteredDataAtom) as VideosEntry[];
+  const filteredData = useAtomValue(
+    currentToolFilteredDataAtom,
+  ) as VideosEntry[];
   const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);

@@ -3,8 +3,8 @@ import { useMemo, useState } from 'react';
 import { sidebarVideoPreviewAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
 import {
-  currentToolFilteredDataAtom,
   currentToolFilterAtom,
+  currentToolFilteredDataAtom,
   currentToolRowSelectionAtom,
 } from '~/atom/tools';
 import {

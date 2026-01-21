@@ -97,7 +97,8 @@ export function FormatFilterCard() {
 
   // 按分类分组格式
   const categorizedFormats = useMemo(() => {
-    if (!stats || stats.length === 0) return new Map<FormatCategory, typeof stats>();
+    if (!stats || stats.length === 0)
+      return new Map<FormatCategory, typeof stats>();
 
     const grouped = new Map<FormatCategory, typeof stats>();
 

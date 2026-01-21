@@ -5,8 +5,8 @@ import { useMemo, useState } from 'react';
 import { sidebarVideoPreviewAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
 import {
-  currentToolFilteredDataAtom,
   currentToolFilterAtom,
+  currentToolFilteredDataAtom,
   currentToolRowSelectionAtom,
 } from '~/atom/tools';
 import {
@@ -24,7 +24,9 @@ import { formatPathDisplay } from '~/utils/path-utils';
 import { ClickablePreview } from './clickable-preview';
 
 export function MusicDuplicates() {
-  const filteredData = useAtomValue(currentToolFilteredDataAtom) as MusicEntry[];
+  const filteredData = useAtomValue(
+    currentToolFilteredDataAtom,
+  ) as MusicEntry[];
   const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);
@@ -44,7 +46,11 @@ export function MusicDuplicates() {
     }
     const thumbnailSize = Math.max(20, Math.min(thumbnailColumnWidth - 8, 200));
     return Math.max(36, thumbnailSize + 16);
-  }, [hasPreviewableFiles, settings.similarImagesEnableThumbnails, thumbnailColumnWidth]);
+  }, [
+    hasPreviewableFiles,
+    settings.similarImagesEnableThumbnails,
+    thumbnailColumnWidth,
+  ]);
 
   // 处理视频点击
   const handleVideoClick = (path: string) => {
