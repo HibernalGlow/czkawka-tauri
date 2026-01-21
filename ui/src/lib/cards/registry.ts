@@ -12,6 +12,7 @@ import {
   Info,
   Layers,
   LayoutGrid,
+  ListFilter,
   Percent,
   PieChart,
   ScrollText,
@@ -39,6 +40,13 @@ export const cardRegistry: Record<string, CardDefinition> = {
     icon: Settings2,
     defaultPanel: 'bottom-bar',
     canHide: false,
+  },
+  'format-filter': {
+    id: 'format-filter',
+    title: 'Format Filter',
+    icon: ListFilter,
+    defaultPanel: 'bottom-bar',
+    canHide: true,
   },
   'included-dirs': {
     id: 'included-dirs',

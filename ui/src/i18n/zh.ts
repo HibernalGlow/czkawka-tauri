@@ -501,4 +501,9 @@ export const zh: Record<TranslationKeys, string> = {
   'Similar images list': '相似图片列表',
   'Folder statistics': '文件夹统计',
   folders: '个文件夹',
+
+  // 格式筛选
+  'Format filter': '格式筛选',
+  Archives: '压缩包',
+  Folder: '文件夹',
 };

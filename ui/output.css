@@ -1041,6 +1041,10 @@ body {
   margin-top: 0.5rem;
 }
 
+.ml-1 {
+  margin-left: 0.25rem;
+}
+
 .line-clamp-2 {
   overflow: hidden;
   display: -webkit-box;
@@ -2329,6 +2333,10 @@ body {
   padding-top: 1rem;
 }
 
+.pb-1 {
+  padding-bottom: 0.25rem;
+}
+
 .text-left {
   text-align: left;
 }
@@ -2551,6 +2559,10 @@ body {
 .text-yellow-600 {
   --tw-text-opacity: 1;
   color: rgb(202 138 4 / var(--tw-text-opacity, 1));
+}
+
+.line-through {
+  text-decoration-line: line-through;
 }
 
 .underline-offset-4 {

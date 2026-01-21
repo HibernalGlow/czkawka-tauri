@@ -512,6 +512,11 @@ export const en = {
   'Similar images list': 'Similar images list',
   'Folder statistics': 'Folder statistics',
   folders: 'folders',
+
+  // Format filter
+  'Format filter': 'Format filter',
+  Archives: 'Archives',
+  Folder: 'Folder',
 };
 
 export type TranslationKeys = keyof typeof en;
