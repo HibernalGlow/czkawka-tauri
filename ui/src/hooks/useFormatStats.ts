@@ -27,9 +27,15 @@ export function useFormatStats() {
 
       // Extract extension
       const path = item.path || '';
-      const match = path.match(/\.([^.]+)$/);
-      const ext =
-        (match ? match[1].toLowerCase() : 'unknown').trim() || 'unknown';
+      let ext = 'unknown';
+
+      // 检查是否为目录
+      if ('folderName' in item || (item as any).isFolder) {
+        ext = 'folder';
+      } else {
+        const match = path.match(/\.([^.]+)$/);
+        ext = (match ? match[1].toLowerCase() : 'unknown').trim() || 'unknown';
+      }
 
       // Get size
       let size = 0;

@@ -18,6 +18,11 @@ import {
 } from '~/components/data-table';
 import { DynamicThumbnailCell } from '~/components/dynamic-thumbnail-cell';
 import { useT } from '~/hooks';
+import {
+  applyFormatFilter,
+  useFormatFilteredData,
+} from '~/hooks/useFormatFilteredData';
+import { formatFilterAtom } from '~/atom/format-filter';
 import type { ImagesEntry as BaseImagesEntry, FolderStat } from '~/types';
 
 // 扩展 ImagesEntry 类型，支持文件夹行
@@ -39,7 +44,11 @@ export function SimilarImages() {
   const settings = useAtomValue(settingsAtom);
   const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
+  const formatFilterState = useAtomValue(formatFilterAtom);
   const t = useT();
+
+  // 应用格式过滤
+  const formatFilteredData = useFormatFilteredData(imagesData);
 
   // 根据阈值过滤文件夹数据
   const filteredFoldersData = useMemo(() => {
@@ -112,10 +121,10 @@ export function SimilarImages() {
   // 1. 处理表格数据，生成分组分隔标记
   const processedData = useMemo(() => {
     // 筛选逻辑
-    let filteredImagesData = imagesData;
+    let filteredImagesData = formatFilteredData;
     if (filter) {
       const lowercaseFilter = filter.toLowerCase();
-      filteredImagesData = imagesData.filter((item) => {
+      filteredImagesData = formatFilteredData.filter((item) => {
         if (item.hidden) return true;
         return (
           item.fileName?.toLowerCase().includes(lowercaseFilter) ||
@@ -142,10 +151,16 @@ export function SimilarImages() {
 
     // 根据视图模式选择数据源并进行最后处理
     if (viewMode === 'folders') {
-      // 文件夹模式也应用筛选
-      if (!filter) return transformedFoldersData as CombinedEntry[];
+      // 文件夹模式也要应用格式过滤
+      const formatFilteredFolders = applyFormatFilter(
+        transformedFoldersData as CombinedEntry[],
+        formatFilterState.excludedFormats,
+        formatFilterState.excludedCategories,
+      );
+
+      if (!filter) return formatFilteredFolders;
       const lowercaseFilter = filter.toLowerCase();
-      return (transformedFoldersData as CombinedEntry[]).filter(
+      return formatFilteredFolders.filter(
         (item) =>
           item.fileName.toLowerCase().includes(lowercaseFilter) ||
           item.path.toLowerCase().includes(lowercaseFilter),

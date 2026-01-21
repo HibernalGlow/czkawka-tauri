@@ -21,6 +21,7 @@ import { DynamicVideoThumbnailCell } from '~/components/dynamic-video-thumbnail-
 import { toastError } from '~/components/toast';
 import { TooltipButton } from '~/components/tooltip-button';
 import { useT } from '~/hooks';
+import { useFormatFilteredData } from '~/hooks/useFormatFilteredData';
 import type { VideosEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
 import { ClickableVideoPreview } from './clickable-video-preview';
@@ -33,24 +34,30 @@ export function SimilarVideos() {
   const setSidebarVideoPreview = useSetAtom(sidebarVideoPreviewAtom);
   const t = useT();
 
+  // 应用格式过滤
+  const formatFilteredData = useFormatFilteredData(data);
+
   const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80);
 
   const filteredData = useMemo(() => {
-    if (!filter) return data;
+    // 即使没有 filter 也要应用格式过滤
+    let filteredList = formatFilteredData;
 
-    const lowercaseFilter = filter.toLowerCase();
-    const filtered = data.filter((item) => {
-      if (item.hidden) return true;
-      return (
-        item.fileName?.toLowerCase().includes(lowercaseFilter) ||
-        item.path?.toLowerCase().includes(lowercaseFilter)
-      );
-    });
+    if (filter) {
+      const lowercaseFilter = filter.toLowerCase();
+      filteredList = formatFilteredData.filter((item) => {
+        if (item.hidden) return true;
+        return (
+          item.fileName?.toLowerCase().includes(lowercaseFilter) ||
+          item.path?.toLowerCase().includes(lowercaseFilter)
+        );
+      });
+    }
 
-    // 清理空的组
-    const cleaned: typeof filtered = [];
-    let tempGroup: typeof filtered = [];
-    for (const item of filtered) {
+    // 清理空的组（即只有分隔符的组）
+    const cleaned: typeof filteredList = [];
+    let tempGroup: typeof filteredList = [];
+    for (const item of filteredList) {
       if (item.hidden) {
         if (tempGroup.length > 0) {
           cleaned.push(...tempGroup, item);
@@ -62,7 +69,7 @@ export function SimilarVideos() {
     }
     if (tempGroup.length > 0) cleaned.push(...tempGroup);
     return cleaned;
-  }, [data, filter]);
+  }, [formatFilteredData, filter]);
 
   // Calculate dynamic row height based on thumbnail size
   const dynamicRowHeight = useMemo(() => {

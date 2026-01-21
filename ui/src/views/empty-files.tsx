@@ -13,6 +13,7 @@ import {
   FilterStateUpdater,
 } from '~/components/data-table';
 import { useT } from '~/hooks';
+import { useFormatFilteredData } from '~/hooks/useFormatFilteredData';
 import type { FileEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
 import { filterItems } from '~/utils/table-helper';
@@ -24,9 +25,11 @@ export function EmptyFiles() {
   const settings = useAtomValue(settingsAtom);
   const t = useT();
 
+  // 应用格式过滤
+  const formatFilteredData = useFormatFilteredData(data);
   const filteredData = useMemo(() => {
-    return filterItems(data, filter, ['fileName', 'path']);
-  }, [data, filter]);
+    return filterItems(formatFilteredData, filter, ['fileName', 'path']);
+  }, [formatFilteredData, filter]);
 
   const columns = createColumns<FileEntry>([
     {

@@ -15,6 +15,7 @@ import {
 } from '~/components/data-table';
 import { DynamicPreviewCell } from '~/components/dynamic-preview-cell';
 import { useT } from '~/hooks';
+import { useFormatFilteredData } from '~/hooks/useFormatFilteredData';
 import type { BrokenEntry } from '~/types';
 import { isPreviewableFile } from '~/utils/file-type-utils';
 import { formatPathDisplay } from '~/utils/path-utils';
@@ -30,9 +31,11 @@ export function BrokenFiles() {
   const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80);
   const t = useT();
 
+  // 应用格式过滤
+  const formatFilteredData = useFormatFilteredData(data);
   const filteredData = useMemo(() => {
-    return filterItems(data, filter, ['fileName', 'path', 'errorString']);
-  }, [data, filter]);
+    return filterItems(formatFilteredData, filter, ['fileName', 'path', 'errorString']);
+  }, [formatFilteredData, filter]);
 
   // 检查是否有可预览文件
   const hasPreviewableFiles = useMemo(() => {
