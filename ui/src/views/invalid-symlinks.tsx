@@ -1,5 +1,6 @@
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useMemo, useState } from 'react';
+import { sidebarVideoPreviewAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
 import {
   currentToolDataAtom,
@@ -11,7 +12,7 @@ import {
   DataTable,
   FilterStateUpdater,
 } from '~/components/data-table';
-import { DynamicThumbnailCell } from '~/components/dynamic-thumbnail-cell';
+import { DynamicPreviewCell } from '~/components/dynamic-preview-cell';
 import { useT } from '~/hooks';
 import type { SymlinksFileEntry } from '~/types';
 import { isPreviewableFile } from '~/utils/file-type-utils';
@@ -24,6 +25,7 @@ export function InvalidSymlinks() {
   const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);
+  const setSidebarVideoPreview = useSetAtom(sidebarVideoPreviewAtom);
   const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80);
   const t = useT();
 
@@ -50,6 +52,15 @@ export function InvalidSymlinks() {
     return Math.max(36, thumbnailSize + 16);
   }, [hasPreviewableFiles, thumbnailColumnWidth]);
 
+  // 视频点击处理
+  const handleVideoClick = (path: string) => {
+    setSidebarVideoPreview((prev) => ({
+      ...prev,
+      isOpen: true,
+      videoPath: path,
+    }));
+  };
+
   const columns = createColumns<SymlinksFileEntry>([
     ...(hasPreviewableFiles
       ? [
@@ -64,10 +75,11 @@ export function InvalidSymlinks() {
                 return null;
               }
               return (
-                <DynamicThumbnailCell
+                <DynamicPreviewCell
                   path={row.original.path}
                   enableLazyLoad={true}
                   onSizeChange={setThumbnailColumnWidth}
+                  onVideoClick={() => handleVideoClick(row.original.path)}
                 />
               );
             },
