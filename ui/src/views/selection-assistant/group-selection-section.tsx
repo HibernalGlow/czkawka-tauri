@@ -17,7 +17,10 @@ import {
   currentSelectionAtom,
   groupRuleConfigAtom,
 } from '~/atom/selection-assistant';
-import { currentToolDataAtom, currentToolRowSelectionAtom } from '~/atom/tools';
+import {
+  currentToolFilteredDataAtom,
+  currentToolRowSelectionAtom,
+} from '~/atom/tools';
 import { Select } from '~/components/one-select';
 import { Button } from '~/components/shadcn/button';
 import { Checkbox } from '~/components/shadcn/checkbox';
@@ -55,7 +58,7 @@ export function GroupSelectionSection() {
   const t = useT();
   const [config, setConfig] = useAtom(groupRuleConfigAtom);
   const currentTool = useAtomValue(currentToolAtom);
-  const currentToolData = useAtomValue(currentToolDataAtom);
+  const currentToolData = useAtomValue(currentToolFilteredDataAtom);
   const currentSelection = useAtomValue(currentSelectionAtom);
   const setSelection = useSetAtom(currentToolRowSelectionAtom);
 

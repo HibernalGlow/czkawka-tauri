@@ -2,7 +2,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { SquareMousePointer } from 'lucide-react';
 import { useState } from 'react';
 import { currentToolAtom } from '~/atom/primitive';
-import { currentToolDataAtom, currentToolRowSelectionAtom } from '~/atom/tools';
+import { currentToolFilteredDataAtom, currentToolRowSelectionAtom } from '~/atom/tools';
 import { Button, OperationButton, Textarea } from '~/components';
 import type { RowSelection } from '~/components/data-table';
 import {
@@ -39,7 +39,7 @@ export function RowSelectionMenu(props: { disabled: boolean }) {
   const { disabled } = props;
 
   const currentTool = useAtomValue(currentToolAtom);
-  const currentToolData = useAtomValue(currentToolDataAtom);
+  const currentToolData = useAtomValue(currentToolFilteredDataAtom);
   const setCurrentToolRowSelection = useSetAtom(currentToolRowSelectionAtom);
   const t = useT();
   const customSelectDialogOpen = useBoolean();

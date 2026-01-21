@@ -6,7 +6,7 @@ import { useMemo, useState } from 'react';
 import { sidebarVideoPreviewAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
 import {
-  currentToolDataAtom,
+  currentToolFilteredDataAtom,
   currentToolFilterAtom,
   currentToolRowSelectionAtom,
 } from '~/atom/tools';
@@ -17,59 +17,23 @@ import {
   TableRowSelectionCell,
   TableRowSelectionHeader,
 } from '~/components/data-table';
-import { DynamicVideoThumbnailCell } from '~/components/dynamic-video-thumbnail-cell';
+import { DynamicPreviewCell } from '~/components/dynamic-preview-cell';
 import { toastError } from '~/components/toast';
 import { TooltipButton } from '~/components/tooltip-button';
 import { useT } from '~/hooks';
-import { useFormatFilteredData } from '~/hooks/useFormatFilteredData';
 import type { VideosEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
 import { ClickableVideoPreview } from './clickable-video-preview';
 
 export function SimilarVideos() {
-  const data = useAtomValue(currentToolDataAtom) as VideosEntry[];
+  const filteredData = useAtomValue(currentToolFilteredDataAtom) as VideosEntry[];
   const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);
   const setSidebarVideoPreview = useSetAtom(sidebarVideoPreviewAtom);
   const t = useT();
 
-  // 应用格式过滤
-  const formatFilteredData = useFormatFilteredData(data);
-
   const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80);
-
-  const filteredData = useMemo(() => {
-    // 即使没有 filter 也要应用格式过滤
-    let filteredList = formatFilteredData;
-
-    if (filter) {
-      const lowercaseFilter = filter.toLowerCase();
-      filteredList = formatFilteredData.filter((item) => {
-        if (item.hidden) return true;
-        return (
-          item.fileName?.toLowerCase().includes(lowercaseFilter) ||
-          item.path?.toLowerCase().includes(lowercaseFilter)
-        );
-      });
-    }
-
-    // 清理空的组（即只有分隔符的组）
-    const cleaned: typeof filteredList = [];
-    let tempGroup: typeof filteredList = [];
-    for (const item of filteredList) {
-      if (item.hidden) {
-        if (tempGroup.length > 0) {
-          cleaned.push(...tempGroup, item);
-        }
-        tempGroup = [];
-      } else {
-        tempGroup.push(item);
-      }
-    }
-    if (tempGroup.length > 0) cleaned.push(...tempGroup);
-    return cleaned;
-  }, [formatFilteredData, filter]);
 
   // Calculate dynamic row height based on thumbnail size
   const dynamicRowHeight = useMemo(() => {
@@ -134,11 +98,11 @@ export function SimilarVideos() {
                 return null;
               }
               return (
-                <DynamicVideoThumbnailCell
+                <DynamicPreviewCell
                   path={row.original.path}
                   enableLazyLoad={false}
                   onSizeChange={setThumbnailColumnWidth}
-                  onClick={() => handleVideoClick(row.original.path)}
+                  onVideoClick={() => handleVideoClick(row.original.path)}
                 />
               );
             },

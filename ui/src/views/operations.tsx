@@ -3,7 +3,7 @@ import { Info, Wand2 } from 'lucide-react';
 import { useState } from 'react';
 import { currentToolAtom, progressAtom } from '~/atom/primitive';
 import { selectionAssistantPanelAtom } from '~/atom/selection-assistant';
-import { currentToolDataAtom } from '~/atom/tools';
+import { currentToolFilteredDataAtom } from '~/atom/tools';
 import { TooltipButton } from '~/components';
 import {
   Dialog,
@@ -93,7 +93,7 @@ function SimilarityQuickTableDialog() {
 
 export function Operations() {
   const progress = useAtomValue(progressAtom);
-  const currentToolData = useAtomValue(currentToolDataAtom);
+  const currentToolData = useAtomValue(currentToolFilteredDataAtom);
   const currentTool = useAtomValue(currentToolAtom);
   const setSelectionAssistantPanel = useSetAtom(selectionAssistantPanelAtom);
 

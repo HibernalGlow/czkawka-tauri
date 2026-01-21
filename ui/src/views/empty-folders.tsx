@@ -2,7 +2,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 import { settingsAtom } from '~/atom/settings';
 import {
-  currentToolDataAtom,
+  currentToolFilteredDataAtom,
   currentToolFilterAtom,
   currentToolRowSelectionAtom,
 } from '~/atom/tools';
@@ -13,23 +13,15 @@ import {
   FilterStateUpdater,
 } from '~/components/data-table';
 import { useT } from '~/hooks';
-import { useFormatFilteredData } from '~/hooks/useFormatFilteredData';
 import type { FolderEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
-import { filterItems } from '~/utils/table-helper';
 
 export function EmptyFolders() {
-  const data = useAtomValue(currentToolDataAtom) as FolderEntry[];
+  const filteredData = useAtomValue(currentToolFilteredDataAtom) as FolderEntry[];
   const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);
   const t = useT();
-
-  // 应用格式过滤
-  const formatFilteredData = useFormatFilteredData(data);
-  const filteredData = useMemo(() => {
-    return filterItems(formatFilteredData, filter, ['folderName', 'path']);
-  }, [formatFilteredData, filter]);
 
   const columns = createColumns<FolderEntry>([
     {

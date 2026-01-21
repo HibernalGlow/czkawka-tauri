@@ -16,4 +16,5 @@ export { Slider } from './shadcn/slider';
 export { Switch } from './shadcn/switch';
 export { Textarea } from './shadcn/textarea';
 export { toastError } from './toast';
+export { ToggleBadge } from './toggle-badge';
 export { TooltipButton } from './tooltip-button';

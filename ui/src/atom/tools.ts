@@ -155,3 +155,120 @@ export const restoreFilterAtom = atom(null, (get, set) => {
   const filter = get(currentToolFilterAtom);
   set(searchInputValueAtom, filter);
 });
+
+// ----------------------------------------------------------------------------
+// 整合后的过滤数据 Atom (整合格式过滤与搜索过滤)
+// ----------------------------------------------------------------------------
+import { Tools } from '~/consts';
+import { applyFormatFilter } from '~/hooks/useFormatFilteredData';
+import { formatFilterAtom } from './format-filter';
+
+// 各工具对应的搜索字段映射
+const TOOL_FILTER_KEYS: Record<string, string[]> = {
+  [Tools.DuplicateFiles]: ['fileName', 'path'],
+  [Tools.BigFiles]: ['fileName', 'path'],
+  [Tools.TemporaryFiles]: ['fileName', 'path'],
+  [Tools.BrokenFiles]: ['fileName', 'path', 'errorString'],
+  [Tools.BadExtensions]: [
+    'fileName',
+    'path',
+    'currentExtension',
+    'properExtensionsGroup',
+  ],
+  [Tools.InvalidSymlinks]: [
+    'symlinkName',
+    'path',
+    'destinationPath',
+    'typeOfError',
+  ],
+  [Tools.SimilarImages]: ['fileName', 'path'],
+  [Tools.SimilarVideos]: ['fileName', 'path'],
+  [Tools.MusicDuplicates]: [
+    'fileName',
+    'path',
+    'trackTitle',
+    'trackArtist',
+    'genre',
+  ],
+  [Tools.EmptyFiles]: ['fileName', 'path'],
+  [Tools.EmptyFolders]: ['folderName', 'path'],
+};
+
+/**
+ * 当前选定项的完整过滤后数据 (已被 RowSelectionMenu 和 Operations 使用)
+ */
+export const currentToolFilteredDataAtom = atom((get) => {
+  const data = get(currentToolDataAtom);
+  const filter = get(currentToolFilterAtom);
+  const formatFilter = get(formatFilterAtom);
+  const currentTool = get(currentToolAtom);
+
+  if (!data || data.length === 0) return [];
+
+  // 1. 应用格式过滤
+  let filtered = applyFormatFilter(
+    data as any[],
+    formatFilter.excludedFormats,
+    formatFilter.excludedCategories,
+  );
+
+  // 2. 应用搜索过滤
+  if (filter) {
+    const lowercaseFilter = filter.toLowerCase();
+    const keys = TOOL_FILTER_KEYS[currentTool] || ['path'];
+
+    filtered = filtered.filter((item) => {
+      // 这里的 item 是原始数据项，不含 hidden 属性(hidden 是视图层添加的)
+      // 但为了保险也检查一下
+      if (item.hidden) return true;
+
+      for (const key of keys) {
+        const value = (item as any)[key];
+        if (typeof value === 'string' && value.toLowerCase().includes(lowercaseFilter)) {
+          return true;
+        }
+      }
+      return false;
+    });
+  }
+
+  return filtered;
+});
+
+/**
+ * 正在处理中的工具过滤后数据
+ */
+export const toolInProgressFilteredDataAtom = atom((get) => {
+  const data = get(toolInProgressDataAtom);
+  const progress = get(progressAtom);
+  const formatFilter = get(formatFilterAtom);
+  const filter = get(currentToolFilterAtom); // 搜索过滤
+
+  if (!data || data.length === 0 || !progress.tool) return [];
+
+  // 1. 格式过滤
+  let filtered = applyFormatFilter(
+    data as any[],
+    formatFilter.excludedFormats,
+    formatFilter.excludedCategories,
+  );
+
+  // 2. 搜索过滤
+  if (filter) {
+    const lowercaseFilter = filter.toLowerCase();
+    const keys = TOOL_FILTER_KEYS[progress.tool] || ['path'];
+
+    filtered = filtered.filter((item) => {
+      for (const key of keys) {
+        const value = (item as any)[key];
+        if (typeof value === 'string' && value.toLowerCase().includes(lowercaseFilter)) {
+          return true;
+        }
+      }
+      return false;
+    });
+  }
+
+  return filtered;
+});
+

@@ -11,7 +11,10 @@ import {
   currentSelectionAtom,
   directoryRuleConfigAtom,
 } from '~/atom/selection-assistant';
-import { currentToolDataAtom, currentToolRowSelectionAtom } from '~/atom/tools';
+import {
+  currentToolFilteredDataAtom,
+  currentToolRowSelectionAtom,
+} from '~/atom/tools';
 import { Select } from '~/components/one-select';
 import { Button } from '~/components/shadcn/button';
 import { Checkbox } from '~/components/shadcn/checkbox';
@@ -29,7 +32,7 @@ export function DirectorySelectionSection() {
   const t = useT();
   const [config, setConfig] = useAtom(directoryRuleConfigAtom);
   const currentSelection = useAtomValue(currentSelectionAtom);
-  const currentToolData = useAtomValue(currentToolDataAtom);
+  const currentToolData = useAtomValue(currentToolFilteredDataAtom);
   const setSelection = useSetAtom(currentToolRowSelectionAtom);
 
   // 模式选项

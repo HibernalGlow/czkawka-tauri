@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { sidebarVideoPreviewAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
 import {
-  currentToolDataAtom,
+  currentToolFilteredDataAtom,
   currentToolFilterAtom,
   currentToolRowSelectionAtom,
 } from '~/atom/tools';
@@ -14,15 +14,13 @@ import {
 } from '~/components/data-table';
 import { DynamicPreviewCell } from '~/components/dynamic-preview-cell';
 import { useT } from '~/hooks';
-import { useFormatFilteredData } from '~/hooks/useFormatFilteredData';
 import type { SymlinksFileEntry } from '~/types';
 import { isPreviewableFile } from '~/utils/file-type-utils';
 import { formatPathDisplay } from '~/utils/path-utils';
-import { filterItems } from '~/utils/table-helper';
 import { ClickablePreview } from './clickable-preview';
 
 export function InvalidSymlinks() {
-  const data = useAtomValue(currentToolDataAtom) as SymlinksFileEntry[];
+  const filteredData = useAtomValue(currentToolFilteredDataAtom) as SymlinksFileEntry[];
   const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);
@@ -30,21 +28,10 @@ export function InvalidSymlinks() {
   const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80);
   const t = useT();
 
-  // 应用格式过滤
-  const formatFilteredData = useFormatFilteredData(data);
-  const filteredData = useMemo(() => {
-    return filterItems(formatFilteredData, filter, [
-      'symlinkName',
-      'path',
-      'destinationPath',
-      'typeOfError',
-    ]);
-  }, [formatFilteredData, filter]);
-
   // 检查是否有可预览文件
   const hasPreviewableFiles = useMemo(() => {
-    return data.some((entry) => isPreviewableFile(entry.path));
-  }, [data]);
+    return filteredData.some((entry) => isPreviewableFile(entry.path));
+  }, [filteredData]);
 
   // 动态行高
   const dynamicRowHeight = useMemo(() => {

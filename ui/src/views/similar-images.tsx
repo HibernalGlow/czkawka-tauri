@@ -3,7 +3,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useMemo, useState } from 'react';
 import { settingsAtom } from '~/atom/settings';
 import {
-  currentToolDataAtom,
+  currentToolFilteredDataAtom,
   currentToolFilterAtom,
   currentToolRowSelectionAtom,
   similarImagesFoldersAtom,
@@ -16,12 +16,9 @@ import {
   TableRowSelectionCell,
   TableRowSelectionHeader,
 } from '~/components/data-table';
-import { DynamicThumbnailCell } from '~/components/dynamic-thumbnail-cell';
+import { DynamicPreviewCell } from '~/components/dynamic-preview-cell';
 import { useT } from '~/hooks';
-import {
-  applyFormatFilter,
-  useFormatFilteredData,
-} from '~/hooks/useFormatFilteredData';
+import { applyFormatFilter } from '~/hooks/useFormatFilteredData';
 import { formatFilterAtom } from '~/atom/format-filter';
 import type { ImagesEntry as BaseImagesEntry, FolderStat } from '~/types';
 
@@ -39,16 +36,13 @@ import { ClickableImagePreview } from './clickable-image-preview';
 export function SimilarImages() {
   const [viewMode, setViewMode] = useAtom(similarImagesViewModeAtom);
   const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80);
-  const imagesData = useAtomValue(currentToolDataAtom) as BaseImagesEntry[];
+  const filteredData = useAtomValue(currentToolFilteredDataAtom) as BaseImagesEntry[];
   const foldersData = useAtomValue(similarImagesFoldersAtom);
   const settings = useAtomValue(settingsAtom);
   const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const formatFilterState = useAtomValue(formatFilterAtom);
   const t = useT();
-
-  // 应用格式过滤
-  const formatFilteredData = useFormatFilteredData(imagesData);
 
   // 根据阈值过滤文件夹数据
   const filteredFoldersData = useMemo(() => {
@@ -76,7 +70,7 @@ export function SimilarImages() {
   }, [filteredFoldersData]);
 
   // 根据视图模式选择数据源
-  const data = viewMode === 'images' ? imagesData : transformedFoldersData;
+  // 根据视图模式选择数据源 (此行已移除因 filteredData 逻辑已合并到 processedData)
 
   // 根据缩略图列宽动态计算行高
   const dynamicRowHeight = useMemo(() => {
@@ -91,8 +85,8 @@ export function SimilarImages() {
 
   // 启动缩略图预加载
   useEffect(() => {
-    if (settings.similarImagesEnableThumbnails && imagesData.length > 0) {
-      const allImagePaths = imagesData.map((entry) => entry.path);
+    if (settings.similarImagesEnableThumbnails && filteredData.length > 0) {
+      const allImagePaths = filteredData.map((entry) => entry.path);
       const preloader = ThumbnailPreloader.getInstance();
 
       // 延迟启动预加载，避免影响初始渲染
@@ -105,12 +99,12 @@ export function SimilarImages() {
         preloader.stop();
       };
     }
-  }, [imagesData, settings.similarImagesEnableThumbnails]);
+  }, [filteredData, settings.similarImagesEnableThumbnails]);
 
   // 获取文件夹下的第一张图片路径
   const getFirstImageInFolder = (folderPath: string): string | null => {
     // 在相似图片数据中查找该文件夹下的第一张图片
-    for (const imageEntry of imagesData) {
+    for (const imageEntry of filteredData) {
       if (imageEntry.path.startsWith(folderPath) && !imageEntry.isRef) {
         return imageEntry.path;
       }
@@ -120,38 +114,13 @@ export function SimilarImages() {
 
   // 1. 处理表格数据，生成分组分隔标记
   const processedData = useMemo(() => {
-    // 筛选逻辑
-    let filteredImagesData = formatFilteredData;
-    if (filter) {
-      const lowercaseFilter = filter.toLowerCase();
-      filteredImagesData = formatFilteredData.filter((item) => {
-        if (item.hidden) return true;
-        return (
-          item.fileName?.toLowerCase().includes(lowercaseFilter) ||
-          item.path?.toLowerCase().includes(lowercaseFilter)
-        );
-      });
-
-      // 清理掉空的组（即只有分隔符的组）
-      const cleaned: typeof filteredImagesData = [];
-      let tempGroup: typeof filteredImagesData = [];
-      for (const item of filteredImagesData) {
-        if (item.hidden) {
-          if (tempGroup.length > 0) {
-            cleaned.push(...tempGroup, item);
-          }
-          tempGroup = [];
-        } else {
-          tempGroup.push(item);
-        }
-      }
-      if (tempGroup.length > 0) cleaned.push(...tempGroup);
-      filteredImagesData = cleaned;
-    }
-
     // 根据视图模式选择数据源并进行最后处理
     if (viewMode === 'folders') {
       // 文件夹模式也要应用格式过滤
+      // TRANSFORMED FOLDERS DATA 已经包含了文件夹
+      // 注意：currentToolFilteredDataAtom 已经在底层过滤了文件夹项（如果它们被归类为 'folder'）
+      // 但是 transformedFoldersData 是从 similarImagesFoldersAtom 生存的。
+      // 为简化，我们对 transformedFoldersData 再次应用格式过滤
       const formatFilteredFolders = applyFormatFilter(
         transformedFoldersData as CombinedEntry[],
         formatFilterState.excludedFormats,
@@ -167,19 +136,20 @@ export function SimilarImages() {
       );
     }
 
+    // filteredData 已经包含了文本过滤和格式过滤
     const result: CombinedEntry[] = [];
-    for (let i = 0; i < filteredImagesData.length; i++) {
-      const curr = filteredImagesData[i];
+    for (let i = 0; i < filteredData.length; i++) {
+      const curr = filteredData[i];
       if (curr.hidden) continue; // 跳过 hidden 行
       // 判断下一行是否为 hidden
-      const next = filteredImagesData[i + 1];
+      const next = filteredData[i + 1];
       result.push({
         ...curr,
         _isGroupEnd: !!next?.hidden, // 新增分组结束标记
       });
     }
     return result;
-  }, [imagesData, viewMode, transformedFoldersData, filter]);
+  }, [filteredData, viewMode, transformedFoldersData, filter, formatFilterState]);
 
   const columns: ColumnDef<CombinedEntry>[] = [
     {
@@ -209,7 +179,7 @@ export function SimilarImages() {
                 ? getFirstImageInFolder(row.original.path)
                 : row.original.path;
               return (
-                <DynamicThumbnailCell
+                <DynamicPreviewCell
                   path={imagePath || row.original.path}
                   enableLazyLoad={true}
                   onSizeChange={setThumbnailColumnWidth}
@@ -353,7 +323,7 @@ export function SimilarImages() {
 function FileName(props: { row: Row<CombinedEntry> }) {
   const { row } = props;
   const { hidden, path, fileName } = row.original;
-  const imagesData = useAtomValue(currentToolDataAtom) as BaseImagesEntry[];
+  const filteredData = useAtomValue(currentToolFilteredDataAtom) as BaseImagesEntry[];
   const settings = useAtomValue(settingsAtom);
 
   if (hidden) {
@@ -364,7 +334,7 @@ function FileName(props: { row: Row<CombinedEntry> }) {
   const isFolder = (row.original as any).isFolder;
   if (isFolder) {
     // 查找该文件夹下的第一张图片
-    const firstImage = imagesData.find(
+    const firstImage = filteredData.find(
       (img) => img.path.startsWith(path) && !img.isRef,
     );
 
@@ -398,7 +368,7 @@ function FileName(props: { row: Row<CombinedEntry> }) {
 function ClickablePath(props: { row: Row<CombinedEntry> }) {
   const { row } = props;
   const { path } = row.original;
-  const imagesData = useAtomValue(currentToolDataAtom) as BaseImagesEntry[];
+  const filteredData = useAtomValue(currentToolFilteredDataAtom) as BaseImagesEntry[];
   const settings = useAtomValue(settingsAtom);
 
   // 根据设置格式化路径显示
@@ -407,7 +377,7 @@ function ClickablePath(props: { row: Row<CombinedEntry> }) {
   // 如果是文件夹行，支持点击预览第一张图片
   const isFolder = (row.original as any).isFolder;
   if (isFolder) {
-    const firstImage = imagesData.find(
+    const firstImage = filteredData.find(
       (img) => img.path.startsWith(path) && !img.isRef,
     );
 
@@ -442,13 +412,13 @@ function ClickablePath(props: { row: Row<CombinedEntry> }) {
 function ClickableCell(props: { row: Row<CombinedEntry>; value: string }) {
   const { row, value } = props;
   const { path } = row.original;
-  const imagesData = useAtomValue(currentToolDataAtom) as BaseImagesEntry[];
+  const filteredData = useAtomValue(currentToolFilteredDataAtom) as BaseImagesEntry[];
   const settings = useAtomValue(settingsAtom);
 
   // 如果是文件夹行，支持点击预览第一张图片
   const isFolder = (row.original as any).isFolder;
   if (isFolder) {
-    const firstImage = imagesData.find(
+    const firstImage = filteredData.find(
       (img) => img.path.startsWith(path) && !img.isRef,
     );
 

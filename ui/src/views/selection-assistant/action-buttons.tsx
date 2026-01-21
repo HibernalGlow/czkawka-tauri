@@ -11,7 +11,7 @@ import {
   currentSelectionAtom,
   invertSelectionAtom,
 } from '~/atom/selection-assistant';
-import { currentToolDataAtom } from '~/atom/tools';
+import { currentToolFilteredDataAtom } from '~/atom/tools';
 import { Button } from '~/components/shadcn/button';
 import { useT } from '~/hooks';
 import type { BaseEntry, RefEntry } from '~/types';
@@ -19,7 +19,7 @@ import type { BaseEntry, RefEntry } from '~/types';
 export function ActionButtons() {
   const t = useT();
   const currentSelection = useAtomValue(currentSelectionAtom);
-  const currentToolData = useAtomValue(currentToolDataAtom);
+  const filteredData = useAtomValue(currentToolFilteredDataAtom);
   const [, clearAll] = [null, useSetAtom(clearAllSelectionAtom)];
   const [, invert] = [null, useSetAtom(invertSelectionAtom)];
 
@@ -29,8 +29,8 @@ export function ActionButtons() {
       .length;
   }, [currentSelection]);
 
-  // 总数量
-  const totalCount = currentToolData.length;
+  // 总数量 (反映过滤后的)
+  const totalCount = filteredData.length;
 
   // 清空所有选择
   const handleClearAll = useCallback(() => {
@@ -39,10 +39,10 @@ export function ActionButtons() {
 
   // 反选
   const handleInvert = useCallback(() => {
-    const data = currentToolData as (BaseEntry & Partial<RefEntry>)[];
+    const data = filteredData as (BaseEntry & Partial<RefEntry>)[];
     const allPaths = data.map((item) => item.path);
     invert(allPaths);
-  }, [currentToolData, invert]);
+  }, [filteredData, invert]);
 
   return (
     <div className="space-y-2">

@@ -1,8 +1,26 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { Settings2, Trash2 } from 'lucide-react';
+import {
+  ArrowLeftRight,
+  CaseSensitive,
+  Eye,
+  FileArchive,
+  FileAudio,
+  FileImage,
+  FileType,
+  Fingerprint,
+  Image as ImageIcon,
+  Minimize2,
+  Music,
+  Ruler,
+  SearchCode,
+  Settings2,
+  Trash2,
+  Video,
+} from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { currentToolAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
+import { cn } from '~/utils/cn';
 import {
   Button,
   CheckboxWithLabel,
@@ -10,7 +28,9 @@ import {
   OperationButton,
   Select,
   Slider,
-  Switch,
+  ToggleBadge,
+  TooltipButton,
+  Badge,
 } from '~/components';
 import { Form, FormItem } from '~/components/form';
 import {
@@ -40,11 +60,13 @@ function PathDisplaySettings() {
   return (
     <FormItem
       name="reversePathDisplay"
-      label={t('Reverse path display')}
-      description={t('Reverse path display hint')}
-      comp="switch"
+      comp="badge-switch"
     >
-      <Switch />
+      <TooltipButton tooltip={t('Reverse path display')}>
+        <ToggleBadge>
+          <ArrowLeftRight className="h-4 w-4" />
+        </ToggleBadge>
+      </TooltipButton>
     </FormItem>
   );
 }
@@ -92,42 +114,44 @@ function ImageDisplaySettings() {
 
   return (
     <>
+    <div className="flex gap-2">
       <FormItem
         name="similarImagesEnableThumbnails"
-        label={t('Enable thumbnails')}
-        comp="switch"
+        comp="badge-switch"
       >
-        <Switch />
+        <TooltipButton tooltip={t('Enable thumbnails')}>
+          <ToggleBadge>
+            <ImageIcon className="h-4 w-4" />
+          </ToggleBadge>
+        </TooltipButton>
       </FormItem>
-      {settings.similarImagesEnableThumbnails && (
-        <div className="space-y-2 pl-4 border-l-2 border-muted">
-          <div className="text-sm text-muted-foreground">
-            {t('Thumbnail cache')}
-          </div>
-          {cacheStats && (
-            <div className="text-xs text-muted-foreground">
-              {cacheStats.count} {t('files')}, {cacheStats.size}
-            </div>
-          )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleClearCache}
-            disabled={clearingCache}
-            className="h-8 px-3"
-          >
-            <Trash2 className="w-3 h-3 mr-1" />
-            {clearingCache ? t('Clearing...') : t('Clear cache')}
-          </Button>
-        </div>
-      )}
       <FormItem
         name="similarImagesShowImagePreview"
-        label={t('Show image preview')}
-        comp="switch"
+        comp="badge-switch"
       >
-        <Switch />
+        <TooltipButton tooltip={t('Show image preview')}>
+          <ToggleBadge>
+            <Eye className="h-4 w-4" />
+          </ToggleBadge>
+        </TooltipButton>
       </FormItem>
+      {settings.similarImagesEnableThumbnails && (
+        <TooltipButton
+          tooltip={`${t('Clear cache')} (${cacheStats ? `${cacheStats.count} ${t('files')}, ${cacheStats.size}` : ''})`}
+        >
+          <Badge
+            variant="outline"
+            onClick={handleClearCache}
+            className={cn(
+              'h-9 w-9 p-0 flex items-center justify-center cursor-pointer hover:bg-accent transition-colors',
+              clearingCache && 'opacity-50 cursor-wait'
+            )}
+          >
+            <Trash2 className={cn('h-4 w-4', clearingCache && 'animate-pulse')} />
+          </Badge>
+        </TooltipButton>
+      )}
+    </div>
     </>
   );
 }
@@ -138,15 +162,16 @@ function VideoDisplaySettings() {
   const t = useT();
 
   return (
-    <>
-      <FormItem
-        name="similarVideosEnableThumbnails"
-        label={t('Enable video thumbnails')}
-        comp="switch"
-      >
-        <Switch />
-      </FormItem>
-    </>
+    <FormItem
+      name="similarVideosEnableThumbnails"
+      comp="badge-switch"
+    >
+      <TooltipButton tooltip={t('Enable video thumbnails')}>
+        <ToggleBadge>
+          <Video className="h-4 w-4" />
+        </ToggleBadge>
+      </TooltipButton>
+    </FormItem>
   );
 }
 
@@ -319,10 +344,13 @@ function DuplicateFilesSettings({
         <>
           <FormItem
             name="duplicatesSubNameCaseSensitive"
-            label={t('Case sensitive')}
-            comp="switch"
+            comp="badge-switch"
           >
-            <Switch />
+            <TooltipButton tooltip={t('Case sensitive')}>
+              <ToggleBadge>
+                <CaseSensitive className="h-4 w-4" />
+              </ToggleBadge>
+            </TooltipButton>
           </FormItem>
           <FormItem
             name="duplicateGroupSizeThreshold"
@@ -461,10 +489,13 @@ function SimilarImagesSettings({
           </FormItem>
           <FormItem
             name="similarImagesSubIgnoreSameSize"
-            label={t('Ignore same size')}
-            comp="select"
+            comp="badge-switch"
           >
-            <Switch />
+            <TooltipButton tooltip={t('Ignore same size')}>
+              <ToggleBadge>
+                <Ruler className="h-4 w-4" />
+              </ToggleBadge>
+            </TooltipButton>
           </FormItem>
         </>
       )}
@@ -498,10 +529,13 @@ function SimilarVideosSettings({
           </FormItem>
           <FormItem
             name="similarVideosSubIgnoreSameSize"
-            label={t('Ignore same size')}
-            comp="switch"
+            comp="badge-switch"
           >
-            <Switch />
+            <TooltipButton tooltip={t('Ignore same size')}>
+              <ToggleBadge>
+                <Ruler className="h-4 w-4" />
+              </ToggleBadge>
+            </TooltipButton>
           </FormItem>
           <FormItem
             name="similarVideosSkipForwardAmount"
@@ -575,10 +609,13 @@ function MusicDuplicatesSettings({
           <>
             <FormItem
               name="similarMusicSubApproximateComparison"
-              label={t('Approximate tag comparison')}
-              comp="switch"
+              comp="badge-switch"
             >
-              <Switch />
+              <TooltipButton tooltip={t('Approximate tag comparison')}>
+                <ToggleBadge>
+                  <SearchCode className="h-4 w-4" />
+                </ToggleBadge>
+              </TooltipButton>
             </FormItem>
             <span className="text-center">{t('Compared tags')}</span>
             <div className="grid grid-cols-3 gap-2 *:pl-4">
@@ -633,10 +670,13 @@ function MusicDuplicatesSettings({
             </FormItem>
             <FormItem
               name="similarMusicCompareFingerprintsOnlyWithSimilarTitles"
-              label={t('Compare only with similar titles')}
-              comp="switch"
+              comp="badge-switch"
             >
-              <Switch />
+              <TooltipButton tooltip={t('Compare only with similar titles')}>
+                <ToggleBadge>
+                  <FileType className="h-4 w-4" />
+                </ToggleBadge>
+              </TooltipButton>
             </FormItem>
           </>
         )}
@@ -659,19 +699,34 @@ function BrokenFilesSettings({
     <>
       {showControls && (
         <>
-          <span className="text-center">{t('Type of files to check')}</span>
-          <div className="grid grid-cols-4 justify-items-center">
-            <FormItem name="brokenFilesSubAudio" comp="checkbox">
-              <CheckboxWithLabel label={t('Audio')} />
+          <div className="flex flex-wrap gap-2 pt-2">
+            <FormItem name="brokenFilesSubAudio" comp="badge-switch">
+              <TooltipButton tooltip={t('Audio')}>
+                <ToggleBadge>
+                  <FileAudio className="h-4 w-4" />
+                </ToggleBadge>
+              </TooltipButton>
             </FormItem>
-            <FormItem name="brokenFilesSubPdf" comp="checkbox">
-              <CheckboxWithLabel label={t('Pdf')} />
+            <FormItem name="brokenFilesSubPdf" comp="badge-switch">
+              <TooltipButton tooltip={t('Pdf')}>
+                <ToggleBadge>
+                  <FileArchive className="h-4 w-4" />
+                </ToggleBadge>
+              </TooltipButton>
             </FormItem>
-            <FormItem name="brokenFilesSubArchive" comp="checkbox">
-              <CheckboxWithLabel label={t('Archive')} />
+            <FormItem name="brokenFilesSubArchive" comp="badge-switch">
+              <TooltipButton tooltip={t('Archive')}>
+                <ToggleBadge>
+                  <FileArchive className="h-4 w-4" />
+                </ToggleBadge>
+              </TooltipButton>
             </FormItem>
-            <FormItem name="brokenFilesSubImage" comp="checkbox">
-              <CheckboxWithLabel label={t('Image')} />
+            <FormItem name="brokenFilesSubImage" comp="badge-switch">
+              <TooltipButton tooltip={t('Image')}>
+                <ToggleBadge>
+                  <FileImage className="h-4 w-4" />
+                </ToggleBadge>
+              </TooltipButton>
             </FormItem>
           </div>
         </>

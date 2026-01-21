@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { sidebarVideoPreviewAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
 import {
-  currentToolDataAtom,
+  currentToolFilteredDataAtom,
   currentToolFilterAtom,
   currentToolRowSelectionAtom,
 } from '~/atom/tools';
@@ -29,16 +29,13 @@ import { ClickablePreview } from './clickable-preview';
 
 export function DuplicateFiles() {
   const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80);
-  const data = useAtomValue(currentToolDataAtom) as DuplicateEntry[];
+  const data = useAtomValue(currentToolFilteredDataAtom) as DuplicateEntry[];
   const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const [sorting, setSorting] = useState<SortingState>([]);
   const settings = useAtomValue(settingsAtom);
   const setSidebarVideoPreview = useSetAtom(sidebarVideoPreviewAtom);
   const t = useT();
-
-  // 先应用格式过滤
-  const formatFilteredData = useFormatFilteredData(data);
 
   // 根据缩略图列宽动态计算行高
   const dynamicRowHeight = useMemo(() => {
@@ -82,58 +79,48 @@ export function DuplicateFiles() {
 
   // 处理分组分隔和隐藏行
   const processedData = useMemo(() => {
-    // 1. 筛选逻辑
-    let filteredRawData = formatFilteredData;
-    if (filter) {
-      const lowercaseFilter = filter.toLowerCase();
-      filteredRawData = formatFilteredData.filter((item) => {
-        if (item.hidden) return true; // 保留分隔符，稍后处理
-        return (
-          item.fileName?.toLowerCase().includes(lowercaseFilter) ||
-          item.path?.toLowerCase().includes(lowercaseFilter)
-        );
-      });
+    // data 已经是由 currentToolFilteredDataAtom 过滤后的
+    const currentData = data;
 
-      // 清理掉空的组（即只有分隔符的组）
-      const cleaned: typeof filteredRawData = [];
-      let tempGroup: typeof filteredRawData = [];
-      for (const item of filteredRawData) {
-        if (item.hidden) {
-          if (tempGroup.length > 0) {
-            cleaned.push(...tempGroup, item);
-          }
-          tempGroup = [];
-        } else {
-          tempGroup.push(item);
-        }
-      }
-      if (tempGroup.length > 0) cleaned.push(...tempGroup);
-      filteredRawData = cleaned;
-    }
-
-    const threshold = settings.duplicateGroupSizeThreshold || 1;
-    if (threshold <= 1) return processDataWithGroups(filteredRawData);
-    const filtered: typeof data = [];
-    let group: typeof data = [];
-    for (const item of filteredRawData) {
+    // 1. 清理掉空的组（即只有分隔符的组，这种情况在过滤后可能发生）
+    const cleaned: typeof currentData = [];
+    let tempGroup: typeof currentData = [];
+    for (const item of currentData) {
       if (item.hidden) {
-        // hidden row marks end of current group
-        if (group.length) {
-          const visibleCount = group.filter((e) => !e.hidden).length;
-          if (visibleCount >= threshold) {
-            filtered.push(...group, item); // keep group and its hidden separator
-          }
+        if (tempGroup.length > 0) {
+          cleaned.push(...tempGroup, item);
         }
-        group = [];
-        continue;
+        tempGroup = [];
+      } else {
+        tempGroup.push(item);
       }
-      group.push(item);
     }
-    if (group.length) {
-      const visibleCount = group.filter((e) => !e.hidden).length;
-      if (visibleCount >= threshold) filtered.push(...group);
+    if (tempGroup.length > 0) cleaned.push(...tempGroup);
+
+    // 2. 应用组大小阈值
+    const threshold = settings.duplicateGroupSizeThreshold || 1;
+    let finalRawData = cleaned;
+
+    if (threshold > 1) {
+      const filteredByThreshold: typeof data = [];
+      let currentGroup: typeof data = [];
+      for (const item of cleaned) {
+        if (item.hidden) {
+          if (currentGroup.length >= threshold) {
+            filteredByThreshold.push(...currentGroup, item);
+          }
+          currentGroup = [];
+        } else {
+          currentGroup.push(item);
+        }
+      }
+      if (currentGroup.length >= threshold) {
+        filteredByThreshold.push(...currentGroup);
+      }
+      finalRawData = filteredByThreshold;
     }
-    let result = processDataWithGroups(filtered);
+
+    let result = processDataWithGroups(finalRawData);
     // ... 排序逻辑保持不变
 
     // 应用排序
@@ -183,7 +170,7 @@ export function DuplicateFiles() {
     }
 
     return result;
-  }, [formatFilteredData, filter, settings.duplicateGroupSizeThreshold, sorting]);
+  }, [data, filter, settings.duplicateGroupSizeThreshold, sorting]);
 
   const columns: ColumnDef<
     DuplicateEntry & {

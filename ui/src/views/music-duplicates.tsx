@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import { sidebarVideoPreviewAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
 import {
-  currentToolDataAtom,
+  currentToolFilteredDataAtom,
   currentToolFilterAtom,
   currentToolRowSelectionAtom,
 } from '~/atom/tools';
@@ -18,14 +18,13 @@ import {
 } from '~/components/data-table';
 import { DynamicPreviewCell } from '~/components/dynamic-preview-cell';
 import { useT } from '~/hooks';
-import { useFormatFilteredData } from '~/hooks/useFormatFilteredData';
 import type { MusicEntry } from '~/types';
 import { isPreviewableFile } from '~/utils/file-type-utils';
 import { formatPathDisplay } from '~/utils/path-utils';
 import { ClickablePreview } from './clickable-preview';
 
 export function MusicDuplicates() {
-  const data = useAtomValue(currentToolDataAtom) as MusicEntry[];
+  const filteredData = useAtomValue(currentToolFilteredDataAtom) as MusicEntry[];
   const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const settings = useAtomValue(settingsAtom);
@@ -33,44 +32,10 @@ export function MusicDuplicates() {
   const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80);
   const t = useT();
 
-  // 先应用格式过滤
-  const formatFilteredData = useFormatFilteredData(data);
-
-  const filteredData = useMemo(() => {
-    if (!filter) return formatFilteredData;
-
-    const lowercaseFilter = filter.toLowerCase();
-    const filtered = formatFilteredData.filter((item) => {
-      if (item.hidden) return true;
-      return (
-        item.fileName?.toLowerCase().includes(lowercaseFilter) ||
-        item.path?.toLowerCase().includes(lowercaseFilter) ||
-        item.trackTitle?.toLowerCase().includes(lowercaseFilter) ||
-        item.trackArtist?.toLowerCase().includes(lowercaseFilter)
-      );
-    });
-
-    // 清理空的组
-    const cleaned: typeof filtered = [];
-    let tempGroup: typeof filtered = [];
-    for (const item of filtered) {
-      if (item.hidden) {
-        if (tempGroup.length > 0) {
-          cleaned.push(...tempGroup, item);
-        }
-        tempGroup = [];
-      } else {
-        tempGroup.push(item);
-      }
-    }
-    if (tempGroup.length > 0) cleaned.push(...tempGroup);
-    return cleaned;
-  }, [formatFilteredData, filter]);
-
   // 检查是否有可预览文件
   const hasPreviewableFiles = useMemo(() => {
-    return data.some((entry) => isPreviewableFile(entry.path));
-  }, [data]);
+    return filteredData.some((entry) => isPreviewableFile(entry.path));
+  }, [filteredData]);
 
   // 动态行高
   const dynamicRowHeight = useMemo(() => {
