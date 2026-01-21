@@ -16,6 +16,7 @@ import { useT } from '~/hooks';
 import type { TemporaryFileEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
 import { filterItems } from '~/utils/table-helper';
+import { ClickablePreview } from './clickable-preview';
 
 export function TemporaryFiles() {
   const data = useAtomValue(currentToolDataAtom) as TemporaryFileEntry[];
@@ -34,6 +35,11 @@ export function TemporaryFiles() {
       header: t('File name'),
       size: 180,
       minSize: 100,
+      cell: ({ row }) => (
+        <ClickablePreview path={row.original.path}>
+          <div className="truncate">{row.original.fileName}</div>
+        </ClickablePreview>
+      ),
     },
     {
       accessorKey: 'path',
@@ -45,7 +51,11 @@ export function TemporaryFiles() {
           row.original.path,
           settings.reversePathDisplay,
         );
-        return <div className="truncate">{displayPath}</div>;
+        return (
+          <ClickablePreview path={row.original.path}>
+            <div className="truncate">{displayPath}</div>
+          </ClickablePreview>
+        );
       },
     },
     {

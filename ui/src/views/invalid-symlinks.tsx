@@ -16,6 +16,7 @@ import { useT } from '~/hooks';
 import type { SymlinksFileEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
 import { filterItems } from '~/utils/table-helper';
+import { ClickablePreview } from './clickable-preview';
 
 export function InvalidSymlinks() {
   const data = useAtomValue(currentToolDataAtom) as SymlinksFileEntry[];
@@ -39,6 +40,11 @@ export function InvalidSymlinks() {
       header: t('Symlink name'),
       size: 180,
       minSize: 110,
+      cell: ({ row }) => (
+        <ClickablePreview path={row.original.path}>
+          <div className="truncate">{row.original.symlinkName}</div>
+        </ClickablePreview>
+      ),
     },
     {
       accessorKey: 'path',
@@ -50,7 +56,11 @@ export function InvalidSymlinks() {
           row.original.path,
           settings.reversePathDisplay,
         );
-        return <div className="truncate">{displayPath}</div>;
+        return (
+          <ClickablePreview path={row.original.path}>
+            <div className="truncate">{displayPath}</div>
+          </ClickablePreview>
+        );
       },
     },
     {
