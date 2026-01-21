@@ -1,6 +1,7 @@
 import type { ColumnDef, Row, SortingState } from '@tanstack/react-table';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useMemo, useState } from 'react';
+import { sidebarVideoPreviewAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
 import {
   currentToolDataAtom,
@@ -14,15 +15,17 @@ import {
   TableRowSelectionCell,
   TableRowSelectionHeader,
 } from '~/components/data-table';
-import { DynamicThumbnailCell } from '~/components/dynamic-thumbnail-cell';
+import { DynamicPreviewCell } from '~/components/dynamic-preview-cell';
 import { DuplicateFilesRightClickMenu } from '~/components/right-click-menu';
 import { Checkbox } from '~/components/shadcn/checkbox';
 import { useT } from '~/hooks';
+import { useFormatFilteredData } from '~/hooks/useFormatFilteredData';
 import type { DuplicateEntry } from '~/types';
+import { isPreviewableFile } from '~/utils/file-type-utils';
 import { formatPathDisplay } from '~/utils/path-utils';
 import { filterItems } from '~/utils/table-helper';
 import { ThumbnailPreloader } from '~/utils/thumbnail-preloader';
-import { ClickableImagePreview } from './clickable-image-preview';
+import { ClickablePreview } from './clickable-preview';
 
 export function DuplicateFiles() {
   const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80);
@@ -31,7 +34,11 @@ export function DuplicateFiles() {
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const [sorting, setSorting] = useState<SortingState>([]);
   const settings = useAtomValue(settingsAtom);
+  const setSidebarVideoPreview = useSetAtom(sidebarVideoPreviewAtom);
   const t = useT();
+
+  // 先应用格式过滤
+  const formatFilteredData = useFormatFilteredData(data);
 
   // 根据缩略图列宽动态计算行高
   const dynamicRowHeight = useMemo(() => {
@@ -64,13 +71,22 @@ export function DuplicateFiles() {
     }
   }, [data, settings.similarImagesEnableThumbnails]);
 
+  // 处理视频点击
+  const handleVideoClick = (path: string) => {
+    setSidebarVideoPreview((prev) => ({
+      ...prev,
+      isOpen: true,
+      videoPath: path,
+    }));
+  };
+
   // 处理分组分隔和隐藏行
   const processedData = useMemo(() => {
     // 1. 筛选逻辑
-    let filteredRawData = data;
+    let filteredRawData = formatFilteredData;
     if (filter) {
       const lowercaseFilter = filter.toLowerCase();
-      filteredRawData = data.filter((item) => {
+      filteredRawData = formatFilteredData.filter((item) => {
         if (item.hidden) return true; // 保留分隔符，稍后处理
         return (
           item.fileName?.toLowerCase().includes(lowercaseFilter) ||
@@ -167,7 +183,7 @@ export function DuplicateFiles() {
     }
 
     return result;
-  }, [data, settings.duplicateGroupSizeThreshold, sorting]);
+  }, [formatFilteredData, filter, settings.duplicateGroupSizeThreshold, sorting]);
 
   const columns: ColumnDef<
     DuplicateEntry & {
@@ -207,11 +223,15 @@ export function DuplicateFiles() {
               if (row.original.isRef) {
                 return null;
               }
+              const isPreviewable = isPreviewableFile(row.original.path);
+              if (!isPreviewable) return null;
+
               return (
-                <DynamicThumbnailCell
+                <DynamicPreviewCell
                   path={row.original.path}
                   enableLazyLoad={true}
                   onSizeChange={setThumbnailColumnWidth}
+                  onVideoClick={() => handleVideoClick(row.original.path)}
                 />
               );
             },
@@ -383,7 +403,7 @@ export function DuplicateFiles() {
 
 function FileName(props: { row: Row<DuplicateEntry> }) {
   const { row } = props;
-  const { hidden, path, fileName, isImage } = row.original;
+  const { hidden, path, fileName } = row.original;
 
   const settings = useAtomValue(settingsAtom);
 
@@ -391,13 +411,15 @@ function FileName(props: { row: Row<DuplicateEntry> }) {
     return null;
   }
 
-  if (settings.duplicateImagePreview && isImage) {
+  const isPreviewable = isPreviewableFile(path);
+
+  if (settings.duplicateImagePreview && isPreviewable) {
     return (
-      <ClickableImagePreview path={path}>
+      <ClickablePreview path={path}>
         <div className="truncate cursor-pointer hover:bg-accent/20 rounded px-1 py-0.5 transition-colors">
           {fileName}
         </div>
-      </ClickableImagePreview>
+      </ClickablePreview>
     );
   }
 
@@ -406,19 +428,20 @@ function FileName(props: { row: Row<DuplicateEntry> }) {
 
 function ClickablePath(props: { row: Row<DuplicateEntry> }) {
   const { row } = props;
-  const { path, isImage } = row.original;
+  const { path } = row.original;
   const settings = useAtomValue(settingsAtom);
 
   // 根据设置格式化路径显示
   const displayPath = formatPathDisplay(path, settings.reversePathDisplay);
+  const isPreviewable = isPreviewableFile(path);
 
-  if (settings.duplicateImagePreview && isImage) {
+  if (settings.duplicateImagePreview && isPreviewable) {
     return (
-      <ClickableImagePreview path={path}>
+      <ClickablePreview path={path}>
         <div className="truncate cursor-pointer hover:bg-accent/20 rounded px-1 py-0.5 transition-colors">
           {displayPath}
         </div>
-      </ClickableImagePreview>
+      </ClickablePreview>
     );
   }
 
@@ -428,16 +451,17 @@ function ClickablePath(props: { row: Row<DuplicateEntry> }) {
 // 通用的可点击单元格组件
 function ClickableCell(props: { row: Row<DuplicateEntry>; value: string }) {
   const { row, value } = props;
-  const { path, isImage } = row.original;
+  const { path } = row.original;
   const settings = useAtomValue(settingsAtom);
+  const isPreviewable = isPreviewableFile(path);
 
-  if (settings.duplicateImagePreview && isImage) {
+  if (settings.duplicateImagePreview && isPreviewable) {
     return (
-      <ClickableImagePreview path={path}>
+      <ClickablePreview path={path}>
         <div className="cursor-pointer hover:bg-accent/20 rounded px-1 py-0.5 transition-colors">
           {value}
         </div>
-      </ClickableImagePreview>
+      </ClickablePreview>
     );
   }
 
