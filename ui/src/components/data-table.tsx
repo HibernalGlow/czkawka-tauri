@@ -12,7 +12,8 @@ import {
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { revealItemInDir } from '@tauri-apps/plugin-opener';
 import { ArrowDown, ArrowUp, ArrowUpDown, FolderOpen } from 'lucide-react';
-import { useRef } from 'react';
+import { useCallback, useRef } from 'react';
+import { useBoxSelect } from '~/hooks/use-box-select';
 import { useT } from '~/hooks';
 import type { BaseEntry } from '~/types';
 import { cn } from '~/utils/cn';
@@ -229,12 +230,73 @@ function DataTableBody<T>(props: TableBodyProps<T>) {
   const isGrid = layout === 'grid';
   const isResizeable = layout === 'resizeable';
 
+  // --- Shift/Ctrl click support ---
+  const lastClickedIndex = useRef<number | null>(null);
+
+  const handleRowClick = useCallback(
+    (e: React.MouseEvent, row: import('@tanstack/react-table').Row<T>, rowIndex: number) => {
+      const original = row.original as { isRef?: boolean; hidden?: boolean };
+      if (original.isRef || original.hidden) return;
+
+      // Only handle Shift or Ctrl clicks — let normal clicks through to checkboxes
+      if (!e.shiftKey && !e.ctrlKey && !e.metaKey) {
+        lastClickedIndex.current = rowIndex;
+        return;
+      }
+
+      e.preventDefault();
+
+      if (e.ctrlKey || e.metaKey) {
+        // Ctrl+Click: toggle this row
+        const sel = { ...table.getState().rowSelection };
+        if (sel[row.id]) {
+          delete sel[row.id];
+        } else {
+          sel[row.id] = true;
+        }
+        table.setRowSelection(sel);
+        lastClickedIndex.current = rowIndex;
+      } else if (e.shiftKey) {
+        // Shift+Click: range select from last clicked to current
+        const start = lastClickedIndex.current ?? 0;
+        const end = rowIndex;
+        const lo = Math.min(start, end);
+        const hi = Math.max(start, end);
+
+        const sel = { ...table.getState().rowSelection };
+        for (let i = lo; i <= hi; i++) {
+          const r = rows[i];
+          if (!r) continue;
+          const orig = r.original as { isRef?: boolean; hidden?: boolean };
+          if (orig.isRef || orig.hidden) continue;
+          sel[r.id] = true;
+        }
+        table.setRowSelection(sel);
+        // Don't update lastClickedIndex for shift-click
+      }
+    },
+    [table, rows],
+  );
+
+  // --- Box select support ---
+  const { DragSelection, containerMouseDown } = useBoxSelect({
+    containerRef,
+    rows,
+    rowHeight,
+    table,
+  });
+
   return (
     <div
       ref={containerRef}
       className="overflow-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent scrollbar-thumb-rounded-full"
-      style={{ height: 'calc(100% - 41px)' }}
+      style={{
+        height: 'calc(100% - 41px)',
+        position: 'relative',
+      }}
+      onMouseDown={containerMouseDown}
     >
+      <DragSelection />
       <TableBody
         className="relative"
         style={{
@@ -261,6 +323,7 @@ function DataTableBody<T>(props: TableBodyProps<T>) {
                   borderBottom: '1px solid hsl(var(--border))',
                   marginBottom: '0px',
                 }}
+                onClick={(e) => handleRowClick(e, row, virtualRow.index)}
               >
                 {row.getVisibleCells().map((cell) => {
                   const span = cell.column.columnDef.meta?.span;

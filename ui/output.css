@@ -1017,6 +1017,10 @@ body {
   margin-bottom: 1.25rem;
 }
 
+.ml-1 {
+  margin-left: 0.25rem;
+}
+
 .ml-2 {
   margin-left: 0.5rem;
 }
@@ -1039,10 +1043,6 @@ body {
 
 .mt-2 {
   margin-top: 0.5rem;
-}
-
-.ml-1 {
-  margin-left: 0.25rem;
 }
 
 .line-clamp-2 {
@@ -1645,6 +1645,10 @@ body {
   cursor: w-resize;
 }
 
+.cursor-wait {
+  cursor: wait;
+}
+
 .touch-none {
   touch-action: none;
 }
@@ -1689,10 +1693,6 @@ body {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.grid-cols-4 {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
 .flex-col {
   flex-direction: column;
 }
@@ -1723,10 +1723,6 @@ body {
 
 .justify-between {
   justify-content: space-between;
-}
-
-.justify-items-center {
-  justify-items: center;
 }
 
 .gap-0\.5 {
@@ -1898,10 +1894,6 @@ body {
   border-left-width: 1px;
 }
 
-.border-l-2 {
-  border-left-width: 2px;
-}
-
 .border-r {
   border-right-width: 1px;
 }
@@ -1933,10 +1925,6 @@ body {
 
 .border-input {
   border-color: var(--input);
-}
-
-.border-muted {
-  border-color: var(--muted);
 }
 
 .border-primary {
@@ -2269,6 +2257,10 @@ body {
   padding-bottom: 2rem;
 }
 
+.pb-1 {
+  padding-bottom: 0.25rem;
+}
+
 .pb-2 {
   padding-bottom: 0.5rem;
 }
@@ -2331,10 +2323,6 @@ body {
 
 .pt-4 {
   padding-top: 1rem;
-}
-
-.pb-1 {
-  padding-bottom: 0.25rem;
 }
 
 .text-left {
