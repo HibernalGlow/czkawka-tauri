@@ -1,5 +1,9 @@
+import type {
+  Row,
+  RowSelectionState,
+  Table as TTable,
+} from '@tanstack/react-table';
 import { type RefObject, useCallback, useRef, useState } from 'react';
-import type { Row, RowSelectionState, Table as TTable } from '@tanstack/react-table';
 
 interface UseBoxSelectOptions<T> {
   containerRef: RefObject<HTMLDivElement | null>;
@@ -14,7 +18,12 @@ export function useBoxSelect<T>(opts: UseBoxSelectOptions<T>) {
   const { containerRef, rows, rowHeight, table } = opts;
 
   const [isSelecting, setIsSelecting] = useState(false);
-  const [box, setBox] = useState<{ left: number; top: number; width: number; height: number } | null>(null);
+  const [box, setBox] = useState<{
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+  } | null>(null);
 
   const start = useRef({ x: 0, y: 0, scrollTop: 0 });
   const dragging = useRef(false);
@@ -25,13 +34,18 @@ export function useBoxSelect<T>(opts: UseBoxSelectOptions<T>) {
     (e: React.MouseEvent) => {
       if (e.button !== 0) return;
       const t = e.target as HTMLElement;
-      if (t.closest('button,input,a,[role="checkbox"],[data-no-box-select]')) return;
+      if (t.closest('button,input,a,[role="checkbox"],[data-no-box-select]'))
+        return;
 
       const el = containerRef.current;
       if (!el) return;
 
       const rect = el.getBoundingClientRect();
-      start.current = { x: e.clientX - rect.left, y: e.clientY - rect.top + el.scrollTop, scrollTop: el.scrollTop };
+      start.current = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top + el.scrollTop,
+        scrollTop: el.scrollTop,
+      };
       dragging.current = false;
       ctrl.current = e.ctrlKey || e.metaKey;
       snapshot.current = { ...table.getState().rowSelection };

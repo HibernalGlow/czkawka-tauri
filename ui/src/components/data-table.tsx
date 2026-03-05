@@ -13,8 +13,8 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { revealItemInDir } from '@tauri-apps/plugin-opener';
 import { ArrowDown, ArrowUp, ArrowUpDown, FolderOpen } from 'lucide-react';
 import { useCallback, useRef } from 'react';
-import { useBoxSelect } from '~/hooks/use-box-select';
 import { useT } from '~/hooks';
+import { useBoxSelect } from '~/hooks/use-box-select';
 import type { BaseEntry } from '~/types';
 import { cn } from '~/utils/cn';
 import { Checkbox } from './shadcn/checkbox';
@@ -234,7 +234,11 @@ function DataTableBody<T>(props: TableBodyProps<T>) {
   const lastClickedIndex = useRef<number | null>(null);
 
   const handleRowClick = useCallback(
-    (e: React.MouseEvent, row: import('@tanstack/react-table').Row<T>, rowIndex: number) => {
+    (
+      e: React.MouseEvent,
+      row: import('@tanstack/react-table').Row<T>,
+      rowIndex: number,
+    ) => {
       const original = row.original as { isRef?: boolean; hidden?: boolean };
       if (original.isRef || original.hidden) return;
 
@@ -279,7 +283,11 @@ function DataTableBody<T>(props: TableBodyProps<T>) {
   );
 
   // --- Box select support ---
-  const { onMouseDown: boxMouseDown, boxStyle, isSelecting } = useBoxSelect({
+  const {
+    onMouseDown: boxMouseDown,
+    boxStyle,
+    isSelecting,
+  } = useBoxSelect({
     containerRef,
     rows,
     rowHeight,

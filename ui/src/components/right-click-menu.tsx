@@ -8,11 +8,12 @@ interface RightClickMenuProps<T> {
   table: TTable<T>;
 }
 
-type GroupedEntry = BaseEntry & Partial<RefEntry> & {
-  fileName?: string;
-  groupId?: number;
-  _isGroupEnd?: boolean;
-};
+type GroupedEntry = BaseEntry &
+  Partial<RefEntry> & {
+    fileName?: string;
+    groupId?: number;
+    _isGroupEnd?: boolean;
+  };
 
 /**
  * 通用右键菜单：选择该组 + 复制路径 + 复制文件
@@ -72,7 +73,9 @@ export function GroupedRightClickMenu<T extends GroupedEntry>({
   return (
     <>
       <ContextMenuItem onClick={handleSelectGroup}>选中该组</ContextMenuItem>
-      <ContextMenuItem onClick={handleDeselectGroup}>取消选中该组</ContextMenuItem>
+      <ContextMenuItem onClick={handleDeselectGroup}>
+        取消选中该组
+      </ContextMenuItem>
       <ContextMenuSeparator />
       <ContextMenuItem onClick={handleCopyPath}>复制文件路径</ContextMenuItem>
       <ContextMenuItem onClick={handleCopyFileToClipboard}>
