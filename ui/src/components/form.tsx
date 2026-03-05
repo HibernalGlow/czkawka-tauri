@@ -127,6 +127,29 @@ export function FormItem(
     );
   }
 
+  if (comp === 'slider') {
+    return (
+      <div className="flex flex-col gap-1">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-h-9">
+          <Label className="flex-shrink-0" htmlFor={name}>
+            {label}:
+          </Label>
+          {suffix && <span className="ml-auto flex-shrink-0">{suffix}</span>}
+          <div className="w-full min-w-0">
+            <Slot id={name} {...slotProps}>
+              {children}
+            </Slot>
+          </div>
+        </div>
+        {description && (
+          <div className="text-xs text-muted-foreground pl-2">
+            {description}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-2 min-h-9">
