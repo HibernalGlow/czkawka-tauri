@@ -296,6 +296,7 @@ function DataTableBody<T>(props: TableBodyProps<T>) {
         ...(isSelecting ? { userSelect: 'none' } : {}),
       }}
       onMouseDown={boxMouseDown}
+      onContextMenu={(e) => e.preventDefault()}
     >
       {boxStyle && <div style={boxStyle} />}
       <TableBody

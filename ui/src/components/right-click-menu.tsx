@@ -1,6 +1,6 @@
 import type { Row, Table as TTable } from '@tanstack/react-table';
 import { ipc } from '~/ipc';
-import type { DuplicateEntry } from '~/types';
+import type { BaseEntry, RefEntry } from '~/types';
 import { ContextMenuItem, ContextMenuSeparator } from './shadcn/context-menu';
 
 interface RightClickMenuProps<T> {
@@ -8,18 +8,23 @@ interface RightClickMenuProps<T> {
   table: TTable<T>;
 }
 
-export function DuplicateFilesRightClickMenu({
+type GroupedEntry = BaseEntry & Partial<RefEntry> & {
+  fileName?: string;
+  groupId?: number;
+  _isGroupEnd?: boolean;
+};
+
+/**
+ * 通用右键菜单：选择该组 + 复制路径 + 复制文件
+ * 适用于所有带分组的 DataTable 视图
+ */
+export function GroupedRightClickMenu<T extends GroupedEntry>({
   row,
   table,
-}: RightClickMenuProps<
-  DuplicateEntry & {
-    _isGroupEnd?: boolean;
-    groupSize?: number;
-    groupId?: number;
-  }
->) {
+}: RightClickMenuProps<T>) {
   const handleSelectGroup = () => {
     const groupId = row.original.groupId;
+    if (groupId === undefined) return;
     const allRows = table.getRowModel().rows;
     const groupRows = allRows.filter(
       (r) =>
@@ -34,29 +39,40 @@ export function DuplicateFilesRightClickMenu({
     table.setRowSelection(newSelection);
   };
 
+  const handleDeselectGroup = () => {
+    const groupId = row.original.groupId;
+    if (groupId === undefined) return;
+    const allRows = table.getRowModel().rows;
+    const groupRows = allRows.filter(
+      (r) =>
+        r.original.groupId === groupId &&
+        !r.original.isRef &&
+        !r.original.hidden,
+    );
+    const newSelection = { ...table.getState().rowSelection };
+    groupRows.forEach((r) => {
+      delete newSelection[r.id];
+    });
+    table.setRowSelection(newSelection);
+  };
+
   const handleCopyPath = () => {
     navigator.clipboard.writeText(row.original.path);
   };
 
   const handleCopyFileToClipboard = async () => {
     try {
-      console.log('Copying file to clipboard:', row.original.path);
       await ipc.copyFileToClipboard(row.original.path);
-      console.log('File copied to clipboard successfully');
     } catch (error) {
-      console.error('Failed to copy file to clipboard:', error);
       // 回退到复制路径
       await navigator.clipboard.writeText(row.original.path);
     }
   };
 
-  const handleCopyFileName = () => {
-    navigator.clipboard.writeText(row.original.fileName);
-  };
-
   return (
     <>
-      <ContextMenuItem onClick={handleSelectGroup}>选择该组</ContextMenuItem>
+      <ContextMenuItem onClick={handleSelectGroup}>选中该组</ContextMenuItem>
+      <ContextMenuItem onClick={handleDeselectGroup}>取消选中该组</ContextMenuItem>
       <ContextMenuSeparator />
       <ContextMenuItem onClick={handleCopyPath}>复制文件路径</ContextMenuItem>
       <ContextMenuItem onClick={handleCopyFileToClipboard}>
@@ -65,3 +81,6 @@ export function DuplicateFilesRightClickMenu({
     </>
   );
 }
+
+// 保持向后兼容，DuplicateFilesRightClickMenu 直接导出 GroupedRightClickMenu
+export const DuplicateFilesRightClickMenu = GroupedRightClickMenu;

@@ -1,4 +1,4 @@
-import type { ColumnDef, Row } from '@tanstack/react-table';
+import type { ColumnDef, Row, Table as TTable } from '@tanstack/react-table';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useMemo, useState } from 'react';
 import { formatFilterAtom } from '~/atom/format-filter';
@@ -18,6 +18,7 @@ import {
   TableRowSelectionHeader,
 } from '~/components/data-table';
 import { DynamicPreviewCell } from '~/components/dynamic-preview-cell';
+import { GroupedRightClickMenu } from '~/components/right-click-menu';
 import { useT } from '~/hooks';
 import { applyFormatFilter } from '~/hooks/useFormatFilteredData';
 import type { ImagesEntry as BaseImagesEntry, FolderStat } from '~/types';
@@ -323,6 +324,9 @@ export function SimilarImages() {
             typeof updater === 'function' ? updater(filter) : updater;
           setFilter(newValue);
         }}
+        onRowContextMenu={(row, table) => (
+          <GroupedRightClickMenu row={row} table={table as TTable<any>} />
+        )}
       />
     </div>
   );

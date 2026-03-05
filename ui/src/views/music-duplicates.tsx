@@ -1,4 +1,4 @@
-import type { ColumnDef } from '@tanstack/react-table';
+import type { ColumnDef, Table as TTable } from '@tanstack/react-table';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useMemo, useState } from 'react';
@@ -17,6 +17,7 @@ import {
   TableRowSelectionHeader,
 } from '~/components/data-table';
 import { DynamicPreviewCell } from '~/components/dynamic-preview-cell';
+import { GroupedRightClickMenu } from '~/components/right-click-menu';
 import { useT } from '~/hooks';
 import type { MusicEntry } from '~/types';
 import { isPreviewableFile } from '~/utils/file-type-utils';
@@ -237,6 +238,9 @@ export function MusicDuplicates() {
           typeof updater === 'function' ? updater(filter) : updater;
         setFilter(newValue);
       }}
+      onRowContextMenu={(row, table) => (
+        <GroupedRightClickMenu row={row} table={table as TTable<any>} />
+      )}
     />
   );
 }

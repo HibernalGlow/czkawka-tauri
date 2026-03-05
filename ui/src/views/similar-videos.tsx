@@ -1,4 +1,4 @@
-import type { ColumnDef } from '@tanstack/react-table';
+import type { ColumnDef, Table as TTable } from '@tanstack/react-table';
 import { invoke } from '@tauri-apps/api/core';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { ExternalLink } from 'lucide-react';
@@ -19,6 +19,7 @@ import {
 } from '~/components/data-table';
 import { DynamicPreviewCell } from '~/components/dynamic-preview-cell';
 import { toastError } from '~/components/toast';
+import { GroupedRightClickMenu } from '~/components/right-click-menu';
 import { TooltipButton } from '~/components/tooltip-button';
 import { useT } from '~/hooks';
 import type { VideosEntry } from '~/types';
@@ -201,6 +202,9 @@ export function SimilarVideos() {
           typeof updater === 'function' ? updater(filter) : updater;
         setFilter(newValue);
       }}
+      onRowContextMenu={(row, table) => (
+        <GroupedRightClickMenu row={row} table={table as TTable<any>} />
+      )}
     />
   );
 }
