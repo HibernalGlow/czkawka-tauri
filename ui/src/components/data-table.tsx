@@ -279,7 +279,7 @@ function DataTableBody<T>(props: TableBodyProps<T>) {
   );
 
   // --- Box select support ---
-  const { DragSelection, containerMouseDown } = useBoxSelect({
+  const { onMouseDown: boxMouseDown, boxStyle, isSelecting } = useBoxSelect({
     containerRef,
     rows,
     rowHeight,
@@ -293,10 +293,11 @@ function DataTableBody<T>(props: TableBodyProps<T>) {
       style={{
         height: 'calc(100% - 41px)',
         position: 'relative',
+        ...(isSelecting ? { userSelect: 'none' } : {}),
       }}
-      onMouseDown={containerMouseDown}
+      onMouseDown={boxMouseDown}
     >
-      <DragSelection />
+      {boxStyle && <div style={boxStyle} />}
       <TableBody
         className="relative"
         style={{
