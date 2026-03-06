@@ -23,7 +23,11 @@ import { useFormatFilteredData } from '~/hooks/useFormatFilteredData';
 import type { DuplicateEntry } from '~/types';
 import { isPreviewableFile } from '~/utils/file-type-utils';
 import { formatPathDisplay } from '~/utils/path-utils';
-import { filterItems, processDataWithGroups, sortGroupedData } from '~/utils/table-helper';
+import {
+  filterItems,
+  processDataWithGroups,
+  sortGroupedData,
+} from '~/utils/table-helper';
 import { ThumbnailPreloader } from '~/utils/thumbnail-preloader';
 import { ClickablePreview } from './clickable-preview';
 

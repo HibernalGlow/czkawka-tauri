@@ -1,4 +1,8 @@
-import type { ColumnDef, SortingState, Table as TTable } from '@tanstack/react-table';
+import type {
+  ColumnDef,
+  SortingState,
+  Table as TTable,
+} from '@tanstack/react-table';
 import { invoke } from '@tauri-apps/api/core';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { ExternalLink } from 'lucide-react';

@@ -1,4 +1,9 @@
-import type { ColumnDef, Row, SortingState, Table as TTable } from '@tanstack/react-table';
+import type {
+  ColumnDef,
+  Row,
+  SortingState,
+  Table as TTable,
+} from '@tanstack/react-table';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useMemo, useState } from 'react';
 import { formatFilterAtom } from '~/atom/format-filter';
@@ -31,8 +36,12 @@ type CombinedEntry = BaseImagesEntry &
   };
 
 import { formatPathDisplay } from '~/utils/path-utils';
+import {
+  type GroupedFields,
+  processDataWithGroups,
+  sortGroupedData,
+} from '~/utils/table-helper';
 import { ThumbnailPreloader } from '~/utils/thumbnail-preloader';
-import { processDataWithGroups, sortGroupedData, type GroupedFields } from '~/utils/table-helper';
 import { ClickableImagePreview } from './clickable-image-preview';
 
 export function SimilarImages() {

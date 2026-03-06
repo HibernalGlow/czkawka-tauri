@@ -117,12 +117,7 @@ const parseSize = (str: string): number => {
   const match = str?.match(/^([\d.]+)\s*(B|KB|MB|GB)?$/i);
   if (!match) return 0;
   const num = parseFloat(match[1]);
-  const unit = match[2]?.toUpperCase() as
-    | 'B'
-    | 'KB'
-    | 'MB'
-    | 'GB'
-    | undefined;
+  const unit = match[2]?.toUpperCase() as 'B' | 'KB' | 'MB' | 'GB' | undefined;
   const multiplier =
     { B: 1, KB: 1024, MB: 1024 ** 2, GB: 1024 ** 3 }[unit || 'B'] ?? 1;
   return num * multiplier;
