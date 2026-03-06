@@ -1,4 +1,4 @@
-import type { ColumnDef, Table as TTable } from '@tanstack/react-table';
+import type { ColumnDef, SortingState, Table as TTable } from '@tanstack/react-table';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useMemo, useState } from 'react';
@@ -22,6 +22,7 @@ import { useT } from '~/hooks';
 import type { MusicEntry } from '~/types';
 import { isPreviewableFile } from '~/utils/file-type-utils';
 import { formatPathDisplay } from '~/utils/path-utils';
+import { processDataWithGroups, sortGroupedData } from '~/utils/table-helper';
 import { ClickablePreview } from './clickable-preview';
 
 export function MusicDuplicates() {
@@ -33,6 +34,7 @@ export function MusicDuplicates() {
   const settings = useAtomValue(settingsAtom);
   const setSidebarVideoPreview = useSetAtom(sidebarVideoPreviewAtom);
   const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80);
+  const [sorting, setSorting] = useState<SortingState>([]);
   const t = useT();
 
   // 检查是否有可预览文件
@@ -61,6 +63,16 @@ export function MusicDuplicates() {
       videoPath: path,
     }));
   };
+
+  // Process groups then apply group-safe sort
+  const processedData = useMemo(
+    () => processDataWithGroups(filteredData),
+    [filteredData],
+  );
+  const sortedData = useMemo(
+    () => sortGroupedData(processedData, sorting),
+    [processedData, sorting],
+  );
 
   const columns: ColumnDef<MusicEntry>[] = [
     {
@@ -114,6 +126,16 @@ export function MusicDuplicates() {
       cell: ({ row }) => {
         if (row.original.hidden) return null;
         return row.original.size;
+      },
+    },
+    {
+      accessorKey: 'groupSize',
+      header: t('Group Size'),
+      size: 60,
+      minSize: 40,
+      cell: ({ row }) => {
+        if (row.original.hidden) return null;
+        return (row.original as any).groupSize;
       },
     },
     {
@@ -227,11 +249,14 @@ export function MusicDuplicates() {
   return (
     <DataTable
       className="flex-1 rounded-none border-none grow"
-      data={filteredData}
+      data={sortedData}
       columns={columns}
       rowSelection={rowSelection}
       onRowSelectionChange={setRowSelection}
       rowHeight={dynamicRowHeight}
+      enableSorting={true}
+      sorting={sorting}
+      onSortingChange={setSorting}
       globalFilter={filter}
       onGlobalFilterChange={(updater: FilterStateUpdater) => {
         const newValue =

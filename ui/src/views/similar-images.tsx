@@ -1,4 +1,4 @@
-import type { ColumnDef, Row, Table as TTable } from '@tanstack/react-table';
+import type { ColumnDef, Row, SortingState, Table as TTable } from '@tanstack/react-table';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useMemo, useState } from 'react';
 import { formatFilterAtom } from '~/atom/format-filter';
@@ -24,14 +24,15 @@ import { applyFormatFilter } from '~/hooks/useFormatFilteredData';
 import type { ImagesEntry as BaseImagesEntry, FolderStat } from '~/types';
 
 // 扩展 ImagesEntry 类型，支持文件夹行
-type CombinedEntry = BaseImagesEntry & {
-  _isGroupEnd?: boolean;
-  id?: string;
-  isFolder?: boolean;
-};
+type CombinedEntry = BaseImagesEntry &
+  GroupedFields & {
+    id?: string;
+    isFolder?: boolean;
+  };
 
 import { formatPathDisplay } from '~/utils/path-utils';
 import { ThumbnailPreloader } from '~/utils/thumbnail-preloader';
+import { processDataWithGroups, sortGroupedData, type GroupedFields } from '~/utils/table-helper';
 import { ClickableImagePreview } from './clickable-image-preview';
 
 export function SimilarImages() {
@@ -45,6 +46,7 @@ export function SimilarImages() {
   const [rowSelection, setRowSelection] = useAtom(currentToolRowSelectionAtom);
   const [filter, setFilter] = useAtom(currentToolFilterAtom);
   const formatFilterState = useAtomValue(formatFilterAtom);
+  const [sorting, setSorting] = useState<SortingState>([]);
   const t = useT();
 
   // 根据阈值过滤文件夹数据
@@ -140,18 +142,7 @@ export function SimilarImages() {
     }
 
     // filteredData 已经包含了文本过滤和格式过滤
-    const result: CombinedEntry[] = [];
-    for (let i = 0; i < filteredData.length; i++) {
-      const curr = filteredData[i];
-      if (curr.hidden) continue; // 跳过 hidden 行
-      // 判断下一行是否为 hidden
-      const next = filteredData[i + 1];
-      result.push({
-        ...curr,
-        _isGroupEnd: !!next?.hidden, // 新增分组结束标记
-      });
-    }
-    return result;
+    return processDataWithGroups(filteredData) as CombinedEntry[];
   }, [
     filteredData,
     viewMode,
@@ -159,6 +150,12 @@ export function SimilarImages() {
     filter,
     formatFilterState,
   ]);
+
+  // Apply group-safe sort: groups move as units, intra-group order preserved
+  const sortedData = useMemo(
+    () => sortGroupedData(processedData, sorting),
+    [processedData, sorting],
+  );
 
   const columns: ColumnDef<CombinedEntry>[] = [
     {
@@ -232,6 +229,15 @@ export function SimilarImages() {
             <ClickableCell row={row} value={row.original.size} />
           </div>
         );
+      },
+    },
+    {
+      accessorKey: 'groupSize',
+      header: t('Group Size'),
+      size: 60,
+      minSize: 40,
+      cell: ({ row }) => {
+        return row.original.groupSize;
       },
     },
     {
@@ -313,11 +319,14 @@ export function SimilarImages() {
     <div className="flex flex-col h-full">
       <DataTable
         className="flex-1 rounded-none border-none grow"
-        data={processedData}
+        data={sortedData}
         columns={columns}
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
         rowHeight={dynamicRowHeight}
+        enableSorting={true}
+        sorting={sorting}
+        onSortingChange={setSorting}
         globalFilter={filter}
         onGlobalFilterChange={(updater: FilterStateUpdater) => {
           const newValue =

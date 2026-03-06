@@ -1,4 +1,4 @@
-import type { ColumnDef, Table as TTable } from '@tanstack/react-table';
+import type { ColumnDef, SortingState, Table as TTable } from '@tanstack/react-table';
 import { invoke } from '@tauri-apps/api/core';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { ExternalLink } from 'lucide-react';
@@ -24,6 +24,7 @@ import { TooltipButton } from '~/components/tooltip-button';
 import { useT } from '~/hooks';
 import type { VideosEntry } from '~/types';
 import { formatPathDisplay } from '~/utils/path-utils';
+import { processDataWithGroups, sortGroupedData } from '~/utils/table-helper';
 import { ClickableVideoPreview } from './clickable-video-preview';
 
 export function SimilarVideos() {
@@ -37,6 +38,7 @@ export function SimilarVideos() {
   const t = useT();
 
   const [thumbnailColumnWidth, setThumbnailColumnWidth] = useState(80);
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   // Calculate dynamic row height based on thumbnail size
   const dynamicRowHeight = useMemo(() => {
@@ -68,6 +70,16 @@ export function SimilarVideos() {
   console.log(
     '[SimilarVideos] similarVideosEnableThumbnails:',
     settings.similarVideosEnableThumbnails,
+  );
+
+  // Process groups then apply group-safe sort
+  const processedData = useMemo(
+    () => processDataWithGroups(filteredData),
+    [filteredData],
+  );
+  const sortedData = useMemo(
+    () => sortGroupedData(processedData, sorting),
+    [processedData, sorting],
   );
 
   const columns: ColumnDef<VideosEntry>[] = [
@@ -117,6 +129,15 @@ export function SimilarVideos() {
       header: t('Size'),
       size: 110,
       minSize: 50,
+    },
+    {
+      accessorKey: 'groupSize',
+      header: t('Group Size'),
+      size: 60,
+      minSize: 40,
+      cell: ({ row }) => {
+        return (row.original as any).groupSize;
+      },
     },
     {
       accessorKey: 'fileName',
@@ -191,11 +212,14 @@ export function SimilarVideos() {
   return (
     <DataTable
       className="flex-1 rounded-none border-none grow"
-      data={filteredData}
+      data={sortedData}
       columns={columns}
       rowSelection={rowSelection}
       onRowSelectionChange={setRowSelection}
       rowHeight={dynamicRowHeight}
+      enableSorting={true}
+      sorting={sorting}
+      onSortingChange={setSorting}
       globalFilter={filter}
       onGlobalFilterChange={(updater: FilterStateUpdater) => {
         const newValue =

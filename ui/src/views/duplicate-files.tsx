@@ -23,7 +23,7 @@ import { useFormatFilteredData } from '~/hooks/useFormatFilteredData';
 import type { DuplicateEntry } from '~/types';
 import { isPreviewableFile } from '~/utils/file-type-utils';
 import { formatPathDisplay } from '~/utils/path-utils';
-import { filterItems } from '~/utils/table-helper';
+import { filterItems, processDataWithGroups, sortGroupedData } from '~/utils/table-helper';
 import { ThumbnailPreloader } from '~/utils/thumbnail-preloader';
 import { ClickablePreview } from './clickable-preview';
 
@@ -121,53 +121,9 @@ export function DuplicateFiles() {
     }
 
     let result = processDataWithGroups(finalRawData);
-    // ... 排序逻辑保持不变
 
-    // 应用排序
-    if (sorting.length > 0) {
-      result = [...result].sort((a, b) => {
-        for (const sort of sorting) {
-          let aVal: any = a[sort.id as keyof typeof a];
-          let bVal: any = b[sort.id as keyof typeof b];
-
-          // 特殊处理某些字段
-          if (sort.id === 'size') {
-            // 解析文件大小字符串，如 "1.2 MB" -> 1.2 * 1024 * 1024
-            const parseSize = (str: string) => {
-              const match = str.match(/^([\d.]+)\s*(B|KB|MB|GB)?$/i);
-              if (!match) return 0;
-              const num = parseFloat(match[1]);
-              const unit = match[2]?.toUpperCase();
-              const multiplier =
-                { B: 1, KB: 1024, MB: 1024 ** 2, GB: 1024 ** 3 }[unit || 'B'] ||
-                1;
-              return num * multiplier;
-            };
-            aVal = parseSize(aVal);
-            bVal = parseSize(bVal);
-          } else if (sort.id === 'modifiedDate') {
-            // 解析日期字符串
-            aVal = new Date(aVal).getTime();
-            bVal = new Date(bVal).getTime();
-          } else if (sort.id === 'groupSize') {
-            aVal = Number(aVal) || 0;
-            bVal = Number(bVal) || 0;
-          }
-
-          let cmp = 0;
-          if (typeof aVal === 'string' && typeof bVal === 'string') {
-            cmp = aVal.localeCompare(bVal);
-          } else if (typeof aVal === 'number' && typeof bVal === 'number') {
-            cmp = aVal - bVal;
-          }
-
-          if (cmp !== 0) {
-            return sort.desc ? -cmp : cmp;
-          }
-        }
-        return 0;
-      });
-    }
+    // 应用组级排序
+    result = sortGroupedData(result, sorting);
 
     return result;
   }, [data, filter, settings.duplicateGroupSizeThreshold, sorting]);
@@ -453,50 +409,4 @@ function ClickableCell(props: { row: Row<DuplicateEntry>; value: string }) {
   }
 
   return <div>{value}</div>;
-}
-
-// 新增：处理分组逻辑
-export function processDataWithGroups(imagesData: DuplicateEntry[]) {
-  const result: (DuplicateEntry & {
-    _isGroupEnd?: boolean;
-    groupSize?: number;
-    groupId?: number;
-  })[] = [];
-  let currentGroup: typeof result = [];
-  let groupId = 0;
-
-  for (let i = 0; i < imagesData.length; i++) {
-    const curr = imagesData[i];
-    if (curr.hidden) {
-      // 结束当前组，计算groupSize
-      if (currentGroup.length > 0) {
-        const refCount = currentGroup.filter((item) => item.isRef).length;
-        const groupSize = currentGroup.length - refCount;
-        currentGroup.forEach((item) => {
-          item.groupSize = groupSize;
-          item.groupId = groupId;
-        });
-        result.push(...currentGroup);
-        currentGroup = [];
-      }
-      groupId++;
-      continue;
-    }
-    const next = imagesData[i + 1];
-    currentGroup.push({
-      ...curr,
-      _isGroupEnd: !!next?.hidden,
-    });
-  }
-  // 处理最后一组
-  if (currentGroup.length > 0) {
-    const refCount = currentGroup.filter((item) => item.isRef).length;
-    const groupSize = currentGroup.length - refCount;
-    currentGroup.forEach((item) => {
-      item.groupSize = groupSize;
-      item.groupId = groupId;
-    });
-    result.push(...currentGroup);
-  }
-  return result;
 }
