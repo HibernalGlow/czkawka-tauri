@@ -1,35 +1,84 @@
-# Set up vcpkg/pkg-config environment for this project and run the original run-tauri.ts
-# This script is safe to run multiple times. It only affects the current process and child processes.
+param(
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [string[]]$Command
+)
 
-# Resolve vcpkg installation path (customize if your vcpkg is elsewhere)
-$VcpkgRoot = 'D:\scoop\apps\vcpkg\current'
-$PkgCfg1 = Join-Path $VcpkgRoot 'installed\x64-windows\lib\pkgconfig'
-$PkgCfg2 = Join-Path $VcpkgRoot 'installed\x64-windows\debug\lib\pkgconfig'
+# Set up a local dav1d/pkg-config environment for this project.
+# Default command: tsx ./scripts/run-tauri.ts
 
-# Append to existing PKG_CONFIG_PATH for this session
-if ([string]::IsNullOrEmpty($env:PKG_CONFIG_PATH)) {
-    $env:PKG_CONFIG_PATH = "$PkgCfg1;$PkgCfg2"
-} else {
-    $env:PKG_CONFIG_PATH = "$PkgCfg1;$PkgCfg2;$env:PKG_CONFIG_PATH"
+$ErrorActionPreference = 'Stop'
+
+function Merge-PathEntries {
+    param([string[]]$Entries)
+
+    $seen = @{}
+    $result = @()
+
+    foreach ($entry in $Entries) {
+        if ([string]::IsNullOrWhiteSpace($entry)) {
+            continue
+        }
+
+        $trimmed = $entry.Trim()
+        $key = $trimmed.ToLowerInvariant()
+        if (-not $seen.ContainsKey($key)) {
+            $seen[$key] = $true
+            $result += $trimmed
+        }
+    }
+
+    return $result
 }
 
-# Helpful flags for pkg-config
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$repoRoot = (Resolve-Path (Join-Path $scriptDir '..')).Path
+
+$localDav1dRoot = Join-Path $repoRoot '.local\dav1d'
+$localPkgConfig = Join-Path $localDav1dRoot 'lib\pkgconfig'
+$localPc = Join-Path $localPkgConfig 'dav1d.pc'
+$localBin = Join-Path $localDav1dRoot 'bin'
+$prebuiltZip = Join-Path $repoRoot 'prebuilt\dav1d-windows-x64.zip'
+
+if (-not (Test-Path $localPc)) {
+    if (-not (Test-Path $prebuiltZip)) {
+        throw "Cannot find $localPc or $prebuiltZip"
+    }
+
+    Write-Host "Extracting prebuilt dav1d package..."
+    if (Test-Path $localDav1dRoot) {
+        Remove-Item -Recurse -Force $localDav1dRoot
+    }
+    New-Item -ItemType Directory -Path $localDav1dRoot -Force | Out-Null
+    Expand-Archive -Path $prebuiltZip -DestinationPath $localDav1dRoot -Force
+}
+
+$pkgConfigEntries = @($localPkgConfig)
+if (-not [string]::IsNullOrWhiteSpace($env:PKG_CONFIG_PATH)) {
+    $pkgConfigEntries += ($env:PKG_CONFIG_PATH -split ';')
+}
+$env:PKG_CONFIG_PATH = (Merge-PathEntries -Entries $pkgConfigEntries) -join ';'
 $env:PKG_CONFIG_ALLOW_SYSTEM_CFLAGS = '1'
 
-# Export VCPKG_ROOT for tools that check it
-$env:VCPKG_ROOT = $VcpkgRoot
+$pathEntries = @($localBin)
+if (-not [string]::IsNullOrWhiteSpace($env:PATH)) {
+    $pathEntries += ($env:PATH -split ';')
+}
+$env:PATH = (Merge-PathEntries -Entries $pathEntries) -join ';'
 
 Write-Host "PKG_CONFIG_PATH set to: $env:PKG_CONFIG_PATH"
-Write-Host "VCPKG_ROOT set to: $env:VCPKG_ROOT"
+Write-Host "PATH prefixed with: $localBin"
 
-# Change to repository root (script may be run from repository root already)
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
-Push-Location $scriptDir\..
+if (-not $Command -or $Command.Count -eq 0) {
+    $Command = @('tsx', './scripts/run-tauri.ts')
+}
 
-# Run original tsx script with current environment
-Write-Host "Starting original run-tauri script..."
+Push-Location $repoRoot
 try {
-    tsx ./scripts/run-tauri.ts
+    Write-Host "Running: $($Command -join ' ')"
+    & $Command[0] @($Command | Select-Object -Skip 1)
+    if ($LASTEXITCODE -is [int] -and $LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+    }
 } finally {
     Pop-Location
 }
