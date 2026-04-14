@@ -19,6 +19,7 @@ import {
 import { DeleteFiles } from './delete-files';
 import { FormatAnalysisDialog } from './format-analysis';
 import { MoveFiles } from './move-files';
+import { OrganizeSimilarGroups } from './organize-similar-groups';
 import { RenameExt } from './rename-ext';
 import { RowSelectionMenu } from './row-selection-menu';
 import { SaveResult } from './save-result';
@@ -115,6 +116,7 @@ export function Operations() {
       >
         <Wand2 className="h-4 w-4" />
       </TooltipButton>
+      <OrganizeSimilarGroups disabled={disabled} />
       <MoveFiles disabled={disabled} />
       <DeleteFiles disabled={disabled} />
       <SaveResult disabled={disabled} />

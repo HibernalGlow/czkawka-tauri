@@ -210,6 +210,7 @@ fn main() {
 			scan_broken_files,
 			scan_bad_extensions,
 			move_files,
+			move_files_to_destinations,
 			delete_files,
 			save_result,
 			rename_ext,
@@ -371,6 +372,14 @@ fn scan_bad_extensions(app: AppHandle, settings: Settings) {
 #[tauri::command]
 fn move_files(app: AppHandle, options: move_files::Options) {
 	move_files::move_files(app, options);
+}
+
+#[tauri::command]
+fn move_files_to_destinations(
+	app: AppHandle,
+	options: move_files::MultiDestinationOptions,
+) {
+	move_files::move_files_to_destinations(app, options);
 }
 
 #[tauri::command]

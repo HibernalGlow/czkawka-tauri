@@ -182,6 +182,19 @@ export const en = {
   'Moving files': 'Moving files',
   'Move confirm':
     'Moving <1>{{length}}</1> entries to folder <3>{{destination}}</3>. Are you want to continue?',
+  'Organize groups': 'Organize groups',
+  'Organizing groups': 'Organizing groups',
+  'Group organize confirm':
+    'This will process {{files}} files from {{groups}} selected groups into {{folders}} subfolders. Continue?',
+  'Organize selected groups hint':
+    'Only files in selected groups and same source folder will be moved to new subfolders.',
+  'Subfolder template': 'Subfolder template',
+  'Use {groupId} placeholder':
+    'You can use {groupId} as a placeholder. Example: variants_{groupId}',
+  'Skip folders with one file': 'Skip folders with one file',
+  'Preview list': 'Preview list',
+  'Showing first {{count}} of {{total}}':
+    'Showing first {{count}} of {{total}}',
   'Copy files instead of moving': 'Copy files instead of moving',
   'Preserve folder structure': 'Preserve folder structure',
   'Override files': 'Override files',

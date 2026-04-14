@@ -181,6 +181,18 @@ export const zh: Record<TranslationKeys, string> = {
   'Moving files': '移动文件',
   'Move confirm':
     '移动 <1>{{length}}</1> 个项目到 <3>{{destination}}</3>. 确认继续?',
+  'Organize groups': '分组归档',
+  'Organizing groups': '分组归档中',
+  'Group organize confirm':
+    '将处理 {{groups}} 个已选分组中的 {{files}} 个文件，归档到 {{folders}} 个子文件夹。确认继续?',
+  'Organize selected groups hint':
+    '仅处理已选分组中、且位于同一源目录的文件，并移动到新子文件夹。',
+  'Subfolder template': '子文件夹模板',
+  'Use {groupId} placeholder':
+    '可使用 {groupId} 作为占位符，例如：variants_{groupId}',
+  'Skip folders with one file': '跳过仅 1 个文件的目录',
+  'Preview list': '预览列表',
+  'Showing first {{count}} of {{total}}': '显示前 {{count}} 条 / 共 {{total}} 条',
   'Copy files instead of moving': '复制文件而不是移动',
   'Preserve folder structure': '保留文件夹结构',
   'Override files': '覆盖文件',

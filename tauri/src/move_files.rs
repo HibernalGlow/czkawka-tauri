@@ -17,6 +17,21 @@ pub struct Options {
 	override_mode: bool,
 }
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MultiDestinationOptions {
+	items: Vec<PathDestinationItem>,
+	copy_mode: bool,
+	override_mode: bool,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct PathDestinationItem {
+	path: String,
+	destination: String,
+}
+
 #[derive(Serialize, Clone, Default)]
 #[serde(rename_all = "camelCase")]
 struct MoveFilesResult {
@@ -28,6 +43,17 @@ pub fn move_files(app: AppHandle, options: Options) {
 	std::thread::spawn(move || {
 		let result = move_files_impl(options);
 		app.emit("move-files-result", result).unwrap();
+	});
+}
+
+pub fn move_files_to_destinations(
+	app: AppHandle,
+	options: MultiDestinationOptions,
+) {
+	std::thread::spawn(move || {
+		let result = move_files_to_destinations_impl(options);
+		app.emit("move-files-to-destinations-result", result)
+			.unwrap();
 	});
 }
 
@@ -67,6 +93,72 @@ fn move_files_impl(options: Options) -> MoveFilesResult {
 					dest_path.push(relative_path);
 				}
 			}
+
+			if let Err(err) = fs::create_dir_all(&dest_path) {
+				result
+					.errors
+					.push(format!("`{}` Failed, reason: {}", source_str, err));
+				return result;
+			}
+
+			dest_path.push(&source_name);
+
+			if dest_path.exists() && !override_mode {
+				result.errors.push(format!(
+					"`{}` already exists",
+					dest_path.to_string_lossy()
+				));
+				return result;
+			}
+
+			let fs_result = if copy_mode {
+				copy_item(&source_path, &dest_path)
+			} else {
+				move_item(&source_path, &dest_path)
+			};
+
+			match fs_result {
+				Ok(_) => result.success_paths.push(source_str.clone()),
+				Err(err) => result
+					.errors
+					.push(format!("`{}` Failed, reason: {}", source_str, err)),
+			};
+
+			result
+		})
+		.reduce(MoveFilesResult::default, |mut acc, mut x| {
+			acc.success_paths.append(&mut x.success_paths);
+			acc.errors.append(&mut x.errors);
+			acc
+		})
+}
+
+fn move_files_to_destinations_impl(
+	options: MultiDestinationOptions,
+) -> MoveFilesResult {
+	let MultiDestinationOptions {
+		items,
+		copy_mode,
+		override_mode,
+	} = options;
+
+	items
+		.par_iter()
+		.fold(MoveFilesResult::default, |mut result, item| {
+			let source_str = &item.path;
+			let source_path = PathBuf::from(source_str);
+			let source_name = match source_path.file_name() {
+				Some(file_name) => file_name.to_string_lossy().to_string(),
+				None => {
+					result.errors.push(format!(
+						"Failed to get file name of `{}`",
+						source_str
+					));
+					return result;
+				}
+			};
+
+			let mut dest_path = PathBuf::from(&item.destination);
 
 			if let Err(err) = fs::create_dir_all(&dest_path) {
 				result

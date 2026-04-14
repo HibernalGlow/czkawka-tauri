@@ -16,6 +16,15 @@ interface MoveFilesOptions {
   overrideMode: boolean;
 }
 
+interface MoveFilesToDestinationsOptions {
+  items: {
+    path: string;
+    destination: string;
+  }[];
+  copyMode: boolean;
+  overrideMode: boolean;
+}
+
 interface DeleteFilesOptions {
   paths: string[];
   moveDeletedFilesToTrash: boolean;
@@ -81,6 +90,10 @@ export const ipc = {
 
   moveFiles(options: MoveFilesOptions) {
     return invoke('move_files', { options });
+  },
+
+  moveFilesToDestinations(options: MoveFilesToDestinationsOptions) {
+    return invoke('move_files_to_destinations', { options });
   },
 
   deleteFiles(options: DeleteFilesOptions) {
