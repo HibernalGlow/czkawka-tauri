@@ -198,7 +198,8 @@ export const zh: Record<TranslationKeys, string> = {
     '可使用 {groupId} 作为占位符，例如：variants_{groupId}',
   'Skip folders with one file': '跳过仅 1 个文件的目录',
   'Preview list': '预览列表',
-  'Showing first {{count}} of {{total}}': '显示前 {{count}} 条 / 共 {{total}} 条',
+  'Showing first {{count}} of {{total}}':
+    '显示前 {{count}} 条 / 共 {{total}} 条',
   'Copy files instead of moving': '复制文件而不是移动',
   'Preserve folder structure': '保留文件夹结构',
   'Override files': '覆盖文件',

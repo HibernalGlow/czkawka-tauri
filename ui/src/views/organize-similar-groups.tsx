@@ -157,7 +157,10 @@ function buildMovePlan(
   return plan;
 }
 
-function countSelectedGroups(rows: SimilarRow[], selectedPathSet: Set<string>): number {
+function countSelectedGroups(
+  rows: SimilarRow[],
+  selectedPathSet: Set<string>,
+): number {
   const selectedGroupIds = new Set<number>();
   for (const row of rows) {
     if (row.hidden || row.isRef || row.groupId === undefined) {
@@ -216,31 +219,36 @@ export function OrganizeSimilarGroups(props: OrganizeSimilarGroupsProps) {
   );
 
   const canUse =
-    currentTool === Tools.SimilarImages && selectedGroupCount > 0 && moveItems.length > 0;
+    currentTool === Tools.SimilarImages &&
+    selectedGroupCount > 0 &&
+    moveItems.length > 0;
 
-  useListenEffect('move-files-to-destinations-result', (result: MoveFilesResult) => {
-    loading.off();
-    open.off();
+  useListenEffect(
+    'move-files-to-destinations-result',
+    (result: MoveFilesResult) => {
+      loading.off();
+      open.off();
 
-    const { successPaths, errors } = result;
-    setLogs(
-      [
-        `Processed ${successPaths.length} files into grouped subfolders`,
-        ...errors,
-      ].join('\n'),
-    );
+      const { successPaths, errors } = result;
+      setLogs(
+        [
+          `Processed ${successPaths.length} files into grouped subfolders`,
+          ...errors,
+        ].join('\n'),
+      );
 
-    if (!options.copyMode) {
-      const moved = new Set(successPaths);
-      const rawData = Array.isArray(currentToolData)
-        ? (currentToolData as SimilarRow[])
-        : [];
-      const newData = rawData.filter((item) => !moved.has(item.path));
-      setCurrentToolData(newData);
-    }
+      if (!options.copyMode) {
+        const moved = new Set(successPaths);
+        const rawData = Array.isArray(currentToolData)
+          ? (currentToolData as SimilarRow[])
+          : [];
+        const newData = rawData.filter((item) => !moved.has(item.path));
+        setCurrentToolData(newData);
+      }
 
-    setRowSelection({});
-  });
+      setRowSelection({});
+    },
+  );
 
   const handleOpen = () => {
     if (!canUse || loading.value) {
@@ -339,7 +347,9 @@ export function OrganizeSimilarGroups(props: OrganizeSimilarGroupsProps) {
           </div>
 
           <div className="flex items-center justify-between">
-            <Label htmlFor="organize-override-mode">{t('Override files')}</Label>
+            <Label htmlFor="organize-override-mode">
+              {t('Override files')}
+            </Label>
             <Switch
               id="organize-override-mode"
               checked={options.overrideMode}
@@ -357,7 +367,10 @@ export function OrganizeSimilarGroups(props: OrganizeSimilarGroupsProps) {
               id="organize-skip-single"
               checked={options.skipSingleFileFolders}
               onCheckedChange={(value) =>
-                setOptions((prev) => ({ ...prev, skipSingleFileFolders: value }))
+                setOptions((prev) => ({
+                  ...prev,
+                  skipSingleFileFolders: value,
+                }))
               }
             />
           </div>

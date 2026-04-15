@@ -12,8 +12,8 @@ import {
   Minimize2,
   Music,
   Ruler,
-  SearchCode,
   Save,
+  SearchCode,
   Settings2,
   Trash2,
   Video,
@@ -22,8 +22,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { currentToolAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
 import {
-  similarImagesPresetsAtom,
   type SimilarImagesPresetConfig,
+  similarImagesPresetsAtom,
 } from '~/atom/similar-images-presets';
 import {
   Badge,
@@ -541,7 +541,9 @@ function SimilarImagesSettings({
     if (!selectedPresetId) {
       return;
     }
-    setPresets((prev) => prev.filter((preset) => preset.id !== selectedPresetId));
+    setPresets((prev) =>
+      prev.filter((preset) => preset.id !== selectedPresetId),
+    );
   };
 
   return (
