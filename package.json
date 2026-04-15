@@ -15,7 +15,7 @@
     "check": "biome check",
     "typecheck:ui": "tsc -p ./ui/tsconfig.json --noEmit",
     "typecheck:other": "tsc -p ./tsconfig.json --noEmit",
-    "run:tauri": "tsx ./scripts/run-tauri.ts",
+    "run:tauri": "pnpm run:tauri:env",
     "run:tauri:env": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/dev-env.ps1",
     "run:browser": "tsx ./scripts/run-browser.ts",
     "build:ui": "pnpm run --filter ./ui build",

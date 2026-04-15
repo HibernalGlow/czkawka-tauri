@@ -21,10 +21,16 @@ import { useCallback, useEffect, useState } from 'react';
 import { currentToolAtom } from '~/atom/primitive';
 import { settingsAtom } from '~/atom/settings';
 import {
+  similarImagesPresetsAtom,
+  type SimilarImagesPresetConfig,
+} from '~/atom/similar-images-presets';
+import {
   Badge,
   Button,
   CheckboxWithLabel,
+  Input,
   InputNumber,
+  Label,
   OperationButton,
   Select,
   Slider,
@@ -404,14 +410,127 @@ function SimilarImagesSettings({
 }) {
   const settings = useAtomValue(settingsAtom);
   const setSettings = useSetAtom(settingsAtom);
+  const [presets, setPresets] = useAtom(similarImagesPresetsAtom);
+  const [selectedPresetId, setSelectedPresetId] = useState('');
+  const [newPresetName, setNewPresetName] = useState('');
   const t = useT();
 
-  const _handlePresetClick = (value: number) => {
-    setSettings((prev) => ({ ...prev, similarImagesSubSimilarity: value }));
+  useEffect(() => {
+    if (!presets.length) {
+      setSelectedPresetId('');
+      return;
+    }
+    if (!presets.some((preset) => preset.id === selectedPresetId)) {
+      setSelectedPresetId(presets[0].id);
+    }
+  }, [presets, selectedPresetId]);
+
+  const buildCurrentPresetConfig = (): SimilarImagesPresetConfig => ({
+    similarImagesSubHashSize: settings.similarImagesSubHashSize,
+    similarImagesSubHashAlg: settings.similarImagesSubHashAlg,
+    similarImagesSubResizeAlgorithm: settings.similarImagesSubResizeAlgorithm,
+    similarImagesSubSimilarity: settings.similarImagesSubSimilarity,
+    similarImagesSubIgnoreSameSize: settings.similarImagesSubIgnoreSameSize,
+    similarImagesFolderThreshold: settings.similarImagesFolderThreshold,
+  });
+
+  const handleSavePreset = () => {
+    const name = newPresetName.trim();
+    if (!name) {
+      return;
+    }
+    const config = buildCurrentPresetConfig();
+    let savedPresetId = '';
+
+    setPresets((prev) => {
+      const existing = prev.find((preset) => preset.name === name);
+      if (existing) {
+        savedPresetId = existing.id;
+        return prev.map((preset) =>
+          preset.id === existing.id ? { ...preset, config } : preset,
+        );
+      }
+      const created = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        name,
+        config,
+      };
+      savedPresetId = created.id;
+      return [...prev, created];
+    });
+
+    if (savedPresetId) {
+      setSelectedPresetId(savedPresetId);
+    }
+    setNewPresetName('');
+  };
+
+  const handleApplyPreset = () => {
+    const preset = presets.find((item) => item.id === selectedPresetId);
+    if (!preset) {
+      return;
+    }
+    setSettings((prev) => ({ ...prev, ...preset.config }));
+  };
+
+  const handleDeletePreset = () => {
+    if (!selectedPresetId) {
+      return;
+    }
+    setPresets((prev) => prev.filter((preset) => preset.id !== selectedPresetId));
   };
 
   return (
     <>
+      {(showControls || showAlgorithms) && (
+        <div className="space-y-2 rounded border border-border p-2">
+          <div className="flex items-center gap-2">
+            <Label>{t('Current preset')}</Label>
+            <Select
+              value={selectedPresetId}
+              onChange={setSelectedPresetId}
+              options={presets.map((preset) => ({
+                label: preset.name,
+                value: preset.id,
+              }))}
+              placeholder={t('NoPreset')}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleApplyPreset}
+              disabled={!selectedPresetId}
+            >
+              {t('Apply')}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleDeletePreset}
+              disabled={!selectedPresetId}
+            >
+              {t('Remove preset')}
+            </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Label>{t('New preset name')}</Label>
+            <Input
+              value={newPresetName}
+              onChange={(event) => setNewPresetName(event.currentTarget.value)}
+              placeholder={t('New preset name')}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleSavePreset}
+              disabled={!newPresetName.trim()}
+            >
+              {t('Add preset')}
+            </Button>
+          </div>
+        </div>
+      )}
+
       {showAlgorithms && (
         <>
           <FormItem

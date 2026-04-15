@@ -39,6 +39,22 @@ $localPc = Join-Path $localPkgConfig 'dav1d.pc'
 $localBin = Join-Path $localDav1dRoot 'bin'
 $prebuiltZip = Join-Path $repoRoot 'prebuilt\dav1d-windows-x64.zip'
 
+function Resolve-PkgConfigTool {
+    # Prefer pkgconf.exe (usually from mingw-winlibs/scoop),
+    # because strawberry-perl pkg-config often mishandles Windows drive paths.
+    $pkgconfCmd = Get-Command pkgconf -ErrorAction SilentlyContinue
+    if ($pkgconfCmd -and $pkgconfCmd.Source -and (Test-Path $pkgconfCmd.Source)) {
+        return $pkgconfCmd.Source
+    }
+
+    $pkgConfigCmd = Get-Command pkg-config -ErrorAction SilentlyContinue
+    if ($pkgConfigCmd -and $pkgConfigCmd.Source -and (Test-Path $pkgConfigCmd.Source)) {
+        return $pkgConfigCmd.Source
+    }
+
+    return $null
+}
+
 if (-not (Test-Path $localPc)) {
     if (-not (Test-Path $prebuiltZip)) {
         throw "Cannot find $localPc or $prebuiltZip"
@@ -58,6 +74,14 @@ if (-not [string]::IsNullOrWhiteSpace($env:PKG_CONFIG_PATH)) {
 }
 $env:PKG_CONFIG_PATH = (Merge-PathEntries -Entries $pkgConfigEntries) -join ';'
 $env:PKG_CONFIG_ALLOW_SYSTEM_CFLAGS = '1'
+
+$pkgConfigTool = Resolve-PkgConfigTool
+if (-not [string]::IsNullOrWhiteSpace($pkgConfigTool)) {
+    $env:PKG_CONFIG = $pkgConfigTool
+    Write-Host "PKG_CONFIG set to: $env:PKG_CONFIG"
+} else {
+    Write-Warning 'No pkg-config/pkgconf found in PATH; dav1d-sys may fail to build.'
+}
 
 $pathEntries = @($localBin)
 if (-not [string]::IsNullOrWhiteSpace($env:PATH)) {
