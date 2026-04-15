@@ -186,7 +186,7 @@ export const zh: Record<TranslationKeys, string> = {
   'Moving files': '移动文件',
   'Move confirm':
     '移动 <1>{{length}}</1> 个项目到 <3>{{destination}}</3>. 确认继续?',
-  'Organize groups': '分组归档',
+  'Organize groups': '归档',
   'Organizing groups': '分组归档中',
   'Group organize confirm':
     '将处理 {{groups}} 个已选分组中的 {{files}} 个文件，归档到 {{folders}} 个子文件夹。确认继续?',

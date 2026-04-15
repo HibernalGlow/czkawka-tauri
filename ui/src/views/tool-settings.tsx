@@ -2,6 +2,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   ArrowLeftRight,
   CaseSensitive,
+  Check,
   Eye,
   FileArchive,
   FileAudio,
@@ -13,6 +14,7 @@ import {
   Music,
   Ruler,
   SearchCode,
+  Save,
   Settings2,
   Trash2,
   Video,
@@ -413,6 +415,7 @@ function SimilarImagesSettings({
   const [presets, setPresets] = useAtom(similarImagesPresetsAtom);
   const [selectedPresetId, setSelectedPresetId] = useState('');
   const [newPresetName, setNewPresetName] = useState('');
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const t = useT();
 
   useEffect(() => {
@@ -463,14 +466,20 @@ function SimilarImagesSettings({
       setSelectedPresetId(savedPresetId);
     }
     setNewPresetName('');
+    setSaveDialogOpen(false);
   };
 
-  const handleApplyPreset = () => {
-    const preset = presets.find((item) => item.id === selectedPresetId);
+  const applyPresetById = (presetId: string) => {
+    const preset = presets.find((item) => item.id === presetId);
     if (!preset) {
       return;
     }
     setSettings((prev) => ({ ...prev, ...preset.config }));
+  };
+
+  const handlePresetChange = (presetId: string) => {
+    setSelectedPresetId(presetId);
+    applyPresetById(presetId);
   };
 
   const handleDeletePreset = () => {
@@ -482,52 +491,78 @@ function SimilarImagesSettings({
 
   return (
     <>
-      {(showControls || showAlgorithms) && (
-        <div className="space-y-2 rounded border border-border p-2">
-          <div className="flex items-center gap-2">
-            <Label>{t('Current preset')}</Label>
-            <Select
-              value={selectedPresetId}
-              onChange={setSelectedPresetId}
-              options={presets.map((preset) => ({
-                label: preset.name,
-                value: preset.id,
-              }))}
-              placeholder={t('NoPreset')}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleApplyPreset}
-              disabled={!selectedPresetId}
+      {showControls && (
+        <div className="rounded border border-border p-2">
+          <div className="flex w-full items-center gap-1 min-w-0">
+            <div className="flex-1 min-w-0">
+              <Select
+                value={selectedPresetId}
+                onChange={handlePresetChange}
+                options={presets.map((preset) => ({
+                  label: preset.name,
+                  value: preset.id,
+                }))}
+                placeholder={t('NoPreset')}
+              />
+            </div>
+
+            <TooltipButton
+              tooltip={`${t('Apply')} (Auto)`}
+              disabled
+              className="shrink-0 text-green-600"
             >
-              {t('Apply')}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
+              <Check className="h-4 w-4" />
+            </TooltipButton>
+
+            <TooltipButton
+              tooltip={t('Add preset')}
+              onClick={() => setSaveDialogOpen(true)}
+              className="shrink-0"
+            >
+              <Save className="h-4 w-4" />
+            </TooltipButton>
+
+            <TooltipButton
+              tooltip={t('Remove preset')}
               onClick={handleDeletePreset}
               disabled={!selectedPresetId}
+              className="shrink-0"
             >
-              {t('Remove preset')}
-            </Button>
+              <Trash2 className="h-4 w-4" />
+            </TooltipButton>
           </div>
-          <div className="flex items-center gap-2">
-            <Label>{t('New preset name')}</Label>
-            <Input
-              value={newPresetName}
-              onChange={(event) => setNewPresetName(event.currentTarget.value)}
-              placeholder={t('New preset name')}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleSavePreset}
-              disabled={!newPresetName.trim()}
-            >
-              {t('Add preset')}
-            </Button>
-          </div>
+
+          <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{t('Add preset')}</DialogTitle>
+                <DialogDescription>{t('New preset name')}</DialogDescription>
+              </DialogHeader>
+              <div className="flex gap-2">
+                <Input
+                  autoFocus
+                  value={newPresetName}
+                  onChange={(event) =>
+                    setNewPresetName(event.currentTarget.value)
+                  }
+                  placeholder={t('New preset name')}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      event.preventDefault();
+                      handleSavePreset();
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  onClick={handleSavePreset}
+                  disabled={!newPresetName.trim()}
+                >
+                  {t('Save')}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       )}
 
