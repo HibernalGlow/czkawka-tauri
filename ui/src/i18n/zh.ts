@@ -109,6 +109,7 @@ export const zh: Record<TranslationKeys, string> = {
   'Big files settings': '大文件设置',
   'Similar images settings': '相似图片设置',
   'Image settings preset': '图片参数预设',
+  'Auto apply': '自动应用',
   'Apply preset to image settings': '应用预设',
   'Preset Balanced': '平衡',
   'Preset Aggressive Grouping': '强聚合',

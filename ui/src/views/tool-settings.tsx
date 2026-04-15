@@ -2,7 +2,6 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   ArrowLeftRight,
   CaseSensitive,
-  Check,
   Eye,
   FileArchive,
   FileAudio,
@@ -62,8 +61,20 @@ import { ipc } from '~/ipc';
 import { cn } from '~/utils/cn';
 
 // 通用路径显示设置组件
-function PathDisplaySettings() {
+function PathDisplaySettings({
+  useLabelStyle = false,
+}: {
+  useLabelStyle?: boolean;
+}) {
   const t = useT();
+
+  if (useLabelStyle) {
+    return (
+      <FormItem name="reversePathDisplay" comp="checkbox">
+        <CheckboxWithLabel label={t('Reverse path display')} />
+      </FormItem>
+    );
+  }
 
   return (
     <FormItem name="reversePathDisplay" comp="badge-switch">
@@ -77,7 +88,11 @@ function PathDisplaySettings() {
 }
 
 // 通用图片设置组件
-function ImageDisplaySettings() {
+function ImageDisplaySettings({
+  useLabelStyle = false,
+}: {
+  useLabelStyle?: boolean;
+}) {
   const settings = useAtomValue(settingsAtom);
   const [clearingCache, setClearingCache] = useState(false);
   const [cacheStats, setCacheStats] = useState<{
@@ -119,48 +134,82 @@ function ImageDisplaySettings() {
 
   return (
     <>
-      <div className="flex gap-2">
-        <FormItem name="similarImagesEnableThumbnails" comp="badge-switch">
-          <TooltipButton tooltip={t('Enable thumbnails')}>
-            <ToggleBadge>
-              <ImageIcon className="h-4 w-4" />
-            </ToggleBadge>
-          </TooltipButton>
-        </FormItem>
-        <FormItem name="similarImagesShowImagePreview" comp="badge-switch">
-          <TooltipButton tooltip={t('Show image preview')}>
-            <ToggleBadge>
-              <Eye className="h-4 w-4" />
-            </ToggleBadge>
-          </TooltipButton>
-        </FormItem>
-        {settings.similarImagesEnableThumbnails && (
-          <TooltipButton
-            tooltip={`${t('Clear cache')} (${cacheStats ? `${cacheStats.count} ${t('files')}, ${cacheStats.size}` : ''})`}
-          >
-            <Badge
+      {useLabelStyle ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <FormItem name="similarImagesEnableThumbnails" comp="checkbox">
+            <CheckboxWithLabel label={t('Enable thumbnails')} />
+          </FormItem>
+          <FormItem name="similarImagesShowImagePreview" comp="checkbox">
+            <CheckboxWithLabel label={t('Show image preview')} />
+          </FormItem>
+          {settings.similarImagesEnableThumbnails && (
+            <Button
+              type="button"
               variant="outline"
+              size="sm"
               onClick={handleClearCache}
-              className={cn(
-                'h-9 w-9 p-0 flex items-center justify-center cursor-pointer hover:bg-accent transition-colors',
-                clearingCache && 'opacity-50 cursor-wait',
-              )}
+              disabled={clearingCache}
+              className="h-8"
             >
-              <Trash2
-                className={cn('h-4 w-4', clearingCache && 'animate-pulse')}
-              />
-            </Badge>
-          </TooltipButton>
-        )}
-      </div>
+              {t('Clear cache')}
+            </Button>
+          )}
+        </div>
+      ) : (
+        <div className="flex gap-2">
+          <FormItem name="similarImagesEnableThumbnails" comp="badge-switch">
+            <TooltipButton tooltip={t('Enable thumbnails')}>
+              <ToggleBadge>
+                <ImageIcon className="h-4 w-4" />
+              </ToggleBadge>
+            </TooltipButton>
+          </FormItem>
+          <FormItem name="similarImagesShowImagePreview" comp="badge-switch">
+            <TooltipButton tooltip={t('Show image preview')}>
+              <ToggleBadge>
+                <Eye className="h-4 w-4" />
+              </ToggleBadge>
+            </TooltipButton>
+          </FormItem>
+          {settings.similarImagesEnableThumbnails && (
+            <TooltipButton
+              tooltip={`${t('Clear cache')} (${cacheStats ? `${cacheStats.count} ${t('files')}, ${cacheStats.size}` : ''})`}
+            >
+              <Badge
+                variant="outline"
+                onClick={handleClearCache}
+                className={cn(
+                  'h-9 w-9 p-0 flex items-center justify-center cursor-pointer hover:bg-accent transition-colors',
+                  clearingCache && 'opacity-50 cursor-wait',
+                )}
+              >
+                <Trash2
+                  className={cn('h-4 w-4', clearingCache && 'animate-pulse')}
+                />
+              </Badge>
+            </TooltipButton>
+          )}
+        </div>
+      )}
     </>
   );
 }
 
 // 通用视频设置组件
-function VideoDisplaySettings() {
-  const settings = useAtomValue(settingsAtom);
+function VideoDisplaySettings({
+  useLabelStyle = false,
+}: {
+  useLabelStyle?: boolean;
+}) {
   const t = useT();
+
+  if (useLabelStyle) {
+    return (
+      <FormItem name="similarVideosEnableThumbnails" comp="checkbox">
+        <CheckboxWithLabel label={t('Enable video thumbnails')} />
+      </FormItem>
+    );
+  }
 
   return (
     <FormItem name="similarVideosEnableThumbnails" comp="badge-switch">
@@ -181,8 +230,8 @@ const toolsWithoutSettings = new Set<string>([
 function SimpleToolSettings() {
   return (
     <>
-      <ImageDisplaySettings />
-      <PathDisplaySettings />
+      <ImageDisplaySettings useLabelStyle />
+      <PathDisplaySettings useLabelStyle />
     </>
   );
 }
@@ -340,13 +389,19 @@ function DuplicateFilesSettings({
       )}
       {showControls && (
         <>
-          <FormItem name="duplicatesSubNameCaseSensitive" comp="badge-switch">
-            <TooltipButton tooltip={t('Case sensitive')}>
-              <ToggleBadge>
-                <CaseSensitive className="h-4 w-4" />
-              </ToggleBadge>
-            </TooltipButton>
-          </FormItem>
+          {showAlgorithms ? (
+            <FormItem name="duplicatesSubNameCaseSensitive" comp="badge-switch">
+              <TooltipButton tooltip={t('Case sensitive')}>
+                <ToggleBadge>
+                  <CaseSensitive className="h-4 w-4" />
+                </ToggleBadge>
+              </TooltipButton>
+            </FormItem>
+          ) : (
+            <FormItem name="duplicatesSubNameCaseSensitive" comp="checkbox">
+              <CheckboxWithLabel label={t('Case sensitive')} />
+            </FormItem>
+          )}
           <FormItem
             name="duplicateGroupSizeThreshold"
             label={t('Min group size')}
@@ -357,8 +412,8 @@ function DuplicateFilesSettings({
           </FormItem>
         </>
       )}
-      <ImageDisplaySettings />
-      <PathDisplaySettings />
+      <ImageDisplaySettings useLabelStyle={showControls !== showAlgorithms} />
+      <PathDisplaySettings useLabelStyle={showControls !== showAlgorithms} />
     </>
   );
 }
@@ -397,8 +452,8 @@ function BigFilesSettings({
           <InputNumber minValue={1} />
         </FormItem>
       )}
-      <ImageDisplaySettings />
-      <PathDisplaySettings />
+      <ImageDisplaySettings useLabelStyle={showControls !== showAlgorithms} />
+      <PathDisplaySettings useLabelStyle={showControls !== showAlgorithms} />
     </>
   );
 }
@@ -491,10 +546,10 @@ function SimilarImagesSettings({
 
   return (
     <>
-      {showControls && (
+      {showAlgorithms && (
         <div className="rounded border border-border p-2">
-          <div className="flex w-full items-center gap-1 min-w-0">
-            <div className="flex-1 min-w-0">
+          <div className="flex w-full items-center gap-2 min-w-0 flex-wrap">
+            <div className="flex-1 min-w-40">
               <Select
                 value={selectedPresetId}
                 onChange={handlePresetChange}
@@ -506,30 +561,39 @@ function SimilarImagesSettings({
               />
             </div>
 
-            <TooltipButton
-              tooltip={`${t('Apply')} (Auto)`}
+            <Button
+              type="button"
+              variant="outline"
               disabled
-              className="shrink-0 text-green-600"
+              className="h-9 w-9 shrink-0 p-0 text-green-600"
+              title={t('Auto apply')}
             >
-              <Check className="h-4 w-4" />
-            </TooltipButton>
+              <span className="sr-only">{t('Auto apply')}</span>
+              <Settings2 className="h-4 w-4" />
+            </Button>
 
-            <TooltipButton
-              tooltip={t('Add preset')}
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => setSaveDialogOpen(true)}
-              className="shrink-0"
+              className="h-9 w-9 shrink-0 p-0"
+              title={t('Add preset')}
             >
+              <span className="sr-only">{t('Add preset')}</span>
               <Save className="h-4 w-4" />
-            </TooltipButton>
+            </Button>
 
-            <TooltipButton
-              tooltip={t('Remove preset')}
+            <Button
+              type="button"
+              variant="outline"
               onClick={handleDeletePreset}
               disabled={!selectedPresetId}
-              className="shrink-0"
+              className="h-9 w-9 shrink-0 p-0"
+              title={t('Remove preset')}
             >
+              <span className="sr-only">{t('Remove preset')}</span>
               <Trash2 className="h-4 w-4" />
-            </TooltipButton>
+            </Button>
           </div>
 
           <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
@@ -628,24 +692,30 @@ function SimilarImagesSettings({
           >
             <Slider min={1} max={50} />
           </FormItem>
-          <FormItem name="similarImagesSubIgnoreSameSize" comp="badge-switch">
-            <TooltipButton tooltip={t('Ignore same size')}>
-              <ToggleBadge>
-                <Ruler className="h-4 w-4" />
-              </ToggleBadge>
-            </TooltipButton>
-          </FormItem>
+          {showAlgorithms ? (
+            <FormItem name="similarImagesSubIgnoreSameSize" comp="badge-switch">
+              <TooltipButton tooltip={t('Ignore same size')}>
+                <ToggleBadge>
+                  <Ruler className="h-4 w-4" />
+                </ToggleBadge>
+              </TooltipButton>
+            </FormItem>
+          ) : (
+            <FormItem name="similarImagesSubIgnoreSameSize" comp="checkbox">
+              <CheckboxWithLabel label={t('Ignore same size')} />
+            </FormItem>
+          )}
         </>
       )}
-      <ImageDisplaySettings />
-      {showAlgorithms && <PathDisplaySettings />}
+      <ImageDisplaySettings useLabelStyle={showControls !== showAlgorithms} />
+      {showAlgorithms && <PathDisplaySettings useLabelStyle={!showControls} />}
     </>
   );
 }
 
 function SimilarVideosSettings({
   showControls = true,
-  showAlgorithms: _showAlgorithms = true,
+  showAlgorithms = true,
 }: {
   showControls?: boolean;
   showAlgorithms?: boolean;
@@ -665,13 +735,19 @@ function SimilarVideosSettings({
           >
             <Slider min={0} max={20} />
           </FormItem>
-          <FormItem name="similarVideosSubIgnoreSameSize" comp="badge-switch">
-            <TooltipButton tooltip={t('Ignore same size')}>
-              <ToggleBadge>
-                <Ruler className="h-4 w-4" />
-              </ToggleBadge>
-            </TooltipButton>
-          </FormItem>
+          {showAlgorithms ? (
+            <FormItem name="similarVideosSubIgnoreSameSize" comp="badge-switch">
+              <TooltipButton tooltip={t('Ignore same size')}>
+                <ToggleBadge>
+                  <Ruler className="h-4 w-4" />
+                </ToggleBadge>
+              </TooltipButton>
+            </FormItem>
+          ) : (
+            <FormItem name="similarVideosSubIgnoreSameSize" comp="checkbox">
+              <CheckboxWithLabel label={t('Ignore same size')} />
+            </FormItem>
+          )}
           <FormItem
             name="similarVideosSkipForwardAmount"
             label={t('Skip forward (s)')}
@@ -706,8 +782,8 @@ function SimilarVideosSettings({
           </FormItem>
         </>
       )}
-      <VideoDisplaySettings />
-      <PathDisplaySettings />
+      <VideoDisplaySettings useLabelStyle={showControls !== showAlgorithms} />
+      <PathDisplaySettings useLabelStyle={showControls !== showAlgorithms} />
     </>
   );
 }
@@ -742,16 +818,25 @@ function MusicDuplicatesSettings({
         settings.similarMusicSubAudioCheckType ===
           SimilarMusicAudioCheckType.Tags && (
           <>
-            <FormItem
-              name="similarMusicSubApproximateComparison"
-              comp="badge-switch"
-            >
-              <TooltipButton tooltip={t('Approximate tag comparison')}>
-                <ToggleBadge>
-                  <SearchCode className="h-4 w-4" />
-                </ToggleBadge>
-              </TooltipButton>
-            </FormItem>
+            {showAlgorithms ? (
+              <FormItem
+                name="similarMusicSubApproximateComparison"
+                comp="badge-switch"
+              >
+                <TooltipButton tooltip={t('Approximate tag comparison')}>
+                  <ToggleBadge>
+                    <SearchCode className="h-4 w-4" />
+                  </ToggleBadge>
+                </TooltipButton>
+              </FormItem>
+            ) : (
+              <FormItem
+                name="similarMusicSubApproximateComparison"
+                comp="checkbox"
+              >
+                <CheckboxWithLabel label={t('Approximate tag comparison')} />
+              </FormItem>
+            )}
             <span className="text-center">{t('Compared tags')}</span>
             <div className="grid grid-cols-3 gap-2 *:pl-4">
               <FormItem name="similarMusicSubTitle" comp="checkbox">
@@ -803,27 +888,38 @@ function MusicDuplicatesSettings({
             >
               <Slider min={0} max={180} />
             </FormItem>
-            <FormItem
-              name="similarMusicCompareFingerprintsOnlyWithSimilarTitles"
-              comp="badge-switch"
-            >
-              <TooltipButton tooltip={t('Compare only with similar titles')}>
-                <ToggleBadge>
-                  <FileType className="h-4 w-4" />
-                </ToggleBadge>
-              </TooltipButton>
-            </FormItem>
+            {showAlgorithms ? (
+              <FormItem
+                name="similarMusicCompareFingerprintsOnlyWithSimilarTitles"
+                comp="badge-switch"
+              >
+                <TooltipButton tooltip={t('Compare only with similar titles')}>
+                  <ToggleBadge>
+                    <FileType className="h-4 w-4" />
+                  </ToggleBadge>
+                </TooltipButton>
+              </FormItem>
+            ) : (
+              <FormItem
+                name="similarMusicCompareFingerprintsOnlyWithSimilarTitles"
+                comp="checkbox"
+              >
+                <CheckboxWithLabel
+                  label={t('Compare only with similar titles')}
+                />
+              </FormItem>
+            )}
           </>
         )}
-      <ImageDisplaySettings />
-      <PathDisplaySettings />
+      <ImageDisplaySettings useLabelStyle={showControls !== showAlgorithms} />
+      <PathDisplaySettings useLabelStyle={showControls !== showAlgorithms} />
     </>
   );
 }
 
 function BrokenFilesSettings({
   showControls = true,
-  showAlgorithms: _showAlgorithms = true,
+  showAlgorithms = true,
 }: {
   showControls?: boolean;
   showAlgorithms?: boolean;
@@ -834,40 +930,57 @@ function BrokenFilesSettings({
     <>
       {showControls && (
         <>
-          <div className="flex flex-wrap gap-2 pt-2">
-            <FormItem name="brokenFilesSubAudio" comp="badge-switch">
-              <TooltipButton tooltip={t('Audio')}>
-                <ToggleBadge>
-                  <FileAudio className="h-4 w-4" />
-                </ToggleBadge>
-              </TooltipButton>
-            </FormItem>
-            <FormItem name="brokenFilesSubPdf" comp="badge-switch">
-              <TooltipButton tooltip={t('Pdf')}>
-                <ToggleBadge>
-                  <FileArchive className="h-4 w-4" />
-                </ToggleBadge>
-              </TooltipButton>
-            </FormItem>
-            <FormItem name="brokenFilesSubArchive" comp="badge-switch">
-              <TooltipButton tooltip={t('Archive')}>
-                <ToggleBadge>
-                  <FileArchive className="h-4 w-4" />
-                </ToggleBadge>
-              </TooltipButton>
-            </FormItem>
-            <FormItem name="brokenFilesSubImage" comp="badge-switch">
-              <TooltipButton tooltip={t('Image')}>
-                <ToggleBadge>
-                  <FileImage className="h-4 w-4" />
-                </ToggleBadge>
-              </TooltipButton>
-            </FormItem>
-          </div>
+          {showAlgorithms ? (
+            <div className="flex flex-wrap gap-2 pt-2">
+              <FormItem name="brokenFilesSubAudio" comp="badge-switch">
+                <TooltipButton tooltip={t('Audio')}>
+                  <ToggleBadge>
+                    <FileAudio className="h-4 w-4" />
+                  </ToggleBadge>
+                </TooltipButton>
+              </FormItem>
+              <FormItem name="brokenFilesSubPdf" comp="badge-switch">
+                <TooltipButton tooltip={t('Pdf')}>
+                  <ToggleBadge>
+                    <FileArchive className="h-4 w-4" />
+                  </ToggleBadge>
+                </TooltipButton>
+              </FormItem>
+              <FormItem name="brokenFilesSubArchive" comp="badge-switch">
+                <TooltipButton tooltip={t('Archive')}>
+                  <ToggleBadge>
+                    <FileArchive className="h-4 w-4" />
+                  </ToggleBadge>
+                </TooltipButton>
+              </FormItem>
+              <FormItem name="brokenFilesSubImage" comp="badge-switch">
+                <TooltipButton tooltip={t('Image')}>
+                  <ToggleBadge>
+                    <FileImage className="h-4 w-4" />
+                  </ToggleBadge>
+                </TooltipButton>
+              </FormItem>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-2 pt-2">
+              <FormItem name="brokenFilesSubAudio" comp="checkbox">
+                <CheckboxWithLabel label={t('Audio')} />
+              </FormItem>
+              <FormItem name="brokenFilesSubPdf" comp="checkbox">
+                <CheckboxWithLabel label={t('Pdf')} />
+              </FormItem>
+              <FormItem name="brokenFilesSubArchive" comp="checkbox">
+                <CheckboxWithLabel label={t('Archive')} />
+              </FormItem>
+              <FormItem name="brokenFilesSubImage" comp="checkbox">
+                <CheckboxWithLabel label={t('Image')} />
+              </FormItem>
+            </div>
+          )}
         </>
       )}
-      <ImageDisplaySettings />
-      <PathDisplaySettings />
+      <ImageDisplaySettings useLabelStyle={showControls !== showAlgorithms} />
+      <PathDisplaySettings useLabelStyle={showControls !== showAlgorithms} />
     </>
   );
 }

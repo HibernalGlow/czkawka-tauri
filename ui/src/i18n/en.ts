@@ -110,6 +110,7 @@ export const en = {
   'Big files settings': 'Big files settings',
   'Similar images settings': 'Similar images settings',
   'Image settings preset': 'Image settings preset',
+  'Auto apply': 'Auto apply',
   'Apply preset to image settings': 'Apply preset',
   'Preset Balanced': 'Balanced',
   'Preset Aggressive Grouping': 'Aggressive Grouping',

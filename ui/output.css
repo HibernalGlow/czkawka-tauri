@@ -1459,6 +1459,10 @@ body {
   min-width: 8rem;
 }
 
+.min-w-40 {
+  min-width: 10rem;
+}
+
 .max-w-3xl {
   max-width: 48rem;
 }
